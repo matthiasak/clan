@@ -37,186 +37,186 @@ After that, you'll find the code in the `./build` folder!
 ## Examples
 
 <details>
-    <summary>fp.js</summary>
+<summary>fp.js</summary>
 
-    ```js
-    // import it
-    import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from 'clan'
-    ```
+```js
+// import it
+import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from 'clan'
+```
 
-    ```js
-    // example point-free usage: 
-    const replace = pf(String.prototype.replace)
-    const toLowerCase = pf(String.prototype.toLowerCase)
-    const normalizeName = cof(replace(/\s+/ig, '_'), toLowerCase())
-    log(normalizeName('Matt K'))
-    ```
+```js
+// example point-free usage: 
+const replace = pf(String.prototype.replace)
+const toLowerCase = pf(String.prototype.toLowerCase)
+const normalizeName = cof(replace(/\s+/ig, '_'), toLowerCase())
+log(normalizeName('Matt K'))
+```
 
-    ```js 
-    // example transducer usage:
-    const inc = x => x+1
-    const greaterThanTwo = x => x>2
-    const concat = (arr, v) => arr.concat([v])
-    const incGreaterThanTwo = cof(
-        mapping(inc),
-        filtering(greaterThanTwo)
-    )
-    reduce([1,2,3,4], incGreaterThanTwo(concat), []) // => [3,4,5]
+```js 
+// example transducer usage:
+const inc = x => x+1
+const greaterThanTwo = x => x>2
+const concat = (arr, v) => arr.concat([v])
+const incGreaterThanTwo = cof(
+    mapping(inc),
+    filtering(greaterThanTwo)
+)
+reduce([1,2,3,4], incGreaterThanTwo(concat), []) // => [3,4,5]
 
-    ```
+```
 </details>
 
 <details>
-    <summary>hamt.js</summary>
+<summary>hamt.js</summary>
 
-    ```js
-    // import it
-    import {hamt} from 'clan'
-    ```
+```js
+// import it
+import {hamt} from 'clan'
+```
 
-    ```js
-    // get and set properties, returns a new hmap
+```js
+// get and set properties, returns a new hmap
 
-    let   x = hamt({'hello': 1})
-        , x1 = x.set('goodbye', 2) // new object with all x's properties plus a new property
-        , x2 = hamt( Array(50).fill(true).map((x,i) => i) ) // we can mode lists/arrays, too 
-        , x3 = x1.unset('goodbye')
-    
-    log(
-        x.get('hello'),    // 1
-        x1.get('goodbye'), // 2
-        x3.get('goodbye'), // undefined
-        x3.get('hello'),   // 1
-        x.comp(x,x3),      // true (compares hashes)
-        x === x3,          // false
-    )
+let   x = hamt({'hello': 1})
+    , x1 = x.set('goodbye', 2) // new object with all x's properties plus a new property
+    , x2 = hamt( Array(50).fill(true).map((x,i) => i) ) // we can mode lists/arrays, too 
+    , x3 = x1.unset('goodbye')
 
-    // map into a new hamt
-    const nums = hamt([1,2,3]).map(x => x+1) // mapped into new hamt 
-    // reduce into one value
-    nums.reduce((acc,x,i) => acc+x, 0) // 9
-    // get JSON value
-    nums.toJSON()
-    ```
+log(
+    x.get('hello'),    // 1
+    x1.get('goodbye'), // 2
+    x3.get('goodbye'), // undefined
+    x3.get('hello'),   // 1
+    x.comp(x,x3),      // true (compares hashes)
+    x === x3,          // false
+)
+
+// map into a new hamt
+const nums = hamt([1,2,3]).map(x => x+1) // mapped into new hamt 
+// reduce into one value
+nums.reduce((acc,x,i) => acc+x, 0) // 9
+// get JSON value
+nums.toJSON()
+```
 </details>
 
 <details>
-    <summary>observable.js</summary>
+<summary>observable.js</summary>
 
-    ```js
-    // import it
-    import {obs} from 'clan'
-    ```
+```js
+// import it
+import {obs} from 'clan'
+```
 
-    ```js
-    // Usage:
-    const x = obs()
+```js
+// Usage:
+const x = obs()
 
-        , y = x
-            .map(x => x + 1)
-            .filter(x => x % 5 === 0)
-        
-        , y1 = y
-            .then(log)
-
-        , y2 = y
-            .takeWhile(x => x <= 10)
-            .then(log)
-
-        , z = y
-            .take(3)
-            .then(log)
-
-    const run = (n,o) => 
-        Array(n).fill(1)
-        .map((_,i) => o(i))
-        
-    run(150,x)
-    ```
-
-    ```js
-    // push to observable from any event, debounce them, reduce values, 
-    // logically split the observable path with a .then() node
-    obs.from(push => 
-        window.addEventListener(
-            'mousemove',
-            ({clientX:x,clientY:y}) => push({x, y})
-        ))
-        .debounce(200)
-        .then(x => {
-            document.body.innerHTML = `{${x.x},${x.y}}`
-        })
-        .reduce((acc,x) => acc+1, 0)
-        .then(x => reset() || log(x))
-    ```
-
-    ```js
-    // push to observable from setInterval,
-    // demo how to have multiple observable sources 
-    // logically combine and pipe into a single observable destination,
-    // also show how to halt an observable
-    const interval = ms =>
-        obs.from(push => 
-            setInterval(() => push(1), ms))
-
-    const u = obs
-        .union(interval(2500),interval(1000),interval(3000)) // union() takes infinite params
+    , y = x
+        .map(x => x + 1)
+        .filter(x => x % 5 === 0)
     
-    u
-        .reduce((acc,x) => acc+1, 0) // count the number of updates
-        .then(log) // log the count
-        .then(() => setTimeout(u.stop.bind(u), 10000)) // after 10s, stop the observable
-    ```
-
-    ```js
-    // combine observables and HAMT's is the best of both worlds
-    // you can declaratively describe what happens, and HAMT-creation
-    // costs very little
-    const time = obs.from(p => setInterval(() => p(new Date), 1000))
-
-    time
-        .reduce((acc, x) => acc.set(x, true), hamt())
-        .then(m => reset() || log(m.toJSON()))
-    ```
-
-    ```js
-    // embed network requests into observable chains
-    const getUser = user => 
-        fetch(`https://api.github.com/users/${user}`)
-            .then(r => r.json())
-        , x = obs()
-        , [done,err] = x.maybe(getUser)
-    
-    const success = done
-        .then(e => log(e))
-        .map(data => data.avatar_url)
+    , y1 = y
         .then(log)
 
-    err
-        .then(e => log(e))
+    , y2 = y
+        .takeWhile(x => x <= 10)
+        .then(log)
 
-    x('matthiasak')
-    ```
+    , z = y
+        .take(3)
+        .then(log)
 
-    ```js
-    // SPA's - you can roll your own router
-    const app = 
-        obs
-        .from(p => window.addEventListener('hashchange', p))
-        .map(x => window.location.hash)
+const run = (n,o) => 
+    Array(n).fill(1)
+    .map((_,i) => o(i))
+    
+run(150,x)
+```
 
-    const routes = {
-        a: () => log('a'),
-        b: () => log('b')
-    }
+```js
+// push to observable from any event, debounce them, reduce values, 
+// logically split the observable path with a .then() node
+obs.from(push => 
+    window.addEventListener(
+        'mousemove',
+        ({clientX:x,clientY:y}) => push({x, y})
+    ))
+    .debounce(200)
+    .then(x => {
+        document.body.innerHTML = `{${x.x},${x.y}}`
+    })
+    .reduce((acc,x) => acc+1, 0)
+    .then(x => reset() || log(x))
+```
 
-    const onhash =
-        app
-        .map(route => routes[ route.substr(1) ])
-        .then(v => v())
+```js
+// push to observable from setInterval,
+// demo how to have multiple observable sources 
+// logically combine and pipe into a single observable destination,
+// also show how to halt an observable
+const interval = ms =>
+    obs.from(push => 
+        setInterval(() => push(1), ms))
 
-    app('#a')
-    ```
+const u = obs
+    .union(interval(2500),interval(1000),interval(3000)) // union() takes infinite params
+
+u
+    .reduce((acc,x) => acc+1, 0) // count the number of updates
+    .then(log) // log the count
+    .then(() => setTimeout(u.stop.bind(u), 10000)) // after 10s, stop the observable
+```
+
+```js
+// combine observables and HAMT's is the best of both worlds
+// you can declaratively describe what happens, and HAMT-creation
+// costs very little
+const time = obs.from(p => setInterval(() => p(new Date), 1000))
+
+time
+    .reduce((acc, x) => acc.set(x, true), hamt())
+    .then(m => reset() || log(m.toJSON()))
+```
+
+```js
+// embed network requests into observable chains
+const getUser = user => 
+    fetch(`https://api.github.com/users/${user}`)
+        .then(r => r.json())
+    , x = obs()
+    , [done,err] = x.maybe(getUser)
+
+const success = done
+    .then(e => log(e))
+    .map(data => data.avatar_url)
+    .then(log)
+
+err
+    .then(e => log(e))
+
+x('matthiasak')
+```
+
+```js
+// SPA's - you can roll your own router
+const app = 
+    obs
+    .from(p => window.addEventListener('hashchange', p))
+    .map(x => window.location.hash)
+
+const routes = {
+    a: () => log('a'),
+    b: () => log('b')
+}
+
+const onhash =
+    app
+    .map(route => routes[ route.substr(1) ])
+    .then(v => v())
+
+app('#a')
+```
 </details>
 
 ## Authors
