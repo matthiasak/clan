@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "74ffea497d67ac96f5ce"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "649e62f46b050d7c027d"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -728,7 +728,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_observable__ = __webpack_require__("./src/observable.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_hamt__ = __webpack_require__("./src/hamt.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_fp__ = __webpack_require__("./src/fp.js");
-const{container,html,qs,update,mount,m,debounce}=__WEBPACK_IMPORTED_MODULE_1__src_vdom__["a" /* VDOM */];const{is,check,init,ArrayOf}=__WEBPACK_IMPORTED_MODULE_3__src_model__["a" /* MODEL */];/* harmony default export */ exports["default"] = {batch: __WEBPACK_IMPORTED_MODULE_0__src_batch__["a" /* batch */],container,html,qs,update,mount,m,debounce,mixin: __WEBPACK_IMPORTED_MODULE_2__src_mixin__["a" /* mixin */],is,check,init,ArrayOf,obs: __WEBPACK_IMPORTED_MODULE_4__src_observable__["a" /* obs */],hamt: __WEBPACK_IMPORTED_MODULE_5__src_hamt__["a" /* hamt */],log: __WEBPACK_IMPORTED_MODULE_6__src_fp__["a" /* log */],rAF: __WEBPACK_IMPORTED_MODULE_6__src_fp__["b" /* rAF */],c: __WEBPACK_IMPORTED_MODULE_6__src_fp__["c"],cof: __WEBPACK_IMPORTED_MODULE_6__src_fp__["d" /* cof */],cob: __WEBPACK_IMPORTED_MODULE_6__src_fp__["e" /* cob */],pf: __WEBPACK_IMPORTED_MODULE_6__src_fp__["f" /* pf */],curry: __WEBPACK_IMPORTED_MODULE_6__src_fp__["g" /* curry */],mapping: __WEBPACK_IMPORTED_MODULE_6__src_fp__["h" /* mapping */],filtering: __WEBPACK_IMPORTED_MODULE_6__src_fp__["i" /* filtering */],concatter: __WEBPACK_IMPORTED_MODULE_6__src_fp__["j" /* concatter */]};
+const{container,html,qs,update,mount,m,debounce}=__WEBPACK_IMPORTED_MODULE_1__src_vdom__["a" /* VDOM */];const{is,check,init,ArrayOf}=__WEBPACK_IMPORTED_MODULE_3__src_model__["a" /* MODEL */];module.exports={batch: __WEBPACK_IMPORTED_MODULE_0__src_batch__["a" /* batch */],container,html,qs,update,mount,m,debounce,mixin: __WEBPACK_IMPORTED_MODULE_2__src_mixin__["a" /* mixin */],is,check,init,ArrayOf,obs: __WEBPACK_IMPORTED_MODULE_4__src_observable__["a" /* obs */],hamt: __WEBPACK_IMPORTED_MODULE_5__src_hamt__["a" /* hamt */],log: __WEBPACK_IMPORTED_MODULE_6__src_fp__["a" /* log */],rAF: __WEBPACK_IMPORTED_MODULE_6__src_fp__["b" /* rAF */],c: __WEBPACK_IMPORTED_MODULE_6__src_fp__["c"],cof: __WEBPACK_IMPORTED_MODULE_6__src_fp__["d" /* cof */],cob: __WEBPACK_IMPORTED_MODULE_6__src_fp__["e" /* cob */],pf: __WEBPACK_IMPORTED_MODULE_6__src_fp__["f" /* pf */],curry: __WEBPACK_IMPORTED_MODULE_6__src_fp__["g" /* curry */],mapping: __WEBPACK_IMPORTED_MODULE_6__src_fp__["h" /* mapping */],filtering: __WEBPACK_IMPORTED_MODULE_6__src_fp__["i" /* filtering */],concatter: __WEBPACK_IMPORTED_MODULE_6__src_fp__["j" /* concatter */]};
 
 /***/ },
 

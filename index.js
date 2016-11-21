@@ -8,4 +8,4 @@ import {obs} from './src/observable'
 import {hamt} from './src/hamt'
 import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from './src/fp'
 
-export default {batch, container, html, qs, update, mount, m, debounce, mixin, is, check, init, ArrayOf, obs, hamt, log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter}
+module.exports = {batch, container, html, qs, update, mount, m, debounce, mixin, is, check, init, ArrayOf, obs, hamt, log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter}
