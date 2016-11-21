@@ -66,7 +66,7 @@ After that, you'll find the code in the `./build` folder!
     ```
 </details>
 
-<details
+<details>
     <summary>hamt.js</summary>
 
     ```js
@@ -100,7 +100,7 @@ After that, you'll find the code in the `./build` folder!
     ```
 </details>
 
-<details
+<details>
     <summary>observable.js</summary>
 
     ```js
