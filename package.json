@@ -1,4 +1,5 @@
 {
+  "name": "@clan",
   "version": "0.0.1",
   "scripts": {
     "js:watch": "webpack --progress --color --watch",
