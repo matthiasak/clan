@@ -4,16 +4,16 @@ Clan is a super succinct, no-dependency set of utilities with a slightly opinion
 
 ---
 
-[![NPM](https://nodei.co/npm/@clan.png)](https://nodei.co/npm/@clan/)
+[![NPM](https://nodei.co/npm/clan-fp.png)](https://nodei.co/npm/clan-fp/)
 ![](https://david-dm.org/matthiasak/clan.svg)
 [![Build Status](https://travis-ci.org/matthiasak/clan.svg?branch=master)](https://travis-ci.org/matthiasak/clan)
 
 ## Usage
 
 ```sh
-yarn add @clan
+yarn add clan-fp
 # or
-npm install --save @clan
+npm install --save clan-fp
 ```
 
 ## Caught a bug?
@@ -41,7 +41,7 @@ After that, you'll find the code in the `./build` folder!
 
 ```js
 // import it
-import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from '@clan'
+import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from 'clan-fp'
 ```
 
 ```js
@@ -71,7 +71,7 @@ reduce([1,2,3,4], incGreaterThanTwo(concat), []) // => [3,4,5]
 
 ```js
 // import it
-import {hamt} from '@clan'
+import {hamt} from 'clan-fp'
 ```
 
 ```js
@@ -105,7 +105,7 @@ nums.toJSON()
 
 ```js
 // import it
-import {obs} from '@clan'
+import {obs} from 'clan-fp'
 ```
 
 ```js

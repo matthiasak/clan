@@ -1,5 +1,5 @@
 {
-  "name": "@clan",
+  "name": "clan-fp",
   "version": "0.0.1",
   "scripts": {
     "js:watch": "webpack --progress --color --watch",
