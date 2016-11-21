@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "649e62f46b050d7c027d"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "8e7a6a26974ec5349f28"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -1078,7 +1078,7 @@ obs.from=f=>{const o=obs();f(x=>{return o(x);});return o;};obs.union=(...fs)=>{c
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-// Virtual DOMs
+/* WEBPACK VAR INJECTION */(function(process) {const rAF=document&&(requestAnimationFrame||webkitRequestAnimationFrame||mozRequestAnimationFrame)||process&&process.nextTick||(cb=>{return setTimeout(cb,16.6);});// Virtual DOMs
 const VDOM=(()=>{const class_id_regex=()=>{return /[#\.][^#\.]+/ig;},tagName_regex=()=>{return /^([^\.#]+)\b/i;};const parseSelector=s=>{let test=null,tagreg=tagName_regex().exec(s),tag=tagreg&&tagreg.slice(1)[0],reg=class_id_regex(),vdom=Object.create(null);if(tag)s=s.substr(tag.length);vdom.className='';vdom.tag=tag||'div';while((test=reg.exec(s))!==null){test=test[0];if(test[0]==='.')vdom.className=(vdom.className+' '+test.substr(1)).trim();else if(test[0]==='#')vdom.id=test.substr(1);}return vdom;};const debounce=(func,wait,immediate,timeout)=>{return(...args)=>{let later=()=>{timeout=null;!immediate&&func(...args);};var callNow=immediate&&!timeout;clearTimeout(timeout);timeout=setTimeout(later,wait||0);callNow&&func(...args);};};const hash=(v,_v=JSON.stringify(v))=>{let hash=0;for(let i=0,len=_v.length;i<len;++i){const c=_v.charCodeAt(i);hash=(hash<<5)-hash+c|0;}return hash;};const m=(selector,attrs=Object.create(null),...children)=>{if(attrs.tag||!(typeof attrs==='object')||attrs instanceof Array||attrs instanceof Function){if(attrs instanceof Array)children.unshift(...attrs);else children.unshift(attrs);attrs=Object.create(null);}let vdom=parseSelector(selector);if(children.length)vdom.children=children;vdom.attrs=attrs;vdom.shouldUpdate=attrs.shouldUpdate;vdom.unload=attrs.unload;vdom.config=attrs.config;vdom.__hash=hash(vdom);delete attrs.unload;delete attrs.shouldUpdate;delete attrs.config;return vdom;};// creatign html, strip events from DOM element... for now just deleting
 const stripEvents=({attrs})=>{let a=Object.create(null);if(attrs){for(var name in attrs){if(name[0]==='o'&&name[1]==='n'){a[name]=attrs[name];delete attrs[name];}}}return a;};const applyEvents=(events,el,strip_existing=true)=>{strip_existing&&removeEvents(el);for(var name in events){el[name]=events[name];}};const flatten=(arr,a=[])=>{for(var i=0,len=arr.length;i<len;i++){let v=arr[i];if(!(v instanceof Array)){a.push(v);}else{flatten(v,a);}}return a;};const EVENTS='mouseover,mouseout,wheel,mousemove,blur,focus,click,abort,afterprint,animationend,animationiteration,animationstart,beforeprint,canplay,canplaythrough,change,contextmenu,dblclick,drag,dragend,dragenter,dragleave,dragover,dragstart,drop,durationchange,emptied,ended,error,load,input,invalid,keydown,keypress,keyup,loadeddata,loadedmetadata,mousedown,mouseenter,mouseleave,mouseup,pause,pointercancel,pointerdown,pointerenter,pointerleave,pointermove,pointerout,pointerover,pointerup,play,playing,ratechange,reset,resize,scroll,seeked,seeking,select,selectstart,selectionchange,show,submit,timeupdate,touchstart,touchend,touchcancel,touchmove,touchenter,touchleave,transitionend,volumechange,waiting'.split(',').map(x=>{return'on'+x;});const removeEvents=el=>{// strip away event handlers on el, if it exists
 if(!el)return;for(var i in EVENTS){el[i]=null;}};let mnt;const mount=(fn,el)=>{mnt=[el,fn];render(fn,el);};const render=debounce((fn,el)=>{return rAF(_=>{applyUpdates(fn,el.children[0],el);});});const update=()=>{if(!mnt)return;let[el,fn]=mnt;render(fn,el);};const stylify=style=>{let s='';for(var i in style){s+=`${i}:${style[i]};`;}return s;};const setAttrs=({attrs,id,className,__hash},el)=>{if(attrs){for(var attr in attrs){if(attr==='style'){el.style=stylify(attrs[attr]);}else if(attr==='innerHTML'){rAF(()=>{return el.innerHTML=attrs[attr];});}else if(attr==='value'){rAF(()=>{return el.value=attrs[attr];});}else{el.setAttribute(attr,attrs[attr]);}}}let _id=attrs.id||id;if(_id)el.id=_id;let _className=((attrs.className||'')+' '+(className||'')).trim();if(_className)el.className=_className;el.__hash=__hash;};// recycle or create a new el
@@ -1121,6 +1121,7 @@ let x = container(data => [
 
 html(x).then(x => log(x)).catch(e => log(e+''))
 */
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("./node_modules/process/browser.js")))
 
 /***/ }
 
