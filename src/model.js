@@ -1,5 +1,5 @@
 // Validate JS objects for their "shape"
-export const MODEL = {
+const model = {
     is(type, value) {
         if(type && type.isValid instanceof Function){
             return type.isValid(value)
@@ -62,6 +62,8 @@ export const MODEL = {
         })
     }
 }
+
+export default model
 
 /**
 Use it

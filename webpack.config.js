@@ -7,17 +7,10 @@ const OptimizeJsPlugin = require("optimize-js-plugin")
 const isDebug = process.env.NODE_ENV !== "production"
 
 const browser = {
+
     // Developer tool to enhance debugging, source maps
     // http://webpack.github.io/docs/configuration.html#devtool
     devtool: isDebug ? 'source-map' : false,
-
-    // devServer: isDebug ? {
-    //   colors: true,
-    //   historyApiFallback: true,
-    //   inline: true,
-    //   hot: true,
-    //   contentBase: './assets'
-    // } : undefined,
 
     // Options affecting the normal modules
     // https://webpack.github.io/docs/list-of-loaders.html
@@ -25,7 +18,7 @@ const browser = {
         loaders: [{
             exclude: /node_modules/,
             loader: "babel-loader",
-            query: { cacheDirectory: true, compact: true },
+            query: { cacheDirectory: true, compact: isDebug },
             test: /\.(jsx|js|es|es6|mjs)$/,
         }]
     },
@@ -48,9 +41,9 @@ const browser = {
         chunkFilename: "[id].js",
         sourceMapFilename: "[name].js.map",
         path: './build',
+        library: 'clan',
+        libraryTarget: 'umd'
         // publicPath: '/build',
-        library: "clan",
-        libraryTarget: "umd"
     },
 
     entry: {
@@ -60,6 +53,7 @@ const browser = {
     target: "web",
 
     plugins: [
+
         new webpack.LoaderOptionsPlugin({
             minimize: !isDebug,
             debug: isDebug
@@ -74,7 +68,6 @@ const browser = {
                 'NODE_ENV': JSON.stringify(isDebug ? 'production' : 'development')
             }
         }),
-        new OptimizeJsPlugin(),
 
         // new Offline({
         //   ServiceWorker: {
@@ -88,6 +81,7 @@ const browser = {
     ].concat(isDebug ? [
         new webpack.HotModuleReplacementPlugin
     ] : [
+        new OptimizeJsPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin,
         new webpack.optimize.AggressiveMergingPlugin,
         new webpack.optimize.UglifyJsPlugin({
@@ -96,6 +90,7 @@ const browser = {
             }
         }),
     ])
+
 }
 
 module.exports = {default: browser, isDebug }

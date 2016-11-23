@@ -1,6 +1,6 @@
 # Clan
 
-Clan is a super succinct, no-dependency set of utilities with a slightly opinionated collection of features that integrate particularly well when used together. 
+Clan is a super succinct, no-dependency set of utilities with a slightly opinionated collection of features that integrate particularly well when used together.
 
 ---
 
@@ -45,14 +45,14 @@ import {log, rAF, c, cof, cob, pf, curry, mapping, filtering, concatter} from 'c
 ```
 
 ```js
-// example point-free usage: 
+// example point-free usage:
 const replace = pf(String.prototype.replace)
 const toLowerCase = pf(String.prototype.toLowerCase)
 const normalizeName = cof(replace(/\s+/ig, '_'), toLowerCase())
 log(normalizeName('Matt K'))
 ```
 
-```js 
+```js
 // example transducer usage:
 const inc = x => x+1
 const greaterThanTwo = x => x>2
@@ -77,22 +77,22 @@ import {hamt} from 'clan-fp'
 ```js
 // get and set properties, returns a new hmap
 
-let   x = hamt({'hello': 1})
-    , x1 = x.set('goodbye', 2) // new object with all x's properties plus a new property
-    , x2 = hamt( Array(50).fill(true).map((x,i) => i) ) // we can mode lists/arrays, too 
-    , x3 = x1.unset('goodbye')
+let   x = hamt.hamt({'hello': 1})
+    , x1 = hamt.set(x, 'goodbye', 2) // new object with all x's properties plus a new property
+    , x2 = hamt.hamt( Array(50).fill(true).map((x,i) => i) ) // we can mode lists/arrays, too
+    , x3 = hamt.unset(x1, 'goodbye')
 
 log(
-    x.get('hello'),    // 1
-    x1.get('goodbye'), // 2
-    x3.get('goodbye'), // undefined
-    x3.get('hello'),   // 1
-    x.comp(x,x3),      // true (compares hashes)
-    x === x3,          // false
+    hamt.get(x'hello'),     // 1
+    hamt.get(x1, 'goodbye'),// 2
+    hamt.get(x3, 'goodbye'),// undefined
+    hamt.get(x3, 'hello'),  // 1
+    hamt.comp(x,x3),        // true (compares hashes)
+    x === x3,               // false
 )
 
 // map into a new hamt
-const nums = hamt([1,2,3]).map(x => x+1) // mapped into new hamt 
+const nums = hamt([1,2,3]).map(x => x+1) // mapped into new hamt
 // reduce into one value
 nums.reduce((acc,x,i) => acc+x, 0) // 9
 // get JSON value
@@ -115,7 +115,7 @@ const x = obs()
     , y = x
         .map(x => x + 1)
         .filter(x => x % 5 === 0)
-    
+
     , y1 = y
         .then(log)
 
@@ -127,17 +127,17 @@ const x = obs()
         .take(3)
         .then(log)
 
-const run = (n,o) => 
+const run = (n,o) =>
     Array(n).fill(1)
     .map((_,i) => o(i))
-    
+
 run(150,x)
 ```
 
 ```js
-// push to observable from any event, debounce them, reduce values, 
+// push to observable from any event, debounce them, reduce values,
 // logically split the observable path with a .then() node
-obs.from(push => 
+obs.from(push =>
     window.addEventListener(
         'mousemove',
         ({clientX:x,clientY:y}) => push({x, y})
@@ -152,11 +152,11 @@ obs.from(push =>
 
 ```js
 // push to observable from setInterval,
-// demo how to have multiple observable sources 
+// demo how to have multiple observable sources
 // logically combine and pipe into a single observable destination,
 // also show how to halt an observable
 const interval = ms =>
-    obs.from(push => 
+    obs.from(push =>
         setInterval(() => push(1), ms))
 
 const u = obs
@@ -176,12 +176,54 @@ const time = obs.from(p => setInterval(() => p(new Date), 1000))
 
 time
     .reduce((acc, x) => acc.set(x, true), hamt())
-    .then(m => reset() || log(m.toJSON()))
+    .then(m => reset() || log(hamt.toJSON(m)))
+```
+
+```js
+// HAMT's again with observables
+const flames = obs()
+
+const addFlame = (n=1) =>
+    Math.random() < n
+    ? flames(hamt.push(flames(), flame()))
+    : flames(flames())
+
+const log = (...a) => console.log(...a)
+
+flames
+    .map(ps =>
+        // map the ps hamt into a new hamt
+        hamt.map(
+            hamt.filter(ps, ({position:p, size:s}) => p[1] > -1*s && s>1),
+            p => {
+                let x = updateParticle(
+                    applyForce(p, p.size*.016, [random(-2,2),-1]),
+                    WORLD_FRICTION
+                )
+                p.size *= .99
+                return p
+            }))
+    .then(ps =>
+        rAF($ => addFlame(.3)))
+    .then(ps => rAF(() => {
+        // log(ps)
+        ctx.clearRect(0,0,canvas.width,canvas.height)
+        hamt.map(ps, ({position, size}) => {
+            const [x,y] = position
+            ctx.fillStyle = '#'+removeGreen(color(size))
+            ctx.beginPath()
+            ctx.arc(x, y, size/2, 0, 2*Math.PI)
+            ctx.fill()
+            ctx.closePath()
+        })
+    }))
+
+flames(hamt.hamt())
 ```
 
 ```js
 // embed network requests into observable chains
-const getUser = user => 
+const getUser = user =>
     fetch(`https://api.github.com/users/${user}`)
         .then(r => r.json())
     , x = obs()
@@ -200,7 +242,7 @@ x('matthiasak')
 
 ```js
 // SPA's - you can roll your own router
-const app = 
+const app =
     obs
     .from(p => window.addEventListener('hashchange', p))
     .map(x => window.location.hash)

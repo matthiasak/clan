@@ -7,7 +7,7 @@
 		exports["clan"] = factory();
 	else
 		root["clan"] = factory();
-})(this, (function() {
+})(this, function() {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	function hotDisposeChunk(chunkId) {
 /******/ 		delete installedChunks[chunkId];
@@ -65,11 +65,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			};
 /******/ 		});
 /******/ 	}
-
+/******/
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "8e7a6a26974ec5349f28"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "ed36e88b49af48f5e806"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -116,10 +116,10 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 				if(hotStatus === "ready")
 /******/ 					hotSetStatus("prepare");
 /******/ 				hotChunksLoading++;
-/******/ 				return __webpack_require__.e(chunkId).then(finishChunkLoading, (function(err) {
+/******/ 				return __webpack_require__.e(chunkId).then(finishChunkLoading, function(err) {
 /******/ 					finishChunkLoading();
 /******/ 					throw err;
-/******/ 				}));
+/******/ 				});
 /******/ 	
 /******/ 				function finishChunkLoading() {
 /******/ 					hotChunksLoading--;
@@ -231,7 +231,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		if(hotStatus !== "idle") throw new Error("check() is only allowed in idle status");
 /******/ 		hotApplyOnUpdate = apply;
 /******/ 		hotSetStatus("check");
-/******/ 		return hotDownloadManifest().then((function(update) {
+/******/ 		return hotDownloadManifest().then(function(update) {
 /******/ 			if(!update) {
 /******/ 				hotSetStatus("idle");
 /******/ 				return null;
@@ -259,7 +259,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 				hotUpdateDownloaded();
 /******/ 			}
 /******/ 			return promise;
-/******/ 		}));
+/******/ 		});
 /******/ 	}
 /******/ 	
 /******/ 	function hotAddUpdateChunk(chunkId, moreModules) { // eslint-disable-line no-unused-vars
@@ -292,11 +292,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		hotDeferred = null;
 /******/ 		if(!deferred) return;
 /******/ 		if(hotApplyOnUpdate) {
-/******/ 			hotApply(hotApplyOnUpdate).then((function(result) {
+/******/ 			hotApply(hotApplyOnUpdate).then(function(result) {
 /******/ 				deferred.resolve(result);
-/******/ 			}), (function(err) {
+/******/ 			}, function(err) {
 /******/ 				deferred.reject(err);
-/******/ 			}));
+/******/ 			});
 /******/ 		} else {
 /******/ 			var outdatedModules = [];
 /******/ 			for(var id in hotUpdate) {
@@ -322,12 +322,12 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			var outdatedModules = [updateModuleId];
 /******/ 			var outdatedDependencies = {};
 /******/ 	
-/******/ 			var queue = outdatedModules.slice().map((function(id) {
+/******/ 			var queue = outdatedModules.slice().map(function(id) {
 /******/ 				return {
 /******/ 					chain: [id],
 /******/ 					id: id
 /******/ 				}
-/******/ 			}));
+/******/ 			});
 /******/ 			while(queue.length > 0) {
 /******/ 				var queueItem = queue.pop();
 /******/ 				var moduleId = queueItem.id;
@@ -489,11 +489,11 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	
 /******/ 		// Now in "dispose" phase
 /******/ 		hotSetStatus("dispose");
-/******/ 		Object.keys(hotAvailableFilesMap).forEach((function(chunkId) {
+/******/ 		Object.keys(hotAvailableFilesMap).forEach(function(chunkId) {
 /******/ 			if(hotAvailableFilesMap[chunkId] === false) {
 /******/ 				hotDisposeChunk(chunkId);
 /******/ 			}
-/******/ 		}));
+/******/ 		});
 /******/ 	
 /******/ 		var idx;
 /******/ 		var queue = outdatedModules.slice();
@@ -643,17 +643,17 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		hotSetStatus("idle");
 /******/ 		return Promise.resolve(outdatedModules);
 /******/ 	}
-
+/******/
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
-
+/******/
 /******/ 	// The require function
 /******/ 	function __webpack_require__(moduleId) {
-
+/******/
 /******/ 		// Check if module is in cache
 /******/ 		if(installedModules[moduleId])
 /******/ 			return installedModules[moduleId].exports;
-
+/******/
 /******/ 		// Create a new module (and put it into the cache)
 /******/ 		var module = installedModules[moduleId] = {
 /******/ 			i: moduleId,
@@ -663,27 +663,27 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			parents: (hotCurrentParentsTemp = hotCurrentParents, hotCurrentParents = [], hotCurrentParentsTemp),
 /******/ 			children: []
 /******/ 		};
-
+/******/
 /******/ 		// Execute the module function
 /******/ 		modules[moduleId].call(module.exports, module, module.exports, hotCreateRequire(moduleId));
-
+/******/
 /******/ 		// Flag the module as loaded
 /******/ 		module.l = true;
-
+/******/
 /******/ 		// Return the exports of the module
 /******/ 		return module.exports;
 /******/ 	}
-
-
+/******/
+/******/
 /******/ 	// expose the modules object (__webpack_modules__)
 /******/ 	__webpack_require__.m = modules;
-
+/******/
 /******/ 	// expose the module cache
 /******/ 	__webpack_require__.c = installedModules;
-
+/******/
 /******/ 	// identity function for calling harmory imports with the correct context
 /******/ 	__webpack_require__.i = function(value) { return value; };
-
+/******/
 /******/ 	// define getter function for harmory exports
 /******/ 	__webpack_require__.d = function(exports, name, getter) {
 /******/ 		Object.defineProperty(exports, name, {
@@ -692,7 +692,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 			get: getter
 /******/ 		});
 /******/ 	};
-
+/******/
 /******/ 	// getDefaultExport function for compatibility with non-harmony modules
 /******/ 	__webpack_require__.n = function(module) {
 /******/ 		var getter = module && module.__esModule ?
@@ -701,16 +701,16 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 		__webpack_require__.d(getter, 'a', getter);
 /******/ 		return getter;
 /******/ 	};
-
+/******/
 /******/ 	// Object.prototype.hasOwnProperty.call
 /******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
-
+/******/
 /******/ 	// __webpack_public_path__
 /******/ 	__webpack_require__.p = "";
-
+/******/
 /******/ 	// __webpack_hash__
 /******/ 	__webpack_require__.h = function() { return hotCurrentHash; };
-
+/******/
 /******/ 	// Load entry module and return exports
 /******/ 	return hotCreateRequire("./index.js")(__webpack_require__.s = "./index.js");
 /******/ })
@@ -728,7 +728,23 @@ return /******/ (function(modules) { // webpackBootstrap
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_observable__ = __webpack_require__("./src/observable.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_hamt__ = __webpack_require__("./src/hamt.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_fp__ = __webpack_require__("./src/fp.js");
-const{container,html,qs,update,mount,m,debounce}=__WEBPACK_IMPORTED_MODULE_1__src_vdom__["a" /* VDOM */];const{is,check,init,ArrayOf}=__WEBPACK_IMPORTED_MODULE_3__src_model__["a" /* MODEL */];module.exports={batch: __WEBPACK_IMPORTED_MODULE_0__src_batch__["a" /* batch */],container,html,qs,update,mount,m,debounce,mixin: __WEBPACK_IMPORTED_MODULE_2__src_mixin__["a" /* mixin */],is,check,init,ArrayOf,obs: __WEBPACK_IMPORTED_MODULE_4__src_observable__["a" /* obs */],hamt: __WEBPACK_IMPORTED_MODULE_5__src_hamt__["a" /* hamt */],log: __WEBPACK_IMPORTED_MODULE_6__src_fp__["a" /* log */],rAF: __WEBPACK_IMPORTED_MODULE_6__src_fp__["b" /* rAF */],c: __WEBPACK_IMPORTED_MODULE_6__src_fp__["c"],cof: __WEBPACK_IMPORTED_MODULE_6__src_fp__["d" /* cof */],cob: __WEBPACK_IMPORTED_MODULE_6__src_fp__["e" /* cob */],pf: __WEBPACK_IMPORTED_MODULE_6__src_fp__["f" /* pf */],curry: __WEBPACK_IMPORTED_MODULE_6__src_fp__["g" /* curry */],mapping: __WEBPACK_IMPORTED_MODULE_6__src_fp__["h" /* mapping */],filtering: __WEBPACK_IMPORTED_MODULE_6__src_fp__["i" /* filtering */],concatter: __WEBPACK_IMPORTED_MODULE_6__src_fp__["j" /* concatter */]};
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "log", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["a"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "rAF", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["b"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "c", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["c"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "cof", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["d"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "cob", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["e"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "pf", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["f"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "curry", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["g"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "mapping", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["h"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "filtering", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["i"]; });
+/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "concatter", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["j"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "batch", function() { return __WEBPACK_IMPORTED_MODULE_0__src_batch__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "vdom", function() { return __WEBPACK_IMPORTED_MODULE_1__src_vdom__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "mixin", function() { return __WEBPACK_IMPORTED_MODULE_2__src_mixin__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "model", function() { return __WEBPACK_IMPORTED_MODULE_3__src_model__["a"]; });
+/* harmony reexport (binding) */ __webpack_require__.d(exports, "obs", function() { return __WEBPACK_IMPORTED_MODULE_4__src_observable__["a"]; });
+/* harmony reexport (module object) */ __webpack_require__.d(exports, "hamt", function() { return __WEBPACK_IMPORTED_MODULE_5__src_hamt__; });
+
 
 /***/ },
 
@@ -924,13 +940,11 @@ process.umask = function() { return 0; };
 
 "use strict";
 var _extends=Object.assign||function(target){for(var i=1;i<arguments.length;i++){var source=arguments[i];for(var key in source){if(Object.prototype.hasOwnProperty.call(source,key)){target[key]=source[key];}}}return target;};// batched requests
-// The `fetch()` module batches in-flight requests, so if at any point in time, anywhere in my front-end or 
-// back-end application I have a calls occur to `fetch('http://api.github.com/users/matthiasak')` while another 
+// The `fetch()` module batches in-flight requests, so if at any point in time, anywhere in my front-end or
+// back-end application I have a calls occur to `fetch('http://api.github.com/users/matthiasak')` while another
 // to that URL is "in-flight", the Promise returned by both of those calls will be resolved by a single network request.
 // f :: (url -> options) -> Promise
-const batch=f=>{let inflight={};return(url,options={})=>{let{method}=options,key=`${url}:${JSON.stringify(options)}`;if((method||'').toLowerCase()==='post')return f(url,_extends({},options,{compress:false}));return inflight[key]||(inflight[key]=new Promise((res,rej)=>{f(url,_extends({},options,{compress:false})).then(d=>{return res(d);}).catch(e=>{return rej(e);});}).then(data=>{inflight=_extends({},inflight,{[key]:undefined});return data;}).catch(e=>{return console.error(e,url);}));};};
-/* harmony export (immutable) */ exports["a"] = batch;
-
+const batch=f=>{let inflight={};return(url,options={})=>{let{method}=options,key=`${url}:${JSON.stringify(options)}`;if((method||'').toLowerCase()==='post')return f(url,_extends({},options,{compress:false}));return inflight[key]||(inflight[key]=new Promise((res,rej)=>{f(url,_extends({},options,{compress:false})).then(d=>{return res(d);}).catch(e=>{return rej(e);});}).then(data=>{inflight=_extends({},inflight,{[key]:undefined});return data;}).catch(e=>{return console.error(e,url);}));};};/* harmony default export */ exports["a"] = batch;
 
 /***/ },
 
@@ -983,14 +997,48 @@ const concatter=(thing,value)=>{return thing.concat([value]);};
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony export (immutable) */ exports["a"] = hamt;
-var _extends=Object.assign||function(target){for(var i=1;i<arguments.length;i++){var source=arguments[i];for(var key in source){if(Object.prototype.hasOwnProperty.call(source,key)){target[key]=source[key];}}}return target;};// HAMT
-const HAMT={node(val=undefined){let result={};if(val)result.val=val;return result;},// compute the hamming weight
-hamweight(x){x-=x>>1&0x55555555;x=(x&0x33333333)+(x>>2&0x33333333);x=x+(x>>4)&0x0f0f0f0f;x+=x>>8;x+=x>>16;return x&0x7f;},// hash fn
-hash(str){if(typeof str!=='string')str=JSON.stringify(str);const type=typeof str;if(type==='number')return str;if(type!=='string')str+='';let hash=0;for(let i=0,len=str.length;i<len;++i){const c=str.charCodeAt(i);hash=(hash<<5)-hash+c|0;}return hash;},// compare two hashes
-comp(a,b){return this.hash(a)===this.hash(b);},// get a sub bit vector
-frag(h=0,i=0,range=8){return h>>>range*i&(1<<range)-1;},// clone a node
-replicate(h){let n=this.node();for(var x=0,_o=this.root,_n=n;x<4;x++){for(let i in _o){if(i!=='val'&&_o.hasOwnProperty(i)){_n[i]=_o[i];}}let __n=this.node(),f=this.frag(h,x);_n[f]=__n;_n=__n;_o=_o[f]===undefined?{}:_o[f];}return n;},set(key,val){let h=this.hash(key),n=this.get(key);if(n===undefined||!this.comp(n,val)){let r=this.replicate(h);for(var i=0,_r=r;i<4;i++)_r=_r[this.frag(h,i)];_r.val=val;const d=hamt();d.keys=this.cloneKeys();d.keys.add(key);d.root=r;return d;}return this;},unset(key){let h=this.hash(key),r=this.replicate(h),m=hamt();for(var i=0,_r=r;i<3;i++)_r=_r[this.frag(h,i)];_r[this.frag(h,3)]=undefined;m.root=r;m.keys=this.cloneKeys();m.keys.delete(key);return r;},get(key){let h=this.hash(key);for(var i=0,_r=this.root;i<4;i++){_r=_r[this.frag(h,i)];if(!_r)return undefined;}return _r.val;},map(fn){let items=this.getKeys(),result=hamt();for(let i=0,len=items.length;i<len;i++)result.set(items[i],fn(this.get(items[i])));return result;},reduce(fn,acc){let items=this.getKeys();acc=acc===undefined?items.shift():acc;for(let i=0,len=items.length;i<len;i++)acc=fn(acc,this.get(items[i]),items[i]);return acc;},toJSON(){return this.reduce((acc,value,key)=>{return _extends({[key]:value},acc);},{});},getKeys(){return Array.from(this.keys);},cloneKeys(){return new Set(this.getKeys());},init(m){this.root=this.node();if(m instanceof Array){for(let i=0,len=m.length;i<len;i++)this.root=this.set(i,m[i]).root;}else if(m instanceof Object){for(let i in m)m.hasOwnProperty(i)&&(this.root=this.set(i,m[i]).root);}return this.root;}};function hamt(initial={}){if(!this)return new hamt(initial);this.keys=new Set();this.root=HAMT.init(initial);}hamt.prototype=HAMT;
+var _extends=Object.assign||function(target){for(var i=1;i<arguments.length;i++){var source=arguments[i];for(var key in source){if(Object.prototype.hasOwnProperty.call(source,key)){target[key]=source[key];}}}return target;};// compute the hamming weight
+const hamweight=x=>{x-=x>>1&0x55555555;x=(x&0x33333333)+(x>>2&0x33333333);x=x+(x>>4)&0x0f0f0f0f;x+=x>>8;x+=x>>16;return x&0x7f;};// hash fn
+const hash=(v='')=>{v=JSON.stringify(v);var hash=5381;for(let i=0;i<v.length;i++)hash=(hash<<5)+hash+v.charCodeAt(i);return hash;};
+/* harmony export (immutable) */ exports["hash"] = hash;
+// compare two hashes
+const comp=(a,b)=>{return hash(a)===hash(b);};
+/* harmony export (immutable) */ exports["comp"] = comp;
+// get a sub bit vector
+const frag=(h=0,i=0,range=8)=>{return h>>>range*i&(1<<range)-1;};// clone a node
+const branch=(root,h,delta=0)=>{let n=node(),// new root
+_n=n;n.keys=root.keys?Array.from(root.keys):[];for(let x=0,_o=root;x<4-delta;x++){let __n=node(),// create new child node
+f=frag(h,x);// get bitmask
+if(_o){for(let i in _o)// point new parent node to existing sub-nodes
+x!==4&&i!==f&&(_n[i]=_o[i]);}_n[f]=__n;// set new node's address
+_n=__n;// go down the clone tree
+_o&&(_o=_o[f]);// go down the original tree
+}return[n,_n];// return the lowest node that should hold the value
+};const set=(root,key,val)=>{let[parent,child]=branch(root,hash(key));child.val=val;child.key=key;const index=parent.keys.indexOf(key);parent.keys.splice(index===-1?0:index,index===-1?0:1,key);return parent;};
+/* harmony export (immutable) */ exports["set"] = set;
+const unset=(root,key)=>{let h=hash(key),[parent,child]=branch(root,h,-1);delete child[frag(h,3)];const index=parent.keys.indexOf(key);parent.keys.splice(index===-1?0:index,index===-1?0:1);return parent;};
+/* harmony export (immutable) */ exports["unset"] = unset;
+const get=(root,key)=>{let h=hash(key),r=root;for(let i=0;i<4;i++)r=r?r[frag(h,i)]:undefined;return r?r.val:undefined;};
+/* harmony export (immutable) */ exports["get"] = get;
+const map=(root,fn)=>{let v=root.keys,result=root;if(v){for(var i=0,len=v.length;i<len;i++){const key=v[i],val=get(root,key);if(val!==undefined){result=set(result,key,fn(val,key));// maybe some sort of setMutable/setMany?
+}}}return result;};
+/* harmony export (immutable) */ exports["map"] = map;
+const reduce=(root,fn,acc)=>{const v=root.keys;if(v){for(var i=0,len=v.length;i<len;i++){const key=v[i],val=get(root,key);acc=fn(acc,val,key);}}return acc;};
+/* harmony export (immutable) */ exports["reduce"] = reduce;
+const filter=(root,fn)=>{let v=root.keys,result=root;if(v){for(var i=0,len=v.length;i<len;i++){const key=v[i],val=get(result,key);if(val!==undefined&&!fn(val,key)){result=unset(result,key);}}}return result;};
+/* harmony export (immutable) */ exports["filter"] = filter;
+const push=(root,val)=>{const length=root.keys&&root.keys.length||0;return set(root,length,val);};
+/* harmony export (immutable) */ exports["push"] = push;
+const pop=root=>{const length=root.keys&&root.keys.length||0;return unset(root,length-1);};
+/* harmony export (immutable) */ exports["pop"] = pop;
+const toList=root=>{return reduce(root,(acc,v,k)=>{return acc.concat(v);},[]);};
+/* harmony export (immutable) */ exports["toList"] = toList;
+const toJSON=root=>{return reduce(root,(acc,value,key)=>{return _extends({[key]:value},acc);},{});};
+/* harmony export (immutable) */ exports["toJSON"] = toJSON;
+const node=(val=undefined)=>{let result=Object.create(null);if(val)result.val=val;// result.keys = []
+return result;};const hamt=m=>{let root=node();if(m instanceof Array){for(let i=0,len=m.length;i<len;i++)root=set(root,i,m[i]);}else if(m instanceof Object){for(let i in m)m.hasOwnProperty(i)&&(root=set(i,m[i]));}return root;};
+/* harmony export (immutable) */ exports["hamt"] = hamt;
+
 
 /***/ },
 
@@ -998,9 +1046,7 @@ replicate(h){let n=this.node();for(var x=0,_o=this.root,_n=n;x<4;x++){for(let i 
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-const mixin=(...classes)=>{class _mixin{}let proto=_mixin.prototype;classes.map(({prototype:p})=>{Object.getOwnPropertyNames(p).map(key=>{let oldFn=proto[key]||(()=>{});proto[key]=(...args)=>{oldFn(...args);return p[key](...args);};});});return _mixin;};
-/* harmony export (immutable) */ exports["a"] = mixin;
-
+const mixin=(...classes)=>{class _mixin{}let proto=_mixin.prototype;classes.map(({prototype:p})=>{Object.getOwnPropertyNames(p).map(key=>{let oldFn=proto[key]||(()=>{});proto[key]=(...args)=>{oldFn(...args);return p[key](...args);};});});return _mixin;};/* harmony default export */ exports["a"] = mixin;
 
 /***/ },
 
@@ -1009,9 +1055,7 @@ const mixin=(...classes)=>{class _mixin{}let proto=_mixin.prototype;classes.map(
 
 "use strict";
 // Validate JS objects for their "shape"
-const MODEL={is(type,value){if(type&&type.isValid instanceof Function){return type.isValid(value);}else if(type===String&&(value instanceof String||typeof value==='string')||type===Number&&(value instanceof Number||typeof value==='number')||type===Boolean&&(value instanceof Boolean||typeof value==='boolean')||type===Function&&(value instanceof Function||typeof value==='function')||type===Object&&(value instanceof Object||typeof value==='object')||type===undefined){return true;}return false;},check(types,required,data){Object.keys(types).forEach(key=>{let t=types[key],value=data[key];if(required[key]||value!==undefined){if(!(t instanceof Array))t=[t];let i=t.reduce((a,_type)=>{return a||MODEL.is(_type,value);},false);if(!i){throw`{${key}: ${JSON.stringify(value)}} is not one of ${t.map(x=>{return`\n - ${x}`;})}`;}}});return true;},init(...args){let types,required,logic;args.map(x=>{if(x instanceof Function&&!logic){logic=x;}else if(typeof x==='object'){if(!types){types=x;}else if(!required){required=x;}}});const isValid=data=>{const pipe=logic?[check,logic]:[check];return pipe.reduce((a,v)=>{return a&&v(types||{},required||{},data);},true);};const whenValid=data=>{return new Promise((res,rej)=>{return isValid(data)&&res(data);});};return{isValid,whenValid};},ArrayOf(M){return MODEL.init((t,r,data)=>{if(!(data instanceof Array))throw`${data} not an Array`;data.map(x=>{if(!MODEL.is(M,x))throw`${x} is not a model instance`;});return true;});}};
-/* harmony export (immutable) */ exports["a"] = MODEL;
-/**
+const model={is(type,value){if(type&&type.isValid instanceof Function){return type.isValid(value);}else if(type===String&&(value instanceof String||typeof value==='string')||type===Number&&(value instanceof Number||typeof value==='number')||type===Boolean&&(value instanceof Boolean||typeof value==='boolean')||type===Function&&(value instanceof Function||typeof value==='function')||type===Object&&(value instanceof Object||typeof value==='object')||type===undefined){return true;}return false;},check(types,required,data){Object.keys(types).forEach(key=>{let t=types[key],value=data[key];if(required[key]||value!==undefined){if(!(t instanceof Array))t=[t];let i=t.reduce((a,_type)=>{return a||MODEL.is(_type,value);},false);if(!i){throw`{${key}: ${JSON.stringify(value)}} is not one of ${t.map(x=>{return`\n - ${x}`;})}`;}}});return true;},init(...args){let types,required,logic;args.map(x=>{if(x instanceof Function&&!logic){logic=x;}else if(typeof x==='object'){if(!types){types=x;}else if(!required){required=x;}}});const isValid=data=>{const pipe=logic?[check,logic]:[check];return pipe.reduce((a,v)=>{return a&&v(types||{},required||{},data);},true);};const whenValid=data=>{return new Promise((res,rej)=>{return isValid(data)&&res(data);});};return{isValid,whenValid};},ArrayOf(M){return MODEL.init((t,r,data)=>{if(!(data instanceof Array))throw`${data} not an Array`;data.map(x=>{if(!MODEL.is(M,x))throw`${x} is not a model instance`;});return true;});}};/* harmony default export */ exports["a"] = model;/**
 Use it
 
 // create a Name model with required first/last,
@@ -1067,9 +1111,7 @@ Activity.whenValid(a).then(log).catch(e => log(e+''))
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {const rAF=document&&(requestAnimationFrame||webkitRequestAnimationFrame||mozRequestAnimationFrame)||process&&process.nextTick||(cb=>{return setTimeout(cb,16.6);});// observables
-const obs=state=>{const subscribers=new Set();const fn=val=>{if(val!==undefined){state=val;for(let i of subscribers)rAF(i.bind(null,val));}return state;};fn.map=f=>{const o=obs();subscribers.add(val=>{return o(f(val));});return o;};fn.filter=f=>{const o=obs();subscribers.add(val=>{return f(val)&&o(val);});return o;};fn.then=f=>{subscribers.add(val=>{return f(val);});return fn;};fn.take=n=>{const values=[],o=obs();const cb=val=>{if(values.length<n)values.push(val);if(values.length===n){subscribers.delete(cb);return o(values);}};subscribers.add(cb);return o;};fn.takeWhile=f=>{const values=[],o=obs();const cb=val=>{if(!f(val)){subscribers.delete(cb);return o(values);}values.push(val);};subscribers.add(cb);return o;};fn.reduce=(f,acc)=>{const o=obs();subscribers.add(val=>{acc=f(acc,val);o(acc);});return o;};fn.maybe=f=>{const success=obs(),error=obs(),cb=val=>{return f(val).then(d=>{return success(d);}).catch(e=>{return error(e);});};subscribers.add(cb);return[success,error];};fn.stop=()=>{return subscribers.clear();};fn.debounce=ms=>{const o=obs();let ts=+new Date();subscribers.add(val=>{const now=+new Date();if(now-ts>=ms){ts=+new Date();o(val);}});return o;};return fn;};
-/* harmony export (immutable) */ exports["a"] = obs;
-obs.from=f=>{const o=obs();f(x=>{return o(x);});return o;};obs.union=(...fs)=>{const o=obs();fs.map(f=>{return f.then(o);});return o;};
+const obs=state=>{const subscribers=new Set();const fn=val=>{if(val!==undefined){state=val;for(let i of subscribers)i(val);}return state;};fn.map=f=>{const o=obs();subscribers.add(val=>{return o(f(val));});return o;};fn.filter=f=>{const o=obs();subscribers.add(val=>{return f(val)&&o(val);});return o;};fn.then=f=>{subscribers.add(val=>{return f(val);});return fn;};fn.take=n=>{const values=[],o=obs();const cb=val=>{if(values.length<n)values.push(val);if(values.length===n){subscribers.delete(cb);return o(values);}};subscribers.add(cb);return o;};fn.takeWhile=f=>{const values=[],o=obs();const cb=val=>{if(!f(val)){subscribers.delete(cb);return o(values);}values.push(val);};subscribers.add(cb);return o;};fn.reduce=(f,acc)=>{const o=obs();subscribers.add(val=>{acc=f(acc,val);o(acc);});return o;};fn.maybe=f=>{const success=obs(),error=obs(),cb=val=>{return f(val).then(d=>{return success(d);}).catch(e=>{return error(e);});};subscribers.add(cb);return[success,error];};fn.stop=()=>{return subscribers.clear();};fn.debounce=ms=>{const o=obs();let ts=+new Date();subscribers.add(val=>{const now=+new Date();if(now-ts>=ms){ts=+new Date();o(val);}});return o;};return fn;};obs.from=f=>{const o=obs();f(x=>{return o(x);});return o;};obs.union=(...fs)=>{const o=obs();fs.map(f=>{return f.then(o);});return o;};/* harmony default export */ exports["a"] = obs;
 /* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__("./node_modules/process/browser.js")))
 
 /***/ },
@@ -1079,7 +1121,7 @@ obs.from=f=>{const o=obs();f(x=>{return o(x);});return o;};obs.union=(...fs)=>{c
 
 "use strict";
 /* WEBPACK VAR INJECTION */(function(process) {const rAF=document&&(requestAnimationFrame||webkitRequestAnimationFrame||mozRequestAnimationFrame)||process&&process.nextTick||(cb=>{return setTimeout(cb,16.6);});// Virtual DOMs
-const VDOM=(()=>{const class_id_regex=()=>{return /[#\.][^#\.]+/ig;},tagName_regex=()=>{return /^([^\.#]+)\b/i;};const parseSelector=s=>{let test=null,tagreg=tagName_regex().exec(s),tag=tagreg&&tagreg.slice(1)[0],reg=class_id_regex(),vdom=Object.create(null);if(tag)s=s.substr(tag.length);vdom.className='';vdom.tag=tag||'div';while((test=reg.exec(s))!==null){test=test[0];if(test[0]==='.')vdom.className=(vdom.className+' '+test.substr(1)).trim();else if(test[0]==='#')vdom.id=test.substr(1);}return vdom;};const debounce=(func,wait,immediate,timeout)=>{return(...args)=>{let later=()=>{timeout=null;!immediate&&func(...args);};var callNow=immediate&&!timeout;clearTimeout(timeout);timeout=setTimeout(later,wait||0);callNow&&func(...args);};};const hash=(v,_v=JSON.stringify(v))=>{let hash=0;for(let i=0,len=_v.length;i<len;++i){const c=_v.charCodeAt(i);hash=(hash<<5)-hash+c|0;}return hash;};const m=(selector,attrs=Object.create(null),...children)=>{if(attrs.tag||!(typeof attrs==='object')||attrs instanceof Array||attrs instanceof Function){if(attrs instanceof Array)children.unshift(...attrs);else children.unshift(attrs);attrs=Object.create(null);}let vdom=parseSelector(selector);if(children.length)vdom.children=children;vdom.attrs=attrs;vdom.shouldUpdate=attrs.shouldUpdate;vdom.unload=attrs.unload;vdom.config=attrs.config;vdom.__hash=hash(vdom);delete attrs.unload;delete attrs.shouldUpdate;delete attrs.config;return vdom;};// creatign html, strip events from DOM element... for now just deleting
+const vdom=(()=>{const class_id_regex=()=>{return /[#\.][^#\.]+/ig;},tagName_regex=()=>{return /^([^\.#]+)\b/i;};const parseSelector=s=>{let test=null,tagreg=tagName_regex().exec(s),tag=tagreg&&tagreg.slice(1)[0],reg=class_id_regex(),vdom=Object.create(null);if(tag)s=s.substr(tag.length);vdom.className='';vdom.tag=tag||'div';while((test=reg.exec(s))!==null){test=test[0];if(test[0]==='.')vdom.className=(vdom.className+' '+test.substr(1)).trim();else if(test[0]==='#')vdom.id=test.substr(1);}return vdom;};const debounce=(func,wait,immediate,timeout)=>{return(...args)=>{let later=()=>{timeout=null;!immediate&&func(...args);};var callNow=immediate&&!timeout;clearTimeout(timeout);timeout=setTimeout(later,wait||0);callNow&&func(...args);};};const hash=(v,_v=JSON.stringify(v))=>{let hash=0;for(let i=0,len=_v.length;i<len;++i){const c=_v.charCodeAt(i);hash=(hash<<5)-hash+c|0;}return hash;};const m=(selector,attrs=Object.create(null),...children)=>{if(attrs.tag||!(typeof attrs==='object')||attrs instanceof Array||attrs instanceof Function){if(attrs instanceof Array)children.unshift(...attrs);else children.unshift(attrs);attrs=Object.create(null);}let vdom=parseSelector(selector);if(children.length)vdom.children=children;vdom.attrs=attrs;vdom.shouldUpdate=attrs.shouldUpdate;vdom.unload=attrs.unload;vdom.config=attrs.config;vdom.__hash=hash(vdom);delete attrs.unload;delete attrs.shouldUpdate;delete attrs.config;return vdom;};// creatign html, strip events from DOM element... for now just deleting
 const stripEvents=({attrs})=>{let a=Object.create(null);if(attrs){for(var name in attrs){if(name[0]==='o'&&name[1]==='n'){a[name]=attrs[name];delete attrs[name];}}}return a;};const applyEvents=(events,el,strip_existing=true)=>{strip_existing&&removeEvents(el);for(var name in events){el[name]=events[name];}};const flatten=(arr,a=[])=>{for(var i=0,len=arr.length;i<len;i++){let v=arr[i];if(!(v instanceof Array)){a.push(v);}else{flatten(v,a);}}return a;};const EVENTS='mouseover,mouseout,wheel,mousemove,blur,focus,click,abort,afterprint,animationend,animationiteration,animationstart,beforeprint,canplay,canplaythrough,change,contextmenu,dblclick,drag,dragend,dragenter,dragleave,dragover,dragstart,drop,durationchange,emptied,ended,error,load,input,invalid,keydown,keypress,keyup,loadeddata,loadedmetadata,mousedown,mouseenter,mouseleave,mouseup,pause,pointercancel,pointerdown,pointerenter,pointerleave,pointermove,pointerout,pointerover,pointerup,play,playing,ratechange,reset,resize,scroll,seeked,seeking,select,selectstart,selectionchange,show,submit,timeupdate,touchstart,touchend,touchcancel,touchmove,touchenter,touchleave,transitionend,volumechange,waiting'.split(',').map(x=>{return'on'+x;});const removeEvents=el=>{// strip away event handlers on el, if it exists
 if(!el)return;for(var i in EVENTS){el[i]=null;}};let mnt;const mount=(fn,el)=>{mnt=[el,fn];render(fn,el);};const render=debounce((fn,el)=>{return rAF(_=>{applyUpdates(fn,el.children[0],el);});});const update=()=>{if(!mnt)return;let[el,fn]=mnt;render(fn,el);};const stylify=style=>{let s='';for(var i in style){s+=`${i}:${style[i]};`;}return s;};const setAttrs=({attrs,id,className,__hash},el)=>{if(attrs){for(var attr in attrs){if(attr==='style'){el.style=stylify(attrs[attr]);}else if(attr==='innerHTML'){rAF(()=>{return el.innerHTML=attrs[attr];});}else if(attr==='value'){rAF(()=>{return el.value=attrs[attr];});}else{el.setAttribute(attr,attrs[attr]);}}}let _id=attrs.id||id;if(_id)el.id=_id;let _className=((attrs.className||'')+' '+(className||'')).trim();if(_className)el.className=_className;el.__hash=__hash;};// recycle or create a new el
 const createTag=(vdom=Object.create(null),el,parent=el&&el.parentElement)=>{let __vdom=vdom;// make text nodes from primitive types
@@ -1088,9 +1130,7 @@ let{tag,attrs,id,className,unload,shouldUpdate,config,__hash}=vdom,shouldExchang
 const removeEl=el=>{if(!el)return;el.parentElement.removeChild(el);removeEvents(el);// removed for now, added unload logic to the immediate draw()s
 if(el.unload instanceof Function)el.unload();};const insertAt=(el,parent,i)=>{if(parent.children.length>i){let next_sib=parent.children[i];parent.insertBefore(el,next_sib);}else{parent.appendChild(el);}};const applyUpdates=(vdom,el,parent=el&&el.parentElement)=>{let v=vdom;// if vdom is a function, execute it until it isn't
 while(vdom instanceof Function)vdom=vdom();if(!vdom)return;if(vdom.resolve instanceof Function){let i=parent.children.length;return vdom.resolve().then(v=>{if(!el){let x=createTag(v,null,parent);insertAt(x,parent,i);applyUpdates(v,x,parent);}else{applyUpdates(v,el,parent);}});}// create/edit el under parent
-let _el=vdom instanceof Array?parent:createTag(vdom,el,parent);if(!_el)return;if(vdom instanceof Array||vdom.children){let vdom_children=flatten(vdom instanceof Array?vdom:vdom.children),el_children=vdom instanceof Array?parent.childNodes:_el.childNodes;while(el_children.length>vdom_children.length){removeEl(el_children[el_children.length-1]);}for(let i=0;i<vdom_children.length;i++){applyUpdates(vdom_children[i],el_children[i],_el);}}else{while(_el.childNodes.length>0){removeEl(_el.childNodes[_el.childNodes.length-1]);}}};const qs=(s='body',el=document)=>{return el.querySelector(s);};const resolver=(states={})=>{let promises=[],done=false;const _await=(_promises=[])=>{promises=[...promises,..._promises];return finish();};const wait=(ms=0)=>{return new Promise(res=>{return setTimeout(res,ms);});};const isDone=()=>{return done;};const finish=()=>{const total=promises.length;return wait().then(_=>{return Promise.all(promises);}).then(values=>{if(promises.length>total){return finish();}done=true;return states;});};const resolve=props=>{const keys=Object.keys(props);if(!keys.length)return Promise.resolve(true);let f=[];keys.forEach(name=>{let x=props[name];while(x instanceof Function)x=x();if(x&&x.then instanceof Function)f.push(x.then(d=>{return states[name]=d;}));});return _await(f);};const getState=()=>{return states;};return{finish,resolve,getState,promises,isDone};};const gs=(view,state)=>{let r=view(state);while(r instanceof Function)r=view(instance.getState());return r;};const container=(view,queries={},instance=resolver())=>{let wrapper_view=state=>{return instance.isDone()?view(state):m('span');};return()=>{let r=gs(wrapper_view,instance.getState());instance.resolve(queries);if(r instanceof Array){let d=instance.finish().then(_=>{return gs(wrapper_view,instance.getState());});return r.map((x,i)=>{x.resolve=_=>{return d.then(vdom=>{return vdom[i];});};return x;});}r.resolve=_=>{return instance.finish().then(_=>{return gs(wrapper_view,instance.getState());});};return r;};};const reservedAttrs=['className','id'];const toHTML=_vdom=>{while(_vdom instanceof Function)_vdom=_vdom();if(_vdom instanceof Array)return new Promise(r=>{return r(html(..._vdom));});if(!_vdom)return new Promise(r=>{return r('');});if(typeof _vdom!=='object')return new Promise(r=>{return r(_vdom);});return(_vdom.resolve?_vdom.resolve():Promise.resolve()).then(vdom=>{if(!vdom)vdom=_vdom;if(vdom instanceof Array)return new Promise(r=>{return r(html(...vdom));});const{tag,id,className,attrs,children,instance}=vdom,_id=id||attrs&&attrs.id?` id="${id||attrs&&attrs.id||''}"`:'',_class=className||attrs&&attrs.className?` class="${((className||'')+' '+(attrs.className||'')).trim()}"`:'';const events=stripEvents(vdom);let _attrs='',inner='';for(var i in attrs||Object.create(null)){if(i==='style'){_attrs+=` style="${stylify(attrs[i])}"`;}else if(i==='innerHTML'){inner=attrs[i];}else if(reservedAttrs.indexOf(i)===-1){_attrs+=` ${i}="${attrs[i]}"`;}}if(!inner&&children)return html(...children).then(str=>{return`<${tag}${_id}${_class}${_attrs}>${str}</${tag}>`;});if('br,input,img'.split(',').filter(x=>{return x===tag;}).length===0)return new Promise(r=>{return r(`<${tag}${_id}${_class}${_attrs}>${inner}</${tag}>`);});return new Promise(r=>{return r(`<${tag}${_id}${_class}${_attrs} />`);});});};const html=(...v)=>{return Promise.all(v.map(toHTML)).then(x=>{return x.filter(x=>{return!!x;}).join('');});};return{container,html,qs,update,mount,m,debounce};})();
-/* harmony export (immutable) */ exports["a"] = VDOM;
-/*
+let _el=vdom instanceof Array?parent:createTag(vdom,el,parent);if(!_el)return;if(vdom instanceof Array||vdom.children){let vdom_children=flatten(vdom instanceof Array?vdom:vdom.children),el_children=vdom instanceof Array?parent.childNodes:_el.childNodes;while(el_children.length>vdom_children.length){removeEl(el_children[el_children.length-1]);}for(let i=0;i<vdom_children.length;i++){applyUpdates(vdom_children[i],el_children[i],_el);}}else{while(_el.childNodes.length>0){removeEl(_el.childNodes[_el.childNodes.length-1]);}}};const qs=(s='body',el=document)=>{return el.querySelector(s);};const resolver=(states={})=>{let promises=[],done=false;const _await=(_promises=[])=>{promises=[...promises,..._promises];return finish();};const wait=(ms=0)=>{return new Promise(res=>{return setTimeout(res,ms);});};const isDone=()=>{return done;};const finish=()=>{const total=promises.length;return wait().then(_=>{return Promise.all(promises);}).then(values=>{if(promises.length>total){return finish();}done=true;return states;});};const resolve=props=>{const keys=Object.keys(props);if(!keys.length)return Promise.resolve(true);let f=[];keys.forEach(name=>{let x=props[name];while(x instanceof Function)x=x();if(x&&x.then instanceof Function)f.push(x.then(d=>{return states[name]=d;}));});return _await(f);};const getState=()=>{return states;};return{finish,resolve,getState,promises,isDone};};const gs=(view,state)=>{let r=view(state);while(r instanceof Function)r=view(instance.getState());return r;};const container=(view,queries={},instance=resolver())=>{let wrapper_view=state=>{return instance.isDone()?view(state):m('span');};return()=>{let r=gs(wrapper_view,instance.getState());instance.resolve(queries);if(r instanceof Array){let d=instance.finish().then(_=>{return gs(wrapper_view,instance.getState());});return r.map((x,i)=>{x.resolve=_=>{return d.then(vdom=>{return vdom[i];});};return x;});}r.resolve=_=>{return instance.finish().then(_=>{return gs(wrapper_view,instance.getState());});};return r;};};const reservedAttrs=['className','id'];const toHTML=_vdom=>{while(_vdom instanceof Function)_vdom=_vdom();if(_vdom instanceof Array)return new Promise(r=>{return r(html(..._vdom));});if(!_vdom)return new Promise(r=>{return r('');});if(typeof _vdom!=='object')return new Promise(r=>{return r(_vdom);});return(_vdom.resolve?_vdom.resolve():Promise.resolve()).then(vdom=>{if(!vdom)vdom=_vdom;if(vdom instanceof Array)return new Promise(r=>{return r(html(...vdom));});const{tag,id,className,attrs,children,instance}=vdom,_id=id||attrs&&attrs.id?` id="${id||attrs&&attrs.id||''}"`:'',_class=className||attrs&&attrs.className?` class="${((className||'')+' '+(attrs.className||'')).trim()}"`:'';const events=stripEvents(vdom);let _attrs='',inner='';for(var i in attrs||Object.create(null)){if(i==='style'){_attrs+=` style="${stylify(attrs[i])}"`;}else if(i==='innerHTML'){inner=attrs[i];}else if(reservedAttrs.indexOf(i)===-1){_attrs+=` ${i}="${attrs[i]}"`;}}if(!inner&&children)return html(...children).then(str=>{return`<${tag}${_id}${_class}${_attrs}>${str}</${tag}>`;});if('br,input,img'.split(',').filter(x=>{return x===tag;}).length===0)return new Promise(r=>{return r(`<${tag}${_id}${_class}${_attrs}>${inner}</${tag}>`);});return new Promise(r=>{return r(`<${tag}${_id}${_class}${_attrs} />`);});});};const html=(...v)=>{return Promise.all(v.map(toHTML)).then(x=>{return x.filter(x=>{return!!x;}).join('');});};return{container,html,qs,update,mount,m,debounce};})();/* harmony default export */ exports["a"] = vdom;/*
 usage:
 
 let component = () =>
@@ -1126,4 +1166,5 @@ html(x).then(x => log(x)).catch(e => log(e+''))
 /***/ }
 
 /******/ });
-}));
+});
+//# sourceMappingURL=index.js.map

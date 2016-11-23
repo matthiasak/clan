@@ -1,5 +1,5 @@
 
-export const mixin = (...classes) => {
+const mixin = (...classes) => {
     class _mixin {}
     let proto = _mixin.prototype
 
@@ -15,3 +15,5 @@ export const mixin = (...classes) => {
 
     return _mixin
 }
+
+export default mixin

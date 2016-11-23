@@ -7,7 +7,7 @@ const rAF =
     (cb => setTimeout(cb, 16.6))
 
 // Virtual DOMs
-export const VDOM = (() => {
+const vdom = (() => {
     const class_id_regex = () => {
             return /[#\.][^#\.]+/ig
         },
@@ -400,6 +400,8 @@ export const VDOM = (() => {
 
     return {container, html, qs, update, mount, m, debounce}
 })()
+
+export default vdom
 
 /*
 usage:
