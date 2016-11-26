@@ -1,14 +1,5 @@
-(function webpackUniversalModuleDefinition(root, factory) {
-	if(typeof exports === 'object' && typeof module === 'object')
-		module.exports = factory();
-	else if(typeof define === 'function' && define.amd)
-		define([], factory);
-	else if(typeof exports === 'object')
-		exports["clan"] = factory();
-	else
-		root["clan"] = factory();
-})(this, function() {
-return /******/ (function(modules) { // webpackBootstrap
+exports["clan"] =
+/******/ (function(modules) { // webpackBootstrap
 /******/ 	function hotDisposeChunk(chunkId) {
 /******/ 		delete installedChunks[chunkId];
 /******/ 	}
@@ -69,7 +60,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "398787df8e4125c86efd"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "4126050cd1e74beee347"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -1236,5 +1227,4 @@ html(x).then(x => log(x)).catch(e => log(e+''))
 /***/ }
 
 /******/ });
-});
 //# sourceMappingURL=index.js.map
