@@ -42,7 +42,7 @@ const browser = {
         sourceMapFilename: "[name].js.map",
         path: './build',
         library: 'clan',
-        libraryTarget: 'commonjs'
+        libraryTarget: 'commonjs2'
         // publicPath: '/build',
     },
 

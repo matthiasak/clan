@@ -94,9 +94,9 @@ log(
 // map into a new hamt
 const nums = hamt([1,2,3]).map(x => x+1) // mapped into new hamt
 // reduce into one value
-nums.reduce((acc,x,i) => acc+x, 0) // 9
+hamt.reduce((acc,x,i) => acc+x, 0) // 9
 // get JSON value
-nums.toJSON()
+hamt.toJSON(nums)
 ```
 </details>
 
