@@ -69,7 +69,7 @@ return /******/ (function(modules) { // webpackBootstrap
 /******/ 	
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "9d76ec022b50dcbfb133"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "398787df8e4125c86efd"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotMainModule = true; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
@@ -727,7 +727,6 @@ return /******/ (function(modules) { // webpackBootstrap
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_model__ = __webpack_require__("./src/model.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_observable__ = __webpack_require__("./src/observable.js");
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_hamt__ = __webpack_require__("./src/hamt.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_hamt___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5__src_hamt__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_fp__ = __webpack_require__("./src/fp.js");
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "log", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["a"]; });
 /* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "rAF", function() { return __WEBPACK_IMPORTED_MODULE_6__src_fp__["b"]; });
@@ -995,13 +994,34 @@ const concatter=(thing,value)=>{return thing.concat([value]);};
 /***/ },
 
 /***/ "./src/hamt.js":
-/***/ function(module, exports) {
+/***/ function(module, exports, __webpack_require__) {
 
+"use strict";
 // compute the hamming weight
-const hamming=x=>{x-=x>>1&0x55555555;x=(x&0x33333333)+(x>>2&0x33333333);x=x+(x>>4)&0x0f0f0f0f;x+=x>>8;x+=x>>16;return x&0x7f;};const popcount=root=>{if(root.key)return 1;let c=root.children;if(c){var sum=0;for(var i in c)sum+=popcount(c[i]);return sum;}};// hash fn
-const hash=(v='')=>{v=JSON.stringify(v);var hash=5381;for(let i=0;i<v.length;i++)hash=(hash<<5)+hash+v.charCodeAt(i);return hash;};// compare two hashes
-const comp=(a,b)=>{return hash(a)===hash(b);};// get a bit vector
-const HMAP_SIZE=8;const MAX_DEPTH=32/HMAP_SIZE-1;const vec=(h=0,i=0,range=HMAP_SIZE)=>{return h>>>range*i&(1<<range)-1;};const shallowClone=x=>{let y=Object.create(null);for(let i in x)y[i]=x[i];return y;};const cloneNode=x=>{let y=node();if(!x)return y;if(x.children){y.children=shallowClone(x.children);}else if(x.key!==undefined){y.key=x.key;y.val=x.val;y.hash=x.hash;}return y;};const numChildren=x=>{let c=0;for(var i in x)++c;return c;};const set=(root,key,val)=>{if(root.key===undefined&&!root.children)return node(key,val);const newroot=cloneNode(root),h=hash(key);// walk the tree
+const hamming=x=>{x-=x>>1&0x55555555;x=(x&0x33333333)+(x>>2&0x33333333);x=x+(x>>4)&0x0f0f0f0f;x+=x>>8;x+=x>>16;return x&0x7f;};
+/* harmony export (immutable) */ exports["hamming"] = hamming;
+const popcount=root=>{if(root.key)return 1;let c=root.children;if(c){var sum=0;for(var i in c)sum+=popcount(c[i]);return sum;}};
+/* harmony export (immutable) */ exports["popcount"] = popcount;
+// hash fn
+const hash=(v='')=>{v=JSON.stringify(v);var hash=5381;for(let i=0;i<v.length;i++)hash=(hash<<5)+hash+v.charCodeAt(i);return hash;};
+/* harmony export (immutable) */ exports["hash"] = hash;
+// compare two hashes
+const comp=(a,b)=>{return hash(a)===hash(b);};
+/* harmony export (immutable) */ exports["comp"] = comp;
+// get a bit vector
+const HMAP_SIZE=8;
+/* harmony export (immutable) */ exports["HMAP_SIZE"] = HMAP_SIZE;
+const MAX_DEPTH=32/HMAP_SIZE-1;
+/* harmony export (immutable) */ exports["MAX_DEPTH"] = MAX_DEPTH;
+const vec=(h=0,i=0,range=HMAP_SIZE)=>{return h>>>range*i&(1<<range)-1;};
+/* harmony export (immutable) */ exports["vec"] = vec;
+const shallowClone=x=>{let y=Object.create(null);for(let i in x)y[i]=x[i];return y;};
+/* harmony export (immutable) */ exports["shallowClone"] = shallowClone;
+const cloneNode=x=>{let y=node();if(!x)return y;if(x.children){y.children=shallowClone(x.children);}else if(x.key!==undefined){y.key=x.key;y.val=x.val;y.hash=x.hash;}return y;};
+/* harmony export (immutable) */ exports["cloneNode"] = cloneNode;
+const numChildren=x=>{let c=0;for(var i in x)++c;return c;};
+/* harmony export (immutable) */ exports["numChildren"] = numChildren;
+const set=(root,key,val)=>{if(root.key===undefined&&!root.children)return node(key,val);const newroot=cloneNode(root),h=hash(key);// walk the tree
 for(var i=3,r=root,n=newroot;i>=0;--i){let bits=vec(h,i);if(r.key!==undefined){// if we have a collision
 if(r.key===key||i===0){// if keys match or is leaf, just overwrite n's val
 n.val=val;}else if(i!==0){// else if r is not at max depth and keys don't match
@@ -1012,7 +1032,13 @@ n.val=val;}else if(i!==0){// else if r is not at max depth and keys don't match
 let cp=node(r.key,r.val,r.hash);let cn=node(key,val,h);let rh=r.hash;// 1. delete value props from nodes
 delete r.key;delete r.val;delete r.hash;delete n.key;delete n.val;delete n.hash;// 2. create layers until bit-vectors don't collide
 for(let j=i,__r=r,__n=n;j>=0;j--){let vecr=vec(rh,j),vecn=vec(h,j);// create new layer for c and r
-let c=__r.children=Object.create(null);let d=__n.children=shallowClone(c);if(vecr!==vecn){c[vecr]=cp;d[vecr]=cp;d[vecn]=cn;break;}else{__r=c[vecr]=node();__n=d[vecn]=cloneNode(__r);}}}break;}else if(r.children){let _r=r.children[bits];if(!_r){n=n.children[bits]=node(key,val);break;}else{r=_r;n=n.children[bits]=cloneNode(r);}}}return newroot;};const get=(root,key)=>{if(root.key===key)return root.val;const h=hash(key);for(let i=3,r=root;i>=0;--i){if(!r.children)return undefined;r=r.children[vec(h,i)];if(!r)return undefined;if(r.key!==undefined)return r.val;}return undefined;};const first=root=>{let c=root.children;for(let i in c)return c[i];};const unset=(root,key)=>{const n=cloneNode(root),h=hash(key);for(var i=3,_n=n,p=n;i>=-1;--i){if(_n.key){delete _n.key;delete _n.val;delete _n.hash;return n;//             let c = numChildren(p)
+let c=__r.children=Object.create(null);let d=__n.children=shallowClone(c);if(vecr!==vecn){c[vecr]=cp;d[vecr]=cp;d[vecn]=cn;break;}else{__r=c[vecr]=node();__n=d[vecn]=cloneNode(__r);}}}break;}else if(r.children){let _r=r.children[bits];if(!_r){n=n.children[bits]=node(key,val);break;}else{r=_r;n=n.children[bits]=cloneNode(r);}}}return newroot;};
+/* harmony export (immutable) */ exports["set"] = set;
+const get=(root,key)=>{if(root.key===key)return root.val;const h=hash(key);for(let i=3,r=root;i>=0;--i){if(!r.children)return undefined;r=r.children[vec(h,i)];if(!r)return undefined;if(r.key!==undefined)return r.val;}return undefined;};
+/* harmony export (immutable) */ exports["get"] = get;
+const first=root=>{let c=root.children;for(let i in c)return c[i];};
+/* harmony export (immutable) */ exports["first"] = first;
+const unset=(root,key)=>{const n=cloneNode(root),h=hash(key);for(var i=3,_n=n,p=n;i>=-1;--i){if(_n.key){delete _n.key;delete _n.val;delete _n.hash;return n;//             let c = numChildren(p)
 //             if(c === 1) {
 //                 // if only child, delete child and parent?
 //                 delete p.children
@@ -1033,12 +1059,38 @@ let c=__r.children=Object.create(null);let d=__n.children=shallowClone(c);if(vec
 //                 delete p.children[bits]
 //             }
 //             return n
-}const bits=vec(h,i);_n=_n&&_n.children&&_n.children[bits];if(!_n)return n;p=_n;}return n;};const node=(key,val,h=key!==undefined&&hash(key))=>{/*
+}const bits=vec(h,i);_n=_n&&_n.children&&_n.children[bits];if(!_n)return n;p=_n;}return n;};
+/* harmony export (immutable) */ exports["unset"] = unset;
+const node=(key,val,h=key!==undefined&&hash(key))=>{/*
     potential props of a tree node
     - key - hashkey
     - val - value
     - children - { ... } -> points to other nodes (List<Node> children)
-    */let item=Object.create(null);if(key!==undefined){item.key=key;item.hash=h;item.val=val;}return item;};const map=(root,fn)=>{if(root.key!==undefined)return node(root.key,fn(root.val,root.key),root.hash);let d=cloneNode(root),c=d.children;if(c){for(var i in c){c[i]=map(c[i],fn);}}return d;};const filter=(root,fn)=>{if(root.key!==undefined)return fn(root.val,root.key)?root:undefined;let d=cloneNode(root),c=d.children;if(c){for(var i in c){if(!filter(c[i],fn))delete c[i];}}return d;};const reduce=(root,fn,acc)=>{if(root.key!==undefined)return fn(acc,root.val,root.key);let c=root.children;if(c){for(var i in c)acc=reduce(c[i],fn,acc);return acc;}};const toList=(root,r=[])=>{if(root.key!==undefined)r.push(root.val);let c=root.children;if(c){for(var i in c){toList(c[i],r);}}return r;};const toOrderedList=(root,r=[])=>{let i=0,n;do{n=get(root,i++);n!==undefined&&r.push(n);}while(n);return r;};const toJSON=(root,r={})=>{if(root.key!==undefined)r[root.key]=root.val;let c=root.children;if(c){for(var i in c){toJson(c[i],r);}}return r;};const push=(root,val)=>{return set(root,popcount(root),val);};const pop=root=>{return unset(root,popcount(root)-1);};const shift=root=>{return reduce(unset(root,0),(acc,v,k)=>{return set(acc,k-1,v);},node());};const unshift=(root,val)=>{return set(reduce(root,(acc,v,k)=>{return set(acc,k+1,v);},node()),0,val);};const hamt=node;// console.clear()
+    */let item=Object.create(null);if(key!==undefined){item.key=key;item.hash=h;item.val=val;}return item;};
+/* harmony export (immutable) */ exports["node"] = node;
+const map=(root,fn)=>{if(root.key!==undefined)return node(root.key,fn(root.val,root.key),root.hash);let d=cloneNode(root),c=d.children;if(c){for(var i in c){c[i]=map(c[i],fn);}}return d;};
+/* harmony export (immutable) */ exports["map"] = map;
+const filter=(root,fn)=>{if(root.key!==undefined)return fn(root.val,root.key)?root:undefined;let d=cloneNode(root),c=d.children;if(c){for(var i in c){if(!filter(c[i],fn))delete c[i];}}return d;};
+/* harmony export (immutable) */ exports["filter"] = filter;
+const reduce=(root,fn,acc)=>{if(root.key!==undefined)return fn(acc,root.val,root.key);let c=root.children;if(c){for(var i in c)acc=reduce(c[i],fn,acc);return acc;}};
+/* harmony export (immutable) */ exports["reduce"] = reduce;
+const toList=(root,r=[])=>{if(root.key!==undefined)r.push(root.val);let c=root.children;if(c){for(var i in c){toList(c[i],r);}}return r;};
+/* harmony export (immutable) */ exports["toList"] = toList;
+const toOrderedList=(root,r=[])=>{let i=0,n;do{n=get(root,i++);n!==undefined&&r.push(n);}while(n);return r;};
+/* harmony export (immutable) */ exports["toOrderedList"] = toOrderedList;
+const toJSON=(root,r={})=>{if(root.key!==undefined)r[root.key]=root.val;let c=root.children;if(c){for(var i in c){toJson(c[i],r);}}return r;};
+/* harmony export (immutable) */ exports["toJSON"] = toJSON;
+const push=(root,val)=>{return set(root,popcount(root),val);};
+/* harmony export (immutable) */ exports["push"] = push;
+const pop=root=>{return unset(root,popcount(root)-1);};
+/* harmony export (immutable) */ exports["pop"] = pop;
+const shift=root=>{return reduce(unset(root,0),(acc,v,k)=>{return set(acc,k-1,v);},node());};
+/* harmony export (immutable) */ exports["shift"] = shift;
+const unshift=(root,val)=>{return set(reduce(root,(acc,v,k)=>{return set(acc,k+1,v);},node()),0,val);};
+/* harmony export (immutable) */ exports["unshift"] = unshift;
+const hamt=node;
+/* harmony export (immutable) */ exports["hamt"] = hamt;
+// console.clear()
 // const l = (...args) => console.log(...args)
 // const j = (...a) => console.log(JSON.stringify(a))
 // let x = hamt()

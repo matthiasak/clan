@@ -1,5 +1,5 @@
 // compute the hamming weight
-const hamming = x => {
+export const hamming = x => {
     x -= ((x >> 1) & 0x55555555)
     x = (x & 0x33333333) + ((x >> 2) & 0x33333333)
     x = (x + (x >> 4)) & 0x0f0f0f0f
@@ -8,7 +8,7 @@ const hamming = x => {
     return (x & 0x7f)
 }
 
-const popcount = root => {
+export const popcount = root => {
     if(root.key)
         return 1
 
@@ -21,7 +21,7 @@ const popcount = root => {
 }
 
 // hash fn
-const hash = (v='') => {
+export const hash = (v='') => {
     v = JSON.stringify(v)
     var hash = 5381
     for (let i = 0; i < v.length; i++)
@@ -30,21 +30,21 @@ const hash = (v='') => {
 }
 
 // compare two hashes
-const comp = (a,b) => hash(a) === hash(b)
+export const comp = (a,b) => hash(a) === hash(b)
 
 // get a bit vector
-const HMAP_SIZE = 8
-const MAX_DEPTH = 32 / HMAP_SIZE - 1
-const vec = (h=0, i=0, range=HMAP_SIZE) => (h >>> (range*i)) & ((1 << range) - 1)
+export const HMAP_SIZE = 8
+export const MAX_DEPTH = 32 / HMAP_SIZE - 1
+export const vec = (h=0, i=0, range=HMAP_SIZE) => (h >>> (range*i)) & ((1 << range) - 1)
 
-const shallowClone = x => {
+export const shallowClone = x => {
     let y = Object.create(null)
     for(let i in x)
         y[i] = x[i]
     return y
 }
 
-const cloneNode = x => {
+export const cloneNode = x => {
     let y = node()
     if(!x) return y
 
@@ -59,13 +59,13 @@ const cloneNode = x => {
     return y
 }
 
-const numChildren = x => {
+export const numChildren = x => {
     let c = 0
     for(var i in x) ++c
     return c
 }
 
-const set = (root, key, val) => {
+export const set = (root, key, val) => {
     if((root.key === undefined) && !root.children) return node(key, val)
 
     const newroot = cloneNode(root), h = hash(key)
@@ -134,7 +134,7 @@ const set = (root, key, val) => {
     return newroot
 }
 
-const get = (root, key) => {
+export const get = (root, key) => {
     if(root.key === key) return root.val
     const h = hash(key)
     for(let i = 3, r = root; i >= 0; --i){
@@ -147,12 +147,12 @@ const get = (root, key) => {
     return undefined
 }
 
-const first = root => {
+export const first = root => {
     let c = root.children
     for(let i in c) return c[i]
 }
 
-const unset = (root, key) => {
+export const unset = (root, key) => {
     const n = cloneNode(root),
           h = hash(key)
 
@@ -195,7 +195,7 @@ const unset = (root, key) => {
     return n
 }
 
-const node = (key,val,h= key !== undefined && hash(key)) => {
+export const node = (key,val,h= key !== undefined && hash(key)) => {
     /*
     potential props of a tree node
     - key - hashkey
@@ -212,7 +212,7 @@ const node = (key,val,h= key !== undefined && hash(key)) => {
     return item
 }
 
-const map = (root, fn) => {
+export const map = (root, fn) => {
     if(root.key !== undefined)
         return node(root.key, fn(root.val, root.key), root.hash)
 
@@ -228,7 +228,7 @@ const map = (root, fn) => {
     return d
 }
 
-const filter = (root, fn) => {
+export const filter = (root, fn) => {
     if(root.key !== undefined)
         return fn(root.val, root.key) ? root : undefined
 
@@ -245,7 +245,7 @@ const filter = (root, fn) => {
     return d
 }
 
-const reduce = (root, fn, acc) => {
+export const reduce = (root, fn, acc) => {
     if(root.key !== undefined)
         return fn(acc, root.val, root.key)
 
@@ -258,7 +258,7 @@ const reduce = (root, fn, acc) => {
     }
 }
 
-const toList = (root, r=[]) => {
+export const toList = (root, r=[]) => {
     if(root.key !== undefined) r.push(root.val)
 
     let c = root.children
@@ -271,7 +271,7 @@ const toList = (root, r=[]) => {
     return r
 }
 
-const toOrderedList = (root, r=[]) => {
+export const toOrderedList = (root, r=[]) => {
     let i = 0,
         n
 
@@ -283,7 +283,7 @@ const toOrderedList = (root, r=[]) => {
     return r
 }
 
-const toJSON = (root, r={}) => {
+export const toJSON = (root, r={}) => {
     if(root.key !== undefined)
         r[root.key] = root.val
 
@@ -297,16 +297,16 @@ const toJSON = (root, r={}) => {
     return r
 }
 
-const push = (root, val) => set(root, popcount(root), val)
+export const push = (root, val) => set(root, popcount(root), val)
 
-const pop = root => unset(root, popcount(root)-1)
+export const pop = root => unset(root, popcount(root)-1)
 
-const shift = root => reduce(
+export const shift = root => reduce(
     unset(root, 0),
     (acc,v,k) => set(acc, k-1, v),
     node())
 
-const unshift = (root, val) =>
+export const unshift = (root, val) =>
     set(
         reduce(
             root,
@@ -315,7 +315,7 @@ const unshift = (root, val) =>
         0,
         val)
 
-const hamt = node
+export const hamt = node
 
 // console.clear()
 // const l = (...args) => console.log(...args)
