@@ -47,7 +47,7 @@ const browser = {
     },
 
     entry: {
-      "index": "./index.js"
+      "index": "./src/index.js"
     },
 
     target: "web",
@@ -66,11 +66,11 @@ const browser = {
         //     DOM: 'react-dom'
         // }),
 
-        // new webpack.DefinePlugin({
-        //     'process.env':{
-        //         'NODE_ENV': JSON.stringify(isDebug ? 'production' : 'development')
-        //     }
-        // }),
+        new webpack.DefinePlugin({
+            'process.env':{
+                'NODE_ENV': JSON.stringify(isDebug ? 'production' : 'development')
+            }
+        }),
 
         // new Offline({
         //   ServiceWorker: {
@@ -85,9 +85,9 @@ const browser = {
     .concat(isDebug ? [
         // new webpack.HotModuleReplacementPlugin
     ] : [
-        new OptimizeJsPlugin(),
-        new webpack.optimize.OccurrenceOrderPlugin,
-        new webpack.optimize.AggressiveMergingPlugin,
+        // new OptimizeJsPlugin(),
+        // new webpack.optimize.OccurrenceOrderPlugin,
+        // new webpack.optimize.AggressiveMergingPlugin,
         new webpack.optimize.UglifyJsPlugin({
             compress:{
                 warnings: true

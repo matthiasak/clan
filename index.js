@@ -1,7 +1,0 @@
-export batch from './src/batch'
-export vdom from './src/vdom'
-export mixin from './src/mixin'
-export model from './src/model'
-export obs from './src/observable'
-export * as hamt from './src/hamt'
-export * from './src/fp'
