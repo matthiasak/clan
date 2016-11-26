@@ -1,6 +1,6 @@
 {
   "name": "clan-fp",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "scripts": {
     "js:watch": "webpack --progress --color --watch",
     "build": "node build",
