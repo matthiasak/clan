@@ -18,7 +18,7 @@ const browser = {
         loaders: [{
             exclude: /node_modules/,
             loader: "babel-loader",
-            query: { cacheDirectory: true, compact: isDebug },
+            query: { cacheDirectory: true, compact: true },
             test: /\.(jsx|js|es|es6|mjs)$/,
         }]
     },
@@ -58,16 +58,19 @@ const browser = {
             minimize: !isDebug,
             debug: isDebug
         }),
+
         new webpack.NamedModulesPlugin(),
-        new webpack.ProvidePlugin({
-            React: 'react',
-            DOM: 'react-dom'
-        }),
-        new webpack.DefinePlugin({
-            'process.env':{
-                'NODE_ENV': JSON.stringify(isDebug ? 'production' : 'development')
-            }
-        }),
+
+        // new webpack.ProvidePlugin({
+        //     React: 'react',
+        //     DOM: 'react-dom'
+        // }),
+
+        // new webpack.DefinePlugin({
+        //     'process.env':{
+        //         'NODE_ENV': JSON.stringify(isDebug ? 'production' : 'development')
+        //     }
+        // }),
 
         // new Offline({
         //   ServiceWorker: {
@@ -78,8 +81,9 @@ const browser = {
         //   }
         // }),
 
-    ].concat(isDebug ? [
-        new webpack.HotModuleReplacementPlugin
+    ]
+    .concat(isDebug ? [
+        // new webpack.HotModuleReplacementPlugin
     ] : [
         new OptimizeJsPlugin(),
         new webpack.optimize.OccurrenceOrderPlugin,

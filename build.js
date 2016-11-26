@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'production'
 
 // then import webpack
 var webpack = require('webpack')
