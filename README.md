@@ -1,5 +1,7 @@
 # Clan
 
+[arbiter]: https://matthiasak.github.io/arbiter-frame/
+
 Clan is a super succinct, no-dependency set of utilities with a slightly opinionated collection of features that integrate particularly well when used together.
 
 ---
@@ -14,6 +16,21 @@ Clan is a super succinct, no-dependency set of utilities with a slightly opinion
 yarn add clan-fp
 # or
 npm install --save clan-fp
+```
+
+## Try It Out!
+
+You can copy+paste the following into [Arbiter], or you can click the following to load the pre-made page: [Arbiter example with clan-fp](https://goo.gl/iBQAop)
+
+```js
+const app = () => {
+    const {vdom, model, hamt, obs, mixin, c, cob, cof, concatter, curry, mapping, filtering, pf} =
+          clanFp
+
+
+}
+
+require('clan-fp').then(app)
 ```
 
 ## Caught a bug?
@@ -32,7 +49,8 @@ After that, you'll find the code in the `./build` folder!
 4. [mixin.js](src/mixin.js) - a `mixin()` function that can build mixins for an ES6 `class`
 5. [batch.js](src/batch.js) - a functional abstraction for a `fetch()` that deduplicates on-the-wire requests, batching parallel requests together
 6. [vdom.js](src/vdom.js) - a tiny, super-fast universal Virtual DOM with functional wrappers that can load data from sync or async sources before rendering completes
-7. [observable](src/observable.js) - an extremely powerful, efficient, memory-friendly state cascading paradigm that enables all sorts of asynchronous, functional, and lazy-evaluation paradigms
+7. [observable.js](src/observable.js) - an extremely powerful, efficient, memory-friendly state cascading paradigm that enables all sorts of asynchronous, functional, and lazy-evaluation paradigms
+8. [worker.js](src/worker.js) - a quick, observable friendly abstraction to creating web worker threads via blobs/blob URLs, pushing dependency code to them, and even spreading work to multiple workers in parallel and streaming the output back to one method. Works very nicely with observables as both input and output pipes.
 
 ## Examples
 
@@ -258,6 +276,49 @@ const onhash =
     .then(v => v())
 
 app('#a')
+```
+</details>
+<details>
+<summary>worker.js</summary>
+
+```js
+// single worker
+// create preqrequisite methods for a worker
+const fact = n => n < 2 ? 1 : n * fact(n-1)
+const compute = (e) => {
+    const {data:{type, data}} = e
+    switch(type){
+        case "factorial": postMessage(fact(data))
+    }
+}
+// provide fact as a prereq, then compute as the handler
+const w = worker(fact, compute)
+
+handle messaging to the first worker "w"
+w.onmessage = function(e) {
+    log('Response: ' + e.data)
+}
+
+Array(4000).fill(1).map((x,i) => w.postMessage({type: "factorial", data: i}))
+```
+
+```js
+// worker farm
+const fact2 = n => n < 2 ? 1 : n * fact2(n-1)
+const compute2 = (e) => {
+    const x = e.data[0]
+    postMessage(fact2(x))
+}
+
+let count = 0
+let times = 40000
+var t0 = +new Date
+const time = v => {
+    if(++count === times)
+        log(+new Date - t0 + 'ms') // show total time to compute
+}
+const s = farm(4, fact2, compute2).pipe(time).error(log)
+Array(times).fill(1).map((x,i) => s(400))
 ```
 </details>
 
