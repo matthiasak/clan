@@ -2,7 +2,7 @@ export const log = (...a) => console.log(...a)
 
 // rAF
 export const rAF =
-      document &&
+      typeof document !== 'undefined' &&
       (requestAnimationFrame ||
       webkitRequestAnimationFrame ||
       mozRequestAnimationFrame) ||

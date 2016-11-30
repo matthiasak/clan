@@ -1,5 +1,5 @@
 const rAF =
-      document &&
+      typeof document !== 'undefined' &&
       (requestAnimationFrame ||
       webkitRequestAnimationFrame ||
       mozRequestAnimationFrame) ||

@@ -1,10 +1,10 @@
 const rAF =
-    document &&
-    (requestAnimationFrame ||
-    webkitRequestAnimationFrame ||
-    mozRequestAnimationFrame) ||
-    process && process.nextTick ||
-    (cb => setTimeout(cb, 16.6))
+      typeof document !== 'undefined' &&
+      (requestAnimationFrame ||
+      webkitRequestAnimationFrame ||
+      mozRequestAnimationFrame) ||
+      process && process.nextTick ||
+      (cb => setTimeout(cb, 16.6))
 
 // Virtual DOMs
 const vdom = (() => {
