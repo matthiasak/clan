@@ -20,14 +20,11 @@ npm install --save clan-fp
 
 ## Try It Out!
 
-You can copy+paste the following into [Arbiter], or you can click the following to load the pre-made page: [Arbiter example with clan-fp](https://goo.gl/iBQAop)
+You can copy+paste the following into [Arbiter], or you can click the following to load the pre-made page: [Arbiter example with clan-fp](https://goo.gl/BpsN7w)
 
 ```js
 const app = () => {
-    const {vdom, model, hamt, obs, mixin, c, cob, cof, concatter, curry, mapping, filtering, pf} =
-          clanFp
-
-
+    const {model, hamt, obs, worker, cof, cob, curry, batch, c, concatter, filtering, mapping, pf, rAF, vdom} = clanFp
 }
 
 require('clan-fp').then(app)
