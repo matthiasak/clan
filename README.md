@@ -1,7 +1,5 @@
 # Clan
 
-[arbiter]: https://matthiasak.github.io/arbiter-frame/
-
 Clan is a super succinct, no-dependency set of utilities with a slightly opinionated collection of features that integrate particularly well when used together.
 
 ---
@@ -20,7 +18,7 @@ npm install --save clan-fp
 
 ## Try It Out!
 
-You can copy+paste the following into [Arbiter], or you can click the following to load the pre-made page: [Arbiter example with clan-fp](https://goo.gl/BpsN7w)
+You can copy+paste the following into [Arbiter](https://matthiasak.github.io/arbiter-frame), or you can click the following to load the pre-made page: [Arbiter example with clan-fp](https://goo.gl/BpsN7w)
 
 ```js
 const app = () => {

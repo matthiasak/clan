@@ -1,12 +1,4 @@
-const rAF =
-      typeof document !== 'undefined' &&
-      (requestAnimationFrame ||
-      webkitRequestAnimationFrame ||
-      mozRequestAnimationFrame) ||
-      process && process.nextTick ||
-      (cb => setTimeout(cb, 16.6))
-
-// observables
+// async-supporting-observables
 const obs = (state) => {
     const subscribers = new Set()
 
