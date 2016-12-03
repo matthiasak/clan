@@ -5,7 +5,6 @@ Clan is a super succinct, no-dependency set of utilities with a slightly opinion
 ---
 
 [![NPM](https://nodei.co/npm/clan-fp.png)](https://nodei.co/npm/clan-fp/)
-![](https://david-dm.org/matthiasak/clan.svg)
 [![Build Status](https://travis-ci.org/matthiasak/clan.svg?branch=master)](https://travis-ci.org/matthiasak/clan)
 
 ## Usage
