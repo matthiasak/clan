@@ -1,29 +1,30 @@
 // async-supporting-observables
 const obs = (state) => {
-    const subscribers = new Set()
+    let subscribers = []
 
     const fn = (val) => {
         if(val !== undefined){
             state = val
-            for(let i of subscribers) i(val)
+            for(let i = 0, len = subscribers.length; i<len; i++)
+            	subscribers[i](val)
         }
         return state
     }
 
     fn.map = f => {
       const o = obs()
-      subscribers.add(val => o(f(val)))
+      subscribers.push(val => o(f(val)))
       return o
     }
 
     fn.filter = f => {
       const o = obs()
-      subscribers.add(val => f(val) && o(val))
+      subscribers.push(val => f(val) && o(val))
       return o
     }
 
     fn.then = f => {
-      subscribers.add(val => f(val))
+      subscribers.push(val => f(val))
       return fn
     }
 
@@ -41,7 +42,7 @@ const obs = (state) => {
             }
         }
 
-        subscribers.add(cb)
+        subscribers.push(cb)
 
         return o
     }
@@ -52,14 +53,14 @@ const obs = (state) => {
 
         const cb = val => {
             if(!f(val)) {
-                subscribers.delete(cb)
+                subscribers = subscribers.filter(x => x !== cb)
                 return o(values)
             }
 
 			values.push(val)
         }
 
-        subscribers.add(cb)
+        subscribers.push(cb)
 
         return o
     }
@@ -67,7 +68,7 @@ const obs = (state) => {
     fn.reduce = (f,acc) => {
         const o = obs()
 
-        subscribers.add(val => {
+        subscribers.push(val => {
             acc = f(acc,val)
             o(acc)
         })
@@ -83,7 +84,7 @@ const obs = (state) => {
 				    .then(d => success(d))
                     .catch(e => error(e))
 
-        subscribers.add(cb)
+        subscribers.push(cb)
 
         return [ success, error ]
     }
@@ -93,7 +94,7 @@ const obs = (state) => {
     fn.debounce = ms => {
         const o = obs()
         let ts = +new Date
-        subscribers.add(val => {
+        subscribers.push(val => {
             const now = +new Date
             if(now - ts >= ms){
                 ts = +new Date
