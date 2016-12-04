@@ -26,11 +26,6 @@ let config =
 		.plugin("webpack.LoaderOptionsPlugin", {
 			minimize: true,
 			debug: false
-		})
-		.plugin("webpack.optimize.UglifyJsPlugin", {
-			compress: {
-				warnings: true
-			}
 		}))
 	.when("development", api => api
 		.entry({
