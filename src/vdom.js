@@ -70,7 +70,7 @@ const vdom = (() => {
         vdom.shouldUpdate = attrs.shouldUpdate
         vdom.unload = attrs.unload
         vdom.config = attrs.config
-        vdom.__hash = hash(vdom)
+        // vdom.__hash = hash(vdom)
         delete attrs.unload
         delete attrs.shouldUpdate
         delete attrs.config
@@ -165,7 +165,7 @@ const vdom = (() => {
         if(_id) el.id = _id
         let _className = ((attrs.className || '') + ' ' + (className || '')).trim()
         if(_className) el.className = _className
-        el.__hash = __hash
+        // el.__hash = __hash
     }
 
     // recycle or create a new el
@@ -189,8 +189,11 @@ const vdom = (() => {
             _shouldUpdate = !(shouldUpdate instanceof Function) || shouldUpdate(el)
 
         if(!attrs) return
-        if(el && (!_shouldUpdate || ((!vdom instanceof Function) && el.__hash === __hash))) {
-        return
+        // if(el && (!_shouldUpdate || ((!vdom instanceof Function) && el.__hash === __hash))) {
+        //     return
+        // }
+        if(el && (!_shouldUpdate || (!vdom instanceof Function))) {
+            return
         }
 
         if(shouldExchange){
