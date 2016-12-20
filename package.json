@@ -1,6 +1,6 @@
 {
   "name": "clan-fp",
-  "version": "0.0.20",
+  "version": "0.0.21",
   "scripts": {
     "prestart": "rimraf build/*",
     "start": "webpack --watch",
