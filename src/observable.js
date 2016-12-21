@@ -89,7 +89,7 @@ const obs = (state) => {
         return [ success, error ]
     }
 
-    fn.stop = () => subscribers.clear()
+    fn.stop = () => subscribers = []
 
     fn.debounce = ms => {
         const o = obs()
