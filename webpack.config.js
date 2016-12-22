@@ -22,18 +22,9 @@ let config =
 	})
 	.target("node")
 	.sourcemap("source-map")
-	.when("production", api => api
-		.plugin("webpack.LoaderOptionsPlugin", {
-			minimize: true,
-			debug: false
-		}))
 	.when("development", api => api
 		.entry({
 			index: "./src/index.js"
-		})
-		.plugin("webpack.LoaderOptionsPlugin", {
-			minimize: false,
-			debug: true
 		}))
 	.getConfig()
 
