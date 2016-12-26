@@ -1009,6 +1009,9 @@ const vdom = (() => {
     };
 
     const setAttrs = ({ attrs, id, className, __hash }, el) => {
+        el.className = '';
+        el.style = '';
+
         if (attrs) {
             for (var attr in attrs) {
                 if (attr === 'style') {
