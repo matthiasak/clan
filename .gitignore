@@ -9,3 +9,4 @@ coverage
 .lock-wscript
 build/*.json
 node_modules
+.fusebox

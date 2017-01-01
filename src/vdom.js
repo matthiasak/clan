@@ -3,11 +3,10 @@ const rAF =
       (requestAnimationFrame ||
       webkitRequestAnimationFrame ||
       mozRequestAnimationFrame) ||
-      process && process.nextTick ||
       (cb => setTimeout(cb, 16.6))
 
 // Virtual DOMs
-const vdom = (() => {
+const vdom = () => {
     const class_id_regex = () => {
             return /[#\.][^#\.]+/ig
         },
@@ -402,9 +401,9 @@ const vdom = (() => {
     const html = (...v) => Promise.all(v.map(toHTML)).then(x => x.filter(x => !!x).join(''))
 
     return {container, html, qs, update, mount, m, debounce}
-})()
+}
 
-export default vdom
+module.exports = vdom()
 
 /*
 usage:

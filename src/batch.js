@@ -13,17 +13,17 @@ const batch = f => {
             key = `${url}:${JSON.stringify(options)}`
 
         if((method || '').toLowerCase() === 'post')
-            return f(url, {...options, compress: false})
+            return f(url, Object.assign({}, options, {compress: false}))
 
         return inflight[key] ||
             (inflight[key] =
                 new Promise((res,rej) => {
-                    f(url, {...options, compress: false})
+                    f(url, Object.assign({}, options, {compress: false}))
                     .then(d => res(d))
                     .catch(e => rej(e))
                 })
                 .then(data => {
-                    inflight = {...inflight, [key]: undefined}
+                    inflight = Object.assign({}, inflight, {[key]: undefined})
                     return data
                 })
                 .catch(e =>

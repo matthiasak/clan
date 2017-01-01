@@ -1,14 +1,15 @@
 
 const mixin = (...classes) => {
     class _mixin {}
+
     let proto = _mixin.prototype
 
     classes.map(({prototype:p}) => {
         Object.getOwnPropertyNames(p).map(key => {
-            let oldFn = proto[key] || (() => {})
-            proto[key] = (...args) => {
-                oldFn(...args)
-                return p[key](...args)
+            let oldFn = proto[key] || ($ => {})
+            proto[key] = function() {
+                oldFn.apply(null, [].slice.call(arguments))
+                return p[key].apply(null, [].slice.call(arguments))
             }
         })
     })
@@ -16,4 +17,4 @@ const mixin = (...classes) => {
     return _mixin
 }
 
-export default mixin
+module.exports = mixin
