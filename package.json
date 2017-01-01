@@ -7,7 +7,8 @@
     "prebuild": "rimraf .fusebox build",
     "build": "cross-env NODE_ENV=production node fuse",
     "push": "git add . && git commit -am \"comitting and pushing new patch version\" && git push origin --all",
-    "deploy": "npm run build && npm run push && npm version patch && npm publish"
+    "deploy": "npm-run-all build push n",
+    "n": "npm version patch && npm publish"
   },
   "main": "build/index.js",
   "module": "src/index.js",
