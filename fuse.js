@@ -6,23 +6,21 @@ let c = {
 	homeDir: "src/"
 	, cache: dev
 	, package: 'clan-fp'
-	, globals: { 'clan-fp': 'clan-fp' }
+	, globals: { default: 'clan-fp' }
 	, sourceMap: {
 		bundleReference: "index.js.map"
 		, outFile: "./build/index.js.map"
 	}
 	, outFile: "./build/index.js"
-	, inFile: "[index.js]"
+	, inFile: "> index.js [**/*.js]"
 	, plugins: (browser) =>
 		[
 		f.BabelPlugin({
 			config: {
 				sourceMaps: true
 				, presets: ['latest']
-				, env: { production: {presets: ['babili'] }}
-				, plugins: [
-					"fast-async"
-				]
+				// , env: { production: {presets: ['babili'] }}
+				, plugins: ["fast-async"]
 			}
 		})
 		]
