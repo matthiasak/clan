@@ -56,16 +56,15 @@ var hash = exports.hash = function hash(v) {
 				return hash;
 };
 
-module.exports = {
+module.exports = Object.assign({}, fp, {
 				batch: _batch2.default,
 				vdom: _vdom2.default,
 				mixin: _mixin2.default,
 				model: _model2.default,
 				obs: _observable2.default,
 				hamt: hamt,
-				worker: worker,
-				fp: fp
-};
+				worker: worker
+});
 });
 ___scope___.file("batch.js", function(exports, require, module, __filename, __dirname){ 
 

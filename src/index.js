@@ -16,7 +16,7 @@ export const hash = (v,_v=JSON.stringify(v)) => {
     return hash
 }
 
-module.exports = {
+module.exports = Object.assign({}, fp, {
 	batch
 	, vdom
 	, mixin
@@ -24,5 +24,4 @@ module.exports = {
 	, obs
 	, hamt
 	, worker
-	, fp
-}
+})
