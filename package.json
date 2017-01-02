@@ -1,6 +1,6 @@
 {
   "name": "clan-fp",
-  "version": "0.0.32",
+  "version": "0.0.33",
   "scripts": {
     "prestart": "rimraf .fusebox build",
     "start": "node fuse",
