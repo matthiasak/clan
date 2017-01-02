@@ -12,7 +12,7 @@ let c = {
 		, outFile: "./build/index.js.map"
 	}
 	, outFile: "./build/index.js"
-	, inFile: "> index.js [**/*.js]"
+	, inFile: "> index.js [index.js]"
 	, plugins: (browser) =>
 		[
 		f.BabelPlugin({
@@ -29,11 +29,7 @@ let c = {
 const processAll = $ => {
 	let d = Object.assign({}, c)
 		, inFile = d.inFile
-
 	d.plugins = d.plugins(d.browser || false)
-	delete d.inFile
-	delete d.browser
-
 	f.FuseBox.init(d).bundle(inFile)
 }
 
