@@ -1,15 +1,28 @@
 {
   "name": "clan-fp",
   "version": "0.0.33",
+  "description": "A set of opinionated, functional utilities that work particularly well when used together",
   "scripts": {
     "prestart": "rimraf .fusebox build",
     "start": "node fuse",
     "prebuild": "rimraf .fusebox build",
     "build": "cross-env NODE_ENV=production node fuse",
     "push": "git add . && git commit -am \"comitting and pushing new patch version\" && git push origin --all",
-    "deploy": "npm-run-all build push n",
-    "n": "npm version patch && npm publish"
+    "deploy": "npm-run-all build push release n",
+    "n": "npm version patch && npm publish",
+    "release": "release"
   },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/matthiasak/clan"
+  },
+  "keywords": [
+    "fp",
+    "observables",
+    "immutable",
+    "data",
+    "server"
+  ],
   "main": "build/index.js",
   "module": "src/index.js",
   "author": "Matt Keas (@matthiasak)",

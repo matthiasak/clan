@@ -29,7 +29,7 @@ let c = {
 const processAll = $ => {
 	let d = Object.assign({}, c)
 		, inFile = d.inFile
-	d.plugins = d.plugins(d.browser || false)
+	d.plugins = d.plugins(!!d.browser)
 	f.FuseBox.init(d).bundle(inFile)
 }
 
