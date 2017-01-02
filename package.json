@@ -32,5 +32,8 @@
     "rimraf": "^2.5.4",
     "uglify-js": "^2.7.5",
     "yarn": "^0.18.1"
+  },
+  "dependencies": {
+    "ghooks": "^2.0.0"
   }
 }
