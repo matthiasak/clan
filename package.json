@@ -1,6 +1,6 @@
 {
   "name": "clan-fp",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "description": "A set of opinionated, functional utilities that work particularly well when used together",
   "scripts": {
     "prestart": "rimraf .fusebox build",
