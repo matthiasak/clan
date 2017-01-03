@@ -1,77 +1,80 @@
-module.exports =
-/******/ (function(modules) { // webpackBootstrap
-/******/ 	// The module cache
-/******/ 	var installedModules = {};
+(function(FuseBox){
+FuseBox.pkg("clan-fp", {}, function(___scope___){
+___scope___.file("index.js", function(exports, require, module, __filename, __dirname){ 
 
-/******/ 	// The require function
-/******/ 	function __webpack_require__(moduleId) {
+'use strict';
 
-/******/ 		// Check if module is in cache
-/******/ 		if(installedModules[moduleId])
-/******/ 			return installedModules[moduleId].exports;
+Object.defineProperty(exports, "__esModule", {
+				value: true
+});
+exports.hash = undefined;
 
-/******/ 		// Create a new module (and put it into the cache)
-/******/ 		var module = installedModules[moduleId] = {
-/******/ 			i: moduleId,
-/******/ 			l: false,
-/******/ 			exports: {}
-/******/ 		};
+var _batch = require('./batch');
 
-/******/ 		// Execute the module function
-/******/ 		modules[moduleId].call(module.exports, module, module.exports, __webpack_require__);
+var _batch2 = _interopRequireDefault(_batch);
 
-/******/ 		// Flag the module as loaded
-/******/ 		module.l = true;
+var _vdom = require('./vdom');
 
-/******/ 		// Return the exports of the module
-/******/ 		return module.exports;
-/******/ 	}
+var _vdom2 = _interopRequireDefault(_vdom);
 
+var _mixin = require('./mixin');
 
-/******/ 	// expose the modules object (__webpack_modules__)
-/******/ 	__webpack_require__.m = modules;
+var _mixin2 = _interopRequireDefault(_mixin);
 
-/******/ 	// expose the module cache
-/******/ 	__webpack_require__.c = installedModules;
+var _model = require('./model');
 
-/******/ 	// identity function for calling harmory imports with the correct context
-/******/ 	__webpack_require__.i = function(value) { return value; };
+var _model2 = _interopRequireDefault(_model);
 
-/******/ 	// define getter function for harmory exports
-/******/ 	__webpack_require__.d = function(exports, name, getter) {
-/******/ 		Object.defineProperty(exports, name, {
-/******/ 			configurable: false,
-/******/ 			enumerable: true,
-/******/ 			get: getter
-/******/ 		});
-/******/ 	};
+var _observable = require('./observable');
 
-/******/ 	// getDefaultExport function for compatibility with non-harmony modules
-/******/ 	__webpack_require__.n = function(module) {
-/******/ 		var getter = module && module.__esModule ?
-/******/ 			function getDefault() { return module['default']; } :
-/******/ 			function getModuleExports() { return module; };
-/******/ 		__webpack_require__.d(getter, 'a', getter);
-/******/ 		return getter;
-/******/ 	};
+var _observable2 = _interopRequireDefault(_observable);
 
-/******/ 	// Object.prototype.hasOwnProperty.call
-/******/ 	__webpack_require__.o = function(object, property) { return Object.prototype.hasOwnProperty.call(object, property); };
+var _hamt = require('./hamt');
 
-/******/ 	// __webpack_public_path__
-/******/ 	__webpack_require__.p = "/";
+var hamt = _interopRequireWildcard(_hamt);
 
-/******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ({
+var _worker = require('./worker');
 
-/***/ "./src/batch.js":
-/***/ function(module, exports, __webpack_require__) {
+var worker = _interopRequireWildcard(_worker);
 
-"use strict";
-var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+var _fp = require('./fp');
+
+var fp = _interopRequireWildcard(_fp);
+
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+var hash = exports.hash = function hash(v) {
+				var _v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : JSON.stringify(v);
+
+				var hash = 0;
+				for (var i = 0, len = _v.length; i < len; ++i) {
+								var c = _v.charCodeAt(i);
+								hash = (hash << 5) - hash + c | 0;
+				}
+				return hash;
+};
+
+module.exports = Object.assign({}, fp, {
+				batch: _batch2.default,
+				vdom: _vdom2.default,
+				mixin: _mixin2.default,
+				model: _model2.default,
+				obs: _observable2.default,
+				hamt: hamt,
+				worker: worker
+});
+});
+___scope___.file("batch.js", function(exports, require, module, __filename, __dirname){ 
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 
 // batched requests
 // The `fetch()` module batches in-flight requests, so if at any point in time, anywhere in my front-end or
@@ -79,548 +82,627 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 // to that URL is "in-flight", the Promise returned by both of those calls will be resolved by a single network request.
 
 // f :: (url -> options) -> Promise
-const batch = f => {
-    let inflight = {};
+var batch = function batch(f) {
+    var inflight = {};
 
-    return (url, options = {}) => {
-        let { method } = options,
-            key = `${ url }:${ JSON.stringify(options) }`;
+    return function (url) {
+        var options = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var method = options.method,
+            key = url + ':' + JSON.stringify(options);
 
-        if ((method || '').toLowerCase() === 'post') return f(url, _extends({}, options, { compress: false }));
 
-        return inflight[key] || (inflight[key] = new Promise((res, rej) => {
-            f(url, _extends({}, options, { compress: false })).then(d => res(d)).catch(e => rej(e));
-        }).then(data => {
-            inflight = _extends({}, inflight, { [key]: undefined });
+        if ((method || '').toLowerCase() === 'post') return f(url, Object.assign({}, options, { compress: false }));
+
+        return inflight[key] || (inflight[key] = new Promise(function (res, rej) {
+            f(url, Object.assign({}, options, { compress: false })).then(function (d) {
+                return res(d);
+            }).catch(function (e) {
+                return rej(e);
+            });
+        }).then(function (data) {
+            inflight = Object.assign({}, inflight, _defineProperty({}, key, undefined));
             return data;
-        }).catch(e => console.error(e, url)));
+        }).catch(function (e) {
+            return console.error(e, url);
+        }));
     };
 };
 
-/* harmony default export */ exports["a"] = batch;
+exports.default = batch;
+});
+___scope___.file("vdom.js", function(exports, require, module, __filename, __dirname){ 
 
-/***/ },
+'use strict';
 
-/***/ "./src/fp.js":
-/***/ function(module, exports, __webpack_require__) {
+var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 
-"use strict";
-const log = (...a) => console.log(...a);
-/* harmony export (immutable) */ exports["a"] = log;
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-// rAF
-const rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || process && process.nextTick || (cb => setTimeout(cb, 16.6));
-/* harmony export (immutable) */ exports["b"] = rAF;
-
-
-// composition
-// c :: (T -> U) -> (U -> V) -> (T -> V)
-const c = (f, g) => x => f(g(x));
-/* harmony export (immutable) */ exports["c"] = c;
-
-
-// cof :: [(an -> bn)] -> a0 -> bn
-// compose forward
-const cof = (...fns) => fns.reduce((acc, fn) => c(acc, fn));
-/* harmony export (immutable) */ exports["d"] = cof;
-
-
-// cob :: [(an -> bn)] -> b0 -> an
-// compose backwards
-const cob = (...fns) => cof(...fns.reverse());
-/* harmony export (immutable) */ exports["e"] = cob;
-
-
-// functional utilities
-// pointfree
-const pf = fn => (...args) => x => fn.apply(x, args);
-/* harmony export (immutable) */ exports["f"] = pf;
-
-
-// curry
-// curry :: (T -> U) -> [args] -> ( -> U)
-const curry = (fn, ...args) => fn.bind(undefined, ...args);
-/* harmony export (immutable) */ exports["g"] = curry;
-
-
-// Transducers
-const mapping = mapper => // mapper: x -> y
-reducer => // reducer: (state, value) -> new state
-(result, value) => reducer(result, mapper(value));
-/* harmony export (immutable) */ exports["h"] = mapping;
-
-
-const filtering = predicate => // predicate: x -> true/false
-reducer => // reducer: (state, value) -> new state
-(result, value) => predicate(value) ? reducer(result, value) : result;
-/* harmony export (immutable) */ exports["i"] = filtering;
-
-
-const concatter = (thing, value) => thing.concat([value]);
-/* harmony export (immutable) */ exports["j"] = concatter;
-
-
-/***/ },
-
-/***/ "./src/hamt.js":
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-// compute the hamming weight
-const hamming = x => {
-    x -= x >> 1 & 0x55555555;
-    x = (x & 0x33333333) + (x >> 2 & 0x33333333);
-    x = x + (x >> 4) & 0x0f0f0f0f;
-    x += x >> 8;
-    x += x >> 16;
-    return x & 0x7f;
+var rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || function (cb) {
+    return setTimeout(cb, 16.6);
 };
-/* harmony export (immutable) */ exports["hamming"] = hamming;
 
+// Virtual DOMs
+var vdom = function vdom() {
+    var class_id_regex = function class_id_regex() {
+        return (/[#\.][^#\.]+/ig
+        );
+    },
+        tagName_regex = function tagName_regex() {
+        return (/^([^\.#]+)\b/i
+        );
+    };
 
-const popcount = root => {
-    if (root.key) return 1;
+    var parseSelector = function parseSelector(s) {
+        var test = null,
+            tagreg = tagName_regex().exec(s),
+            tag = tagreg && tagreg.slice(1)[0],
+            reg = class_id_regex(),
+            vdom = Object.create(null);
 
-    let c = root.children;
-    if (c) {
-        var sum = 0;
-        for (var i in c) sum += popcount(c[i]);
-        return sum;
-    }
-};
-/* harmony export (immutable) */ exports["popcount"] = popcount;
+        if (tag) s = s.substr(tag.length);
+        vdom.className = '';
+        vdom.tag = tag || 'div';
 
+        while ((test = reg.exec(s)) !== null) {
+            test = test[0];
+            if (test[0] === '.') vdom.className = (vdom.className + ' ' + test.substr(1)).trim();else if (test[0] === '#') vdom.id = test.substr(1);
+        }
+        return vdom;
+    };
 
-// hash fn
-const hash = (v = '') => {
-    v = JSON.stringify(v);
-    var hash = 5381;
-    for (let i = 0; i < v.length; i++) hash = (hash << 5) + hash + v.charCodeAt(i);
-    return hash;
-};
-/* harmony export (immutable) */ exports["hash"] = hash;
+    var debounce = function debounce(func, wait, immediate, timeout) {
+        return function () {
+            for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+                args[_key] = arguments[_key];
+            }
 
+            var later = function later() {
+                timeout = null;
+                !immediate && func.apply(undefined, args);
+            };
+            var callNow = immediate && !timeout;
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait || 0);
+            callNow && func.apply(undefined, args);
+        };
+    };
 
-// compare two hashes
-const comp = (a, b) => hash(a) === hash(b);
-/* harmony export (immutable) */ exports["comp"] = comp;
+    var hash = function hash(v) {
+        var _v = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : JSON.stringify(v);
 
+        var hash = 0;
+        for (var i = 0, len = _v.length; i < len; ++i) {
+            var c = _v.charCodeAt(i);
+            hash = (hash << 5) - hash + c | 0;
+        }
+        return hash;
+    };
 
-// get a bit vector
-const HMAP_SIZE = 8;
-/* harmony export (immutable) */ exports["HMAP_SIZE"] = HMAP_SIZE;
+    var m = function m(selector) {
+        for (var _len2 = arguments.length, children = Array(_len2 > 2 ? _len2 - 2 : 0), _key2 = 2; _key2 < _len2; _key2++) {
+            children[_key2 - 2] = arguments[_key2];
+        }
 
-const MAX_DEPTH = 32 / HMAP_SIZE - 1;
-/* harmony export (immutable) */ exports["MAX_DEPTH"] = MAX_DEPTH;
+        var attrs = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : Object.create(null);
 
-const vec = (h = 0, i = 0, range = HMAP_SIZE) => h >>> range * i & (1 << range) - 1;
-/* harmony export (immutable) */ exports["vec"] = vec;
+        if (attrs.tag || !((typeof attrs === 'undefined' ? 'undefined' : _typeof(attrs)) === 'object') || attrs instanceof Array || attrs instanceof Function) {
+            if (attrs instanceof Array) children.unshift.apply(children, _toConsumableArray(attrs));else children.unshift(attrs);
+            attrs = Object.create(null);
+        }
+        var vdom = parseSelector(selector);
+        if (children.length) vdom.children = children;
+        vdom.attrs = attrs;
+        vdom.shouldUpdate = attrs.shouldUpdate;
+        vdom.unload = attrs.unload;
+        vdom.config = attrs.config;
+        vdom.__hash = hash(vdom);
+        delete attrs.unload;
+        delete attrs.shouldUpdate;
+        delete attrs.config;
+        return vdom;
+    };
 
+    // creatign html, strip events from DOM element... for now just deleting
+    var stripEvents = function stripEvents(_ref) {
+        var attrs = _ref.attrs;
 
-const shallowClone = x => {
-    let y = Object.create(null);
-    for (let i in x) y[i] = x[i];
-    return y;
-};
-/* harmony export (immutable) */ exports["shallowClone"] = shallowClone;
+        var a = Object.create(null);
 
-
-const cloneNode = x => {
-    let y = node();
-    if (!x) return y;
-
-    if (x.children) {
-        y.children = shallowClone(x.children);
-    } else if (x.key !== undefined) {
-        y.key = x.key;
-        y.val = x.val;
-        y.hash = x.hash;
-    }
-
-    return y;
-};
-/* harmony export (immutable) */ exports["cloneNode"] = cloneNode;
-
-
-const numChildren = x => {
-    let c = 0;
-    for (var i in x) ++c;
-    return c;
-};
-/* harmony export (immutable) */ exports["numChildren"] = numChildren;
-
-
-const set = (root, key, val) => {
-    if (root.key === undefined && !root.children) return node(key, val);
-
-    const newroot = cloneNode(root),
-          h = hash(key);
-
-    // walk the tree
-    for (var i = 3, r = root, n = newroot; i >= 0; --i) {
-        let bits = vec(h, i);
-
-        if (r.key !== undefined) {
-            // if we have a collision
-            if (r.key === key || i === 0) {
-                // if keys match or is leaf, just overwrite n's val
-                n.val = val;
-            } else if (i !== 0) {
-                // else if r is not at max depth and keys don't match
-                // add levels to both trees, new tree must be able
-                // to access old data
-
-                // 0. create makeshift value node for r
-                // and new value node for n
-                let cp = node(r.key, r.val, r.hash);
-                let cn = node(key, val, h);
-                let rh = r.hash;
-
-                // 1. delete value props from nodes
-                delete r.key;
-                delete r.val;
-                delete r.hash;
-                delete n.key;
-                delete n.val;
-                delete n.hash;
-
-                // 2. create layers until bit-vectors don't collide
-                for (let j = i, __r = r, __n = n; j >= 0; j--) {
-                    let vecr = vec(rh, j),
-                        vecn = vec(h, j);
-
-                    // create new layer for c and r
-                    let c = __r.children = Object.create(null);
-                    let d = __n.children = shallowClone(c);
-
-                    if (vecr !== vecn) {
-                        c[vecr] = cp;
-                        d[vecr] = cp;
-                        d[vecn] = cn;
-                        break;
-                    } else {
-                        __r = c[vecr] = node();
-                        __n = d[vecn] = cloneNode(__r);
-                    }
+        if (attrs) {
+            for (var name in attrs) {
+                if (name[0] === 'o' && name[1] === 'n') {
+                    a[name] = attrs[name];
+                    delete attrs[name];
                 }
             }
-            break;
-        } else if (r.children) {
-            let _r = r.children[bits];
-            if (!_r) {
-                n = n.children[bits] = node(key, val);
-                break;
+        }
+
+        return a;
+    };
+
+    var applyEvents = function applyEvents(events, el) {
+        var strip_existing = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+
+        strip_existing && removeEvents(el);
+        for (var name in events) {
+            el[name] = events[name];
+        }
+    };
+
+    var flatten = function flatten(arr) {
+        var a = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+        for (var i = 0, len = arr.length; i < len; i++) {
+            var v = arr[i];
+            if (!(v instanceof Array)) {
+                a.push(v);
             } else {
-                r = _r;
-                n = n.children[bits] = cloneNode(r);
+                flatten(v, a);
             }
         }
-    }
+        return a;
+    };
 
-    return newroot;
-};
-/* harmony export (immutable) */ exports["set"] = set;
+    var EVENTS = 'mouseover,mouseout,wheel,mousemove,blur,focus,click,abort,afterprint,animationend,animationiteration,animationstart,beforeprint,canplay,canplaythrough,change,contextmenu,dblclick,drag,dragend,dragenter,dragleave,dragover,dragstart,drop,durationchange,emptied,ended,error,load,input,invalid,keydown,keypress,keyup,loadeddata,loadedmetadata,mousedown,mouseenter,mouseleave,mouseup,pause,pointercancel,pointerdown,pointerenter,pointerleave,pointermove,pointerout,pointerover,pointerup,play,playing,ratechange,reset,resize,scroll,seeked,seeking,select,selectstart,selectionchange,show,submit,timeupdate,touchstart,touchend,touchcancel,touchmove,touchenter,touchleave,transitionend,volumechange,waiting'.split(',').map(function (x) {
+        return 'on' + x;
+    });
 
+    var removeEvents = function removeEvents(el) {
+        // strip away event handlers on el, if it exists
+        if (!el) return;
+        for (var i in EVENTS) {
+            el[i] = null;
+        }
+    };
 
-const get = (root, key) => {
-    if (root.key === key) return root.val;
-    const h = hash(key);
-    for (let i = 3, r = root; i >= 0; --i) {
-        if (!r.children) return undefined;
-        r = r.children[vec(h, i)];
-        if (!r) return undefined;
-        if (r.key !== undefined) return r.val;
-    }
+    var mnt = void 0;
 
-    return undefined;
-};
-/* harmony export (immutable) */ exports["get"] = get;
+    var mount = function mount(fn, el) {
+        mnt = [el, fn];
+        render(fn, el);
+    };
 
+    var render = debounce(function (fn, el) {
+        return rAF(function (_) {
+            applyUpdates(fn, el.children[0], el);
+        });
+    });
 
-const first = root => {
-    let c = root.children;
-    for (let i in c) return c[i];
-};
-/* harmony export (immutable) */ exports["first"] = first;
+    var update = function update() {
+        if (!mnt) return;
 
+        var _mnt = mnt,
+            _mnt2 = _slicedToArray(_mnt, 2),
+            el = _mnt2[0],
+            fn = _mnt2[1];
 
-const unset = (root, key) => {
-    const n = cloneNode(root),
-          h = hash(key);
+        render(fn, el);
+    };
 
-    for (var i = 3, _n = n, p = n; i >= -1; --i) {
-        if (_n.key) {
-            delete _n.key;
-            delete _n.val;
-            delete _n.hash;
-            return n;
+    var stylify = function stylify(style) {
+        var s = '';
+        for (var i in style) {
+            s += i + ':' + style[i] + ';';
+        }
+        return s;
+    };
 
-            //             let c = numChildren(p)
+    var setAttrs = function setAttrs(_ref2, el) {
+        var attrs = _ref2.attrs,
+            id = _ref2.id,
+            className = _ref2.className,
+            __hash = _ref2.__hash;
 
-            //             if(c === 1) {
-            //                 // if only child, delete child and parent?
-            //                 delete p.children
-            //             } else if(c===2){
-            //                 // if 2 children, promote sibling as parent value nod
-            //                 delete p.children[bits]
-            //                 let sibling = first(p)
-            //                 delete p.children
-            //                 if(sibling.children){
-            //                     p.children = sibling.children
-            //                 } else if(p.key) {
-            //                     p.val = sibling.val
-            //                     p.hash = sibling.hash
-            //                     p.key = sibling.key
-            //                 }
-            //             } else {
-            //                 // if more than 2 children, just delete the one
-            //                 delete p.children[bits]
-            //             }
-            //             return n
+        el.className = '';
+        el.style = '';
+
+        if (attrs) {
+            for (var attr in attrs) {
+                if (attr === 'style') {
+                    el.style = stylify(attrs[attr]);
+                } else if (attr === 'innerHTML') {
+                    rAF(function () {
+                        return el.innerHTML = attrs[attr];
+                    });
+                } else if (attr === 'value') {
+                    rAF(function () {
+                        return el.value = attrs[attr];
+                    });
+                } else {
+                    el.setAttribute(attr, attrs[attr]);
+                }
+            }
+        }
+        var _id = attrs.id || id;
+        if (_id) el.id = _id;
+        var _className = ((attrs.className || '') + ' ' + (className || '')).trim();
+        if (_className) el.className = _className;
+        el.__hash = __hash;
+    };
+
+    // recycle or create a new el
+    var createTag = function createTag() {
+        var vdom = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : Object.create(null);
+        var el = arguments[1];
+        var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : el && el.parentElement;
+
+        var __vdom = vdom;
+        // make text nodes from primitive types
+        if ((typeof vdom === 'undefined' ? 'undefined' : _typeof(vdom)) !== 'object') {
+            var t = document.createTextNode(vdom);
+            if (el) {
+                parent.insertBefore(t, el);
+                removeEl(el);
+            } else {
+                parent.appendChild(t);
+            }
+            return t;
         }
 
-        const bits = vec(h, i);
-        _n = _n && _n.children && _n.children[bits];
-        if (!_n) return n;
-        p = _n;
-    }
-    return n;
-};
-/* harmony export (immutable) */ exports["unset"] = unset;
+        // else make an HTMLElement from "tag" types
 
+        var tag = vdom.tag,
+            attrs = vdom.attrs,
+            id = vdom.id,
+            className = vdom.className,
+            unload = vdom.unload,
+            shouldUpdate = vdom.shouldUpdate,
+            config = vdom.config,
+            __hash = vdom.__hash,
+            shouldExchange = !el || !el.tagName || tag && el.tagName.toLowerCase() !== tag.toLowerCase(),
+            _shouldUpdate = !(shouldUpdate instanceof Function) || shouldUpdate(el);
 
-const node = (key, val, h = key !== undefined && hash(key)) => {
-    /*
-    potential props of a tree node
-    - key - hashkey
-    - val - value
-    - children - { ... } -> points to other nodes (List<Node> children)
-    */
-
-    let item = Object.create(null);
-    if (key !== undefined) {
-        item.key = key;
-        item.hash = h;
-        item.val = val;
-    }
-    return item;
-};
-/* harmony export (immutable) */ exports["node"] = node;
-
-
-const map = (root, fn) => {
-    if (root.key !== undefined) return node(root.key, fn(root.val, root.key), root.hash);
-
-    let d = cloneNode(root),
-        c = d.children;
-
-    if (c) {
-        for (var i in c) {
-            c[i] = map(c[i], fn);
+        if (!attrs) return;
+        if (el && (!_shouldUpdate || !vdom instanceof Function && el.__hash === __hash)) {
+            return;
         }
-    }
 
-    return d;
-};
-/* harmony export (immutable) */ exports["map"] = map;
-
-
-const filter = (root, fn) => {
-    if (root.key !== undefined) return fn(root.val, root.key) ? root : undefined;
-
-    let d = cloneNode(root),
-        c = d.children;
-
-    if (c) {
-        for (var i in c) {
-            if (!filter(c[i], fn)) delete c[i];
+        if (shouldExchange) {
+            var _t = document.createElement(tag);
+            el ? (parent.insertBefore(_t, el), removeEl(el)) : parent.appendChild(_t);
+            el = _t;
         }
-    }
 
-    return d;
-};
-/* harmony export (immutable) */ exports["filter"] = filter;
-
-
-const reduce = (root, fn, acc) => {
-    if (root.key !== undefined) return fn(acc, root.val, root.key);
-
-    let c = root.children;
-    if (c) {
-        for (var i in c) acc = reduce(c[i], fn, acc);
-
-        return acc;
-    }
-};
-/* harmony export (immutable) */ exports["reduce"] = reduce;
-
-
-const toList = (root, r = []) => {
-    if (root.key !== undefined) r.push(root.val);
-
-    let c = root.children;
-    if (c) {
-        for (var i in c) {
-            toList(c[i], r);
+        setAttrs(vdom, el);
+        if (el.unload instanceof Function) {
+            rAF(el.unload);
         }
-    }
-
-    return r;
-};
-/* harmony export (immutable) */ exports["toList"] = toList;
-
-
-const toOrderedList = (root, r = []) => {
-    let i = 0,
-        n;
-
-    do {
-        n = get(root, i++);
-        n !== undefined && r.push(n);
-    } while (n);
-
-    return r;
-};
-/* harmony export (immutable) */ exports["toOrderedList"] = toOrderedList;
-
-
-const toJSON = (root, r = {}) => {
-    if (root.key !== undefined) r[root.key] = root.val;
-
-    let c = root.children;
-    if (c) {
-        for (var i in c) {
-            toJson(c[i], r);
+        if (unload instanceof Function) {
+            el.unload = unload;
         }
-    }
+        applyEvents(stripEvents(vdom), el);
+        config && rAF(function (_) {
+            return config(el);
+        });
+        return el;
+    };
 
-    return r;
+    // find parent element, and remove the input element
+    var removeEl = function removeEl(el) {
+        if (!el) return;
+        el.parentElement.removeChild(el);
+        removeEvents(el);
+        // removed for now, added unload logic to the immediate draw()s
+        if (el.unload instanceof Function) el.unload();
+    };
+
+    var insertAt = function insertAt(el, parent, i) {
+        if (parent.children.length > i) {
+            var next_sib = parent.children[i];
+            parent.insertBefore(el, next_sib);
+        } else {
+            parent.appendChild(el);
+        }
+    };
+
+    var applyUpdates = function applyUpdates(vdom, el) {
+        var parent = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : el && el.parentElement;
+
+        var v = vdom;
+        // if vdom is a function, execute it until it isn't
+        while (vdom instanceof Function) {
+            vdom = vdom();
+        }if (!vdom) return;
+
+        if (vdom.resolve instanceof Function) {
+            var _ret = function () {
+                var i = parent.children.length;
+                return {
+                    v: vdom.resolve().then(function (v) {
+                        if (!el) {
+                            var x = createTag(v, null, parent);
+                            insertAt(x, parent, i);
+                            applyUpdates(v, x, parent);
+                        } else {
+                            applyUpdates(v, el, parent);
+                        }
+                    })
+                };
+            }();
+
+            if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+        }
+
+        // create/edit el under parent
+        var _el = vdom instanceof Array ? parent : createTag(vdom, el, parent);
+
+        if (!_el) return;
+
+        if (vdom instanceof Array || vdom.children) {
+            var vdom_children = flatten(vdom instanceof Array ? vdom : vdom.children),
+                el_children = vdom instanceof Array ? parent.childNodes : _el.childNodes;
+
+            while (el_children.length > vdom_children.length) {
+                removeEl(el_children[el_children.length - 1]);
+            }
+
+            for (var i = 0; i < vdom_children.length; i++) {
+                applyUpdates(vdom_children[i], el_children[i], _el);
+            }
+        } else {
+            while (_el.childNodes.length > 0) {
+                removeEl(_el.childNodes[_el.childNodes.length - 1]);
+            }
+        }
+    };
+
+    var qs = function qs() {
+        var s = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 'body';
+        var el = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : document;
+        return el.querySelector(s);
+    };
+
+    var resolver = function resolver() {
+        var states = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+
+        var promises = [],
+            done = false;
+
+        var _await = function _await() {
+            var _promises = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : [];
+
+            promises = [].concat(_toConsumableArray(promises), _toConsumableArray(_promises));
+            return finish();
+        };
+
+        var wait = function wait() {
+            var ms = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+            return new Promise(function (res) {
+                return setTimeout(res, ms);
+            });
+        };
+
+        var isDone = function isDone() {
+            return done;
+        };
+
+        var finish = function finish() {
+            var total = promises.length;
+            return wait().then(function (_) {
+                return Promise.all(promises);
+            }).then(function (values) {
+                if (promises.length > total) {
+                    return finish();
+                }
+                done = true;
+                return states;
+            });
+        };
+
+        var resolve = function resolve(props) {
+            var keys = Object.keys(props);
+            if (!keys.length) return Promise.resolve(true);
+
+            var f = [];
+            keys.forEach(function (name) {
+                var x = props[name];
+
+                while (x instanceof Function) {
+                    x = x();
+                }if (x && x.then instanceof Function) f.push(x.then(function (d) {
+                    return states[name] = d;
+                }));
+            });
+
+            return _await(f);
+        };
+
+        var getState = function getState() {
+            return states;
+        };
+
+        return { finish: finish, resolve: resolve, getState: getState, promises: promises, isDone: isDone };
+    };
+
+    var gs = function gs(view, state) {
+        var r = view(state);
+        while (r instanceof Function) {
+            r = view(instance.getState());
+        }return r;
+    };
+
+    var container = function container(view) {
+        var queries = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+        var instance = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : resolver();
+
+        var wrapper_view = function wrapper_view(state) {
+            return instance.isDone() ? view(state) : m('span');
+        };
+
+        return function () {
+            var r = gs(wrapper_view, instance.getState());
+            instance.resolve(queries);
+
+            if (r instanceof Array) {
+                var _ret2 = function () {
+                    var d = instance.finish().then(function (_) {
+                        return gs(wrapper_view, instance.getState());
+                    });
+
+                    return {
+                        v: r.map(function (x, i) {
+                            x.resolve = function (_) {
+                                return d.then(function (vdom) {
+                                    return vdom[i];
+                                });
+                            };
+                            return x;
+                        })
+                    };
+                }();
+
+                if ((typeof _ret2 === 'undefined' ? 'undefined' : _typeof(_ret2)) === "object") return _ret2.v;
+            }
+
+            r.resolve = function (_) {
+                return instance.finish().then(function (_) {
+                    return gs(wrapper_view, instance.getState());
+                });
+            };
+
+            return r;
+        };
+    };
+
+    var reservedAttrs = ['className', 'id'];
+
+    var toHTML = function toHTML(_vdom) {
+        while (_vdom instanceof Function) {
+            _vdom = _vdom();
+        }if (_vdom instanceof Array) return new Promise(function (r) {
+            return r(html.apply(undefined, _toConsumableArray(_vdom)));
+        });
+        if (!_vdom) return new Promise(function (r) {
+            return r('');
+        });
+        if ((typeof _vdom === 'undefined' ? 'undefined' : _typeof(_vdom)) !== 'object') return new Promise(function (r) {
+            return r(_vdom);
+        });
+        return (_vdom.resolve ? _vdom.resolve() : Promise.resolve()).then(function (vdom) {
+            if (!vdom) vdom = _vdom;
+
+            if (vdom instanceof Array) return new Promise(function (r) {
+                return r(html.apply(undefined, _toConsumableArray(vdom)));
+            });
+
+            var _vdom2 = vdom,
+                tag = _vdom2.tag,
+                id = _vdom2.id,
+                className = _vdom2.className,
+                attrs = _vdom2.attrs,
+                children = _vdom2.children,
+                instance = _vdom2.instance,
+                _id = id || attrs && attrs.id ? ' id="' + (id || attrs && attrs.id || '') + '"' : '',
+                _class = className || attrs && attrs.className ? ' class="' + ((className || '') + ' ' + (attrs.className || '')).trim() + '"' : '';
+
+            var events = stripEvents(vdom);
+            var _attrs = '',
+                inner = '';
+            for (var i in attrs || Object.create(null)) {
+                if (i === 'style') {
+                    _attrs += ' style="' + stylify(attrs[i]) + '"';
+                } else if (i === 'innerHTML') {
+                    inner = attrs[i];
+                } else if (reservedAttrs.indexOf(i) === -1) {
+                    _attrs += ' ' + i + '="' + attrs[i] + '"';
+                }
+            }
+
+            if (!inner && children) return html.apply(undefined, _toConsumableArray(children)).then(function (str) {
+                return '<' + tag + _id + _class + _attrs + '>' + str + '</' + tag + '>';
+            });
+
+            if ('br,input,img'.split(',').filter(function (x) {
+                return x === tag;
+            }).length === 0) return new Promise(function (r) {
+                return r('<' + tag + _id + _class + _attrs + '>' + inner + '</' + tag + '>');
+            });
+
+            return new Promise(function (r) {
+                return r('<' + tag + _id + _class + _attrs + ' />');
+            });
+        });
+    };
+
+    var html = function html() {
+        for (var _len3 = arguments.length, v = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            v[_key3] = arguments[_key3];
+        }
+
+        return Promise.all(v.map(toHTML)).then(function (x) {
+            return x.filter(function (x) {
+                return !!x;
+            }).join('');
+        });
+    };
+
+    return { container: container, html: html, qs: qs, update: update, mount: mount, m: m, debounce: debounce };
 };
-/* harmony export (immutable) */ exports["toJSON"] = toJSON;
 
+module.exports = vdom();
 
-const push = (root, val) => set(root, popcount(root), val);
-/* harmony export (immutable) */ exports["push"] = push;
+/*
+usage:
 
+let component = () =>
+    new Array(20).fill(true).map(x =>
+        m('div', {onMouseOver: e => log(e.target.innerHTML)}, range(1,100)))
 
-const pop = root => unset(root, popcount(root) - 1);
-/* harmony export (immutable) */ exports["pop"] = pop;
+client-side
+-----
+mount(component, qs())
 
+client-side constant re-rendering
+-----
+const run = () => {
+    setTimeout(run, 20)
+    update()
+}
+run()
+*/
 
-const shift = root => reduce(unset(root, 0), (acc, v, k) => set(acc, k - 1, v), node());
-/* harmony export (immutable) */ exports["shift"] = shift;
+/* CONTAINER / HTML USAGE (Server-side rendering)
 
+const name = _ => new Promise(res => setTimeout(_ => res('matt'), 1500))
 
-const unshift = (root, val) => set(reduce(root, (acc, v, k) => set(acc, k + 1, v), node()), 0, val);
-/* harmony export (immutable) */ exports["unshift"] = unshift;
+let x = container(data => [
+        m('div.test.row', {className:'hola', 'data-name':data.name, style:{border:'1px solid black'}}),
+        m('div', data.name),
+    ],
+    {name}
+)
 
-
-const hamt = node;
-/* harmony export (immutable) */ exports["hamt"] = hamt;
-
-
-// console.clear()
-// const l = (...args) => console.log(...args)
-// const j = (...a) => console.log(JSON.stringify(a))
-
-// let x = hamt()
-// let s = 20
-
-// Array(s).fill(1).map((v,i) => {
-//     x = set(x, i, i)
-// })
-
-// l(toList(x))
-// l(toJson(x))
-
-// x = map(x, x => log(x*x) || x*x)
-// l(get(x, 19))
-
-// l(x)
-// l(reduce(x, (acc, x) => acc+x, 0))
-
-// x = unset(x, 1)
-// Array(s).fill(1).map((_,i) => {
-//     if(!get(x, i)) l(i)
-//     // l(get(x, i))
-// })
-
-/***/ },
-
-/***/ "./src/index.js":
-/***/ function(module, exports, __webpack_require__) {
+html(x).then(x => log(x)).catch(e => log(e+''))
+*/
+});
+___scope___.file("mixin.js", function(exports, require, module, __filename, __dirname){ 
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__batch__ = __webpack_require__("./src/batch.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__vdom__ = __webpack_require__("./src/vdom.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__mixin__ = __webpack_require__("./src/mixin.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__model__ = __webpack_require__("./src/model.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__observable__ = __webpack_require__("./src/observable.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__hamt__ = __webpack_require__("./src/hamt.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__worker__ = __webpack_require__("./src/worker.js");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__fp__ = __webpack_require__("./src/fp.js");
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "log", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["a"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "rAF", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["b"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "c", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["c"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "cof", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["d"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "cob", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["e"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "pf", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["f"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "curry", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["g"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "mapping", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["h"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "filtering", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["i"]; }));
-/* harmony namespace reexport (by provided) */ __webpack_require__.d(exports, "concatter", (function() { return __WEBPACK_IMPORTED_MODULE_7__fp__["j"]; }));
 
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "batch", (function() { return __WEBPACK_IMPORTED_MODULE_0__batch__["a"]; }));
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "vdom", (function() { return __WEBPACK_IMPORTED_MODULE_1__vdom__["a"]; }));
-
-
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "mixin", (function() { return __WEBPACK_IMPORTED_MODULE_2__mixin__["a"]; }));
-
-
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "model", (function() { return __WEBPACK_IMPORTED_MODULE_3__model__["a"]; }));
-
-
-/* harmony reexport (binding) */ __webpack_require__.d(exports, "obs", (function() { return __WEBPACK_IMPORTED_MODULE_4__observable__["a"]; }));
-
-
-/* harmony reexport (module object) */ __webpack_require__.d(exports, "hamt", (function() { return __WEBPACK_IMPORTED_MODULE_5__hamt__; }));
-
-
-/* harmony reexport (module object) */ __webpack_require__.d(exports, "worker", (function() { return __WEBPACK_IMPORTED_MODULE_6__worker__; }));
-
-
-
-const hash = (v, _v = JSON.stringify(v)) => {
-    let hash = 0;
-    for (let i = 0, len = _v.length; i < len; ++i) {
-        const c = _v.charCodeAt(i);
-        hash = (hash << 5) - hash + c | 0;
+var mixin = function mixin() {
+    for (var _len = arguments.length, classes = Array(_len), _key = 0; _key < _len; _key++) {
+        classes[_key] = arguments[_key];
     }
-    return hash;
-};
-/* harmony export (immutable) */ exports["hash"] = hash;
 
+    var _mixin = function _mixin() {
+        _classCallCheck(this, _mixin);
+    };
 
-/***/ },
+    var proto = _mixin.prototype;
 
-/***/ "./src/mixin.js":
-/***/ function(module, exports, __webpack_require__) {
+    classes.map(function (_ref) {
+        var p = _ref.prototype;
 
-"use strict";
-
-const mixin = (...classes) => {
-    class _mixin {}
-    let proto = _mixin.prototype;
-
-    classes.map(({ prototype: p }) => {
-        Object.getOwnPropertyNames(p).map(key => {
-            let oldFn = proto[key] || (() => {});
-            proto[key] = (...args) => {
-                oldFn(...args);
-                return p[key](...args);
+        Object.getOwnPropertyNames(p).map(function (key) {
+            var oldFn = proto[key] || function ($) {};
+            proto[key] = function () {
+                oldFn.apply(null, [].slice.call(arguments));
+                return p[key].apply(null, [].slice.call(arguments));
             };
         });
     });
@@ -628,48 +710,63 @@ const mixin = (...classes) => {
     return _mixin;
 };
 
-/* harmony default export */ exports["a"] = mixin;
+module.exports = mixin;
+});
+___scope___.file("model.js", function(exports, require, module, __filename, __dirname){ 
 
-/***/ },
+'use strict';
 
-/***/ "./src/model.js":
-/***/ function(module, exports, __webpack_require__) {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-"use strict";
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
 // Validate JS objects for their "shape"
-const model = {
-    is(type, value) {
+var model = {
+    is: function is(type, value) {
         if (type && type.isValid instanceof Function) {
             return type.isValid(value);
-        } else if (type === String && (value instanceof String || typeof value === 'string') || type === Number && (value instanceof Number || typeof value === 'number') || type === Boolean && (value instanceof Boolean || typeof value === 'boolean') || type === Function && (value instanceof Function || typeof value === 'function') || type === Object && (value instanceof Object || typeof value === 'object') || type === undefined) {
+        } else if (type === String && (value instanceof String || typeof value === 'string') || type === Number && (value instanceof Number || typeof value === 'number') || type === Boolean && (value instanceof Boolean || typeof value === 'boolean') || type === Function && (value instanceof Function || typeof value === 'function') || type === Object && (value instanceof Object || (typeof value === 'undefined' ? 'undefined' : _typeof(value)) === 'object') || type === undefined) {
             return true;
         }
 
         return false;
     },
-    check(types, required, data) {
-        Object.keys(types).forEach(key => {
-            let t = types[key],
+    check: function check(types, required, data) {
+        Object.keys(types).forEach(function (key) {
+            var t = types[key],
                 value = data[key];
 
             if (required[key] || value !== undefined) {
                 if (!(t instanceof Array)) t = [t];
 
-                let i = t.reduce((a, _type) => a || MODEL.is(_type, value), false);
+                var i = t.reduce(function (a, _type) {
+                    return a || MODEL.is(_type, value);
+                }, false);
                 if (!i) {
-                    throw `{${ key }: ${ JSON.stringify(value) }} is not one of ${ t.map(x => `\n - ${ x }`) }`;
+                    throw '{' + key + ': ' + JSON.stringify(value) + '} is not one of ' + t.map(function (x) {
+                        return '\n - ' + x;
+                    });
                 }
             }
         });
 
         return true;
     },
-    init(...args) {
-        let types, required, logic;
-        args.map(x => {
+    init: function init() {
+        var types = void 0,
+            required = void 0,
+            logic = void 0;
+
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        args.map(function (x) {
             if (x instanceof Function && !logic) {
                 logic = x;
-            } else if (typeof x === 'object') {
+            } else if ((typeof x === 'undefined' ? 'undefined' : _typeof(x)) === 'object') {
                 if (!types) {
                     types = x;
                 } else if (!required) {
@@ -678,27 +775,33 @@ const model = {
             }
         });
 
-        const isValid = data => {
-            const pipe = logic ? [check, logic] : [check];
-            return pipe.reduce((a, v) => a && v(types || {}, required || {}, data), true);
+        var isValid = function isValid(data) {
+            var pipe = logic ? [check, logic] : [check];
+            return pipe.reduce(function (a, v) {
+                return a && v(types || {}, required || {}, data);
+            }, true);
         };
 
-        const whenValid = data => new Promise((res, rej) => isValid(data) && res(data));
+        var whenValid = function whenValid(data) {
+            return new Promise(function (res, rej) {
+                return isValid(data) && res(data);
+            });
+        };
 
-        return { isValid, whenValid };
+        return { isValid: isValid, whenValid: whenValid };
     },
-    ArrayOf(M) {
-        return MODEL.init((t, r, data) => {
-            if (!(data instanceof Array)) throw `${ data } not an Array`;
-            data.map(x => {
-                if (!MODEL.is(M, x)) throw `${ x } is not a model instance`;
+    ArrayOf: function ArrayOf(M) {
+        return MODEL.init(function (t, r, data) {
+            if (!(data instanceof Array)) throw data + ' not an Array';
+            data.map(function (x) {
+                if (!MODEL.is(M, x)) throw x + ' is not a model instance';
             });
             return true;
         });
     }
 };
 
-/* harmony default export */ exports["a"] = model;
+exports.default = model;
 
 /**
 Use it
@@ -748,47 +851,56 @@ let a = {
 }
 Activity.whenValid(a).then(log).catch(e => log(e+''))
 **/
-
-/***/ },
-
-/***/ "./src/observable.js":
-/***/ function(module, exports, __webpack_require__) {
+});
+___scope___.file("observable.js", function(exports, require, module, __filename, __dirname){ 
 
 "use strict";
-// async-supporting-observables
-const obs = state => {
-    let subscribers = [];
 
-    const fn = val => {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+// async-supporting-observables
+var obs = function obs(state) {
+    var subscribers = [];
+
+    var fn = function fn(val) {
         if (val !== undefined) {
             state = val;
-            for (let i = 0, len = subscribers.length; i < len; i++) subscribers[i](val);
+            for (var i = 0, len = subscribers.length; i < len; i++) {
+                subscribers[i](val);
+            }
         }
         return state;
     };
 
-    fn.map = f => {
-        const o = obs();
-        subscribers.push(val => o(f(val)));
+    fn.map = function (f) {
+        var o = obs();
+        subscribers.push(function (val) {
+            return o(f(val));
+        });
         return o;
     };
 
-    fn.filter = f => {
-        const o = obs();
-        subscribers.push(val => f(val) && o(val));
+    fn.filter = function (f) {
+        var o = obs();
+        subscribers.push(function (val) {
+            return f(val) && o(val);
+        });
         return o;
     };
 
-    fn.then = f => {
-        subscribers.push(val => f(val));
+    fn.then = function (f) {
+        subscribers.push(function (val) {
+            return f(val);
+        });
         return fn;
     };
 
-    fn.take = n => {
-        const values = [],
-              o = obs();
+    fn.take = function (n) {
+        var values = [],
+            o = obs();
 
-        const cb = val => {
+        var cb = function cb(val) {
             if (values.length < n) values.push(val);
 
             if (values.length === n) {
@@ -802,13 +914,15 @@ const obs = state => {
         return o;
     };
 
-    fn.takeWhile = f => {
-        const values = [],
-              o = obs();
+    fn.takeWhile = function (f) {
+        var values = [],
+            o = obs();
 
-        const cb = val => {
+        var cb = function cb(val) {
             if (!f(val)) {
-                subscribers = subscribers.filter(x => x !== cb);
+                subscribers = subscribers.filter(function (x) {
+                    return x !== cb;
+                });
                 return o(values);
             }
 
@@ -820,10 +934,10 @@ const obs = state => {
         return o;
     };
 
-    fn.reduce = (f, acc) => {
-        const o = obs();
+    fn.reduce = function (f, acc) {
+        var o = obs();
 
-        subscribers.push(val => {
+        subscribers.push(function (val) {
             acc = f(acc, val);
             o(acc);
         });
@@ -831,23 +945,31 @@ const obs = state => {
         return o;
     };
 
-    fn.maybe = f => {
-        const success = obs(),
-              error = obs(),
-              cb = val => f(val).then(d => success(d)).catch(e => error(e));
+    fn.maybe = function (f) {
+        var success = obs(),
+            error = obs(),
+            cb = function cb(val) {
+            return f(val).then(function (d) {
+                return success(d);
+            }).catch(function (e) {
+                return error(e);
+            });
+        };
 
         subscribers.push(cb);
 
         return [success, error];
     };
 
-    fn.stop = () => subscribers = [];
+    fn.stop = function () {
+        return subscribers = [];
+    };
 
-    fn.debounce = ms => {
-        const o = obs();
-        let ts = +new Date();
-        subscribers.push(val => {
-            const now = +new Date();
+    fn.debounce = function (ms) {
+        var o = obs();
+        var ts = +new Date();
+        subscribers.push(function (val) {
+            var now = +new Date();
             if (now - ts >= ms) {
                 ts = +new Date();
                 o(val);
@@ -859,536 +981,725 @@ const obs = state => {
     return fn;
 };
 
-obs.from = f => {
-    const o = obs();
-    f(x => o(x));
+obs.from = function (f) {
+    var o = obs();
+    f(function (x) {
+        return o(x);
+    });
     return o;
 };
 
-obs.union = (...fs) => {
-    const o = obs();
-    fs.map(f => f.then(o));
+obs.union = function () {
+    for (var _len = arguments.length, fs = Array(_len), _key = 0; _key < _len; _key++) {
+        fs[_key] = arguments[_key];
+    }
+
+    var o = obs();
+    fs.map(function (f) {
+        return f.then(o);
+    });
     return o;
 };
 
-/* harmony default export */ exports["a"] = obs;
+exports.default = obs;
+});
+___scope___.file("hamt.js", function(exports, require, module, __filename, __dirname){ 
 
-/***/ },
+'use strict';
 
-/***/ "./src/vdom.js":
-/***/ function(module, exports, __webpack_require__) {
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+// compute the hamming weight
+var hamming = exports.hamming = function hamming(x) {
+    x -= x >> 1 & 0x55555555;
+    x = (x & 0x33333333) + (x >> 2 & 0x33333333);
+    x = x + (x >> 4) & 0x0f0f0f0f;
+    x += x >> 8;
+    x += x >> 16;
+    return x & 0x7f;
+};
 
-"use strict";
-const rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || process && process.nextTick || (cb => setTimeout(cb, 16.6));
+var popcount = exports.popcount = function popcount(root) {
+    if (root.key) return 1;
 
-// Virtual DOMs
-const vdom = (() => {
-    const class_id_regex = () => {
-        return (/[#\.][^#\.]+/ig
-        );
-    },
-          tagName_regex = () => {
-        return (/^([^\.#]+)\b/i
-        );
-    };
+    var c = root.children;
+    if (c) {
+        var sum = 0;
+        for (var i in c) {
+            sum += popcount(c[i]);
+        }return sum;
+    }
+};
 
-    const parseSelector = s => {
-        let test = null,
-            tagreg = tagName_regex().exec(s),
-            tag = tagreg && tagreg.slice(1)[0],
-            reg = class_id_regex(),
-            vdom = Object.create(null);
+// hash fn
+var hash = exports.hash = function hash() {
+    var v = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
 
-        if (tag) s = s.substr(tag.length);
-        vdom.className = '';
-        vdom.tag = tag || 'div';
+    v = JSON.stringify(v);
+    var hash = 5381;
+    for (var i = 0; i < v.length; i++) {
+        hash = (hash << 5) + hash + v.charCodeAt(i);
+    }return hash;
+};
 
-        while ((test = reg.exec(s)) !== null) {
-            test = test[0];
-            if (test[0] === '.') vdom.className = (vdom.className + ' ' + test.substr(1)).trim();else if (test[0] === '#') vdom.id = test.substr(1);
-        }
-        return vdom;
-    };
+// compare two hashes
+var comp = exports.comp = function comp(a, b) {
+    return hash(a) === hash(b);
+};
 
-    const debounce = (func, wait, immediate, timeout) => (...args) => {
-        let later = () => {
-            timeout = null;
-            !immediate && func(...args);
-        };
-        var callNow = immediate && !timeout;
-        clearTimeout(timeout);
-        timeout = setTimeout(later, wait || 0);
-        callNow && func(...args);
-    };
+// get a bit vector
+var HMAP_SIZE = exports.HMAP_SIZE = 8;
+var MAX_DEPTH = exports.MAX_DEPTH = 32 / HMAP_SIZE - 1;
+var vec = exports.vec = function vec() {
+    var h = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 0;
+    var i = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : 0;
+    var range = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : HMAP_SIZE;
+    return h >>> range * i & (1 << range) - 1;
+};
 
-    const hash = (v, _v = JSON.stringify(v)) => {
-        let hash = 0;
-        for (let i = 0, len = _v.length; i < len; ++i) {
-            const c = _v.charCodeAt(i);
-            hash = (hash << 5) - hash + c | 0;
-        }
-        return hash;
-    };
+var shallowClone = exports.shallowClone = function shallowClone(x) {
+    var y = Object.create(null);
+    for (var i in x) {
+        y[i] = x[i];
+    }return y;
+};
 
-    const m = (selector, attrs = Object.create(null), ...children) => {
-        if (attrs.tag || !(typeof attrs === 'object') || attrs instanceof Array || attrs instanceof Function) {
-            if (attrs instanceof Array) children.unshift(...attrs);else children.unshift(attrs);
-            attrs = Object.create(null);
-        }
-        let vdom = parseSelector(selector);
-        if (children.length) vdom.children = children;
-        vdom.attrs = attrs;
-        vdom.shouldUpdate = attrs.shouldUpdate;
-        vdom.unload = attrs.unload;
-        vdom.config = attrs.config;
-        vdom.__hash = hash(vdom);
-        delete attrs.unload;
-        delete attrs.shouldUpdate;
-        delete attrs.config;
-        return vdom;
-    };
+var cloneNode = exports.cloneNode = function cloneNode(x) {
+    var y = node();
+    if (!x) return y;
 
-    // creatign html, strip events from DOM element... for now just deleting
-    const stripEvents = ({ attrs }) => {
-        let a = Object.create(null);
+    if (x.children) {
+        y.children = shallowClone(x.children);
+    } else if (x.key !== undefined) {
+        y.key = x.key;
+        y.val = x.val;
+        y.hash = x.hash;
+    }
 
-        if (attrs) {
-            for (var name in attrs) {
-                if (name[0] === 'o' && name[1] === 'n') {
-                    a[name] = attrs[name];
-                    delete attrs[name];
+    return y;
+};
+
+var numChildren = exports.numChildren = function numChildren(x) {
+    var c = 0;
+    for (var i in x) {
+        ++c;
+    }return c;
+};
+
+var set = exports.set = function set(root, key, val) {
+    if (root.key === undefined && !root.children) return node(key, val);
+
+    var newroot = cloneNode(root),
+        h = hash(key);
+
+    // walk the tree
+    for (var i = 3, r = root, n = newroot; i >= 0; --i) {
+        var bits = vec(h, i);
+
+        if (r.key !== undefined) {
+            // if we have a collision
+            if (r.key === key || i === 0) {
+                // if keys match or is leaf, just overwrite n's val
+                n.val = val;
+            } else if (i !== 0) {
+                // else if r is not at max depth and keys don't match
+                // add levels to both trees, new tree must be able
+                // to access old data
+
+                // 0. create makeshift value node for r
+                // and new value node for n
+                var cp = node(r.key, r.val, r.hash);
+                var cn = node(key, val, h);
+                var rh = r.hash;
+
+                // 1. delete value props from nodes
+                delete r.key;
+                delete r.val;
+                delete r.hash;
+                delete n.key;
+                delete n.val;
+                delete n.hash;
+
+                // 2. create layers until bit-vectors don't collide
+                for (var j = i, __r = r, __n = n; j >= 0; j--) {
+                    var vecr = vec(rh, j),
+                        vecn = vec(h, j);
+
+                    // create new layer for c and r
+                    var c = __r.children = Object.create(null);
+                    var d = __n.children = shallowClone(c);
+
+                    if (vecr !== vecn) {
+                        c[vecr] = cp;
+                        d[vecr] = cp;
+                        d[vecn] = cn;
+                        break;
+                    } else {
+                        __r = c[vecr] = node();
+                        __n = d[vecn] = cloneNode(__r);
+                    }
                 }
             }
-        }
-
-        return a;
-    };
-
-    const applyEvents = (events, el, strip_existing = true) => {
-        strip_existing && removeEvents(el);
-        for (var name in events) {
-            el[name] = events[name];
-        }
-    };
-
-    const flatten = (arr, a = []) => {
-        for (var i = 0, len = arr.length; i < len; i++) {
-            let v = arr[i];
-            if (!(v instanceof Array)) {
-                a.push(v);
+            break;
+        } else if (r.children) {
+            var _r = r.children[bits];
+            if (!_r) {
+                n = n.children[bits] = node(key, val);
+                break;
             } else {
-                flatten(v, a);
+                r = _r;
+                n = n.children[bits] = cloneNode(r);
             }
         }
-        return a;
-    };
+    }
 
-    const EVENTS = 'mouseover,mouseout,wheel,mousemove,blur,focus,click,abort,afterprint,animationend,animationiteration,animationstart,beforeprint,canplay,canplaythrough,change,contextmenu,dblclick,drag,dragend,dragenter,dragleave,dragover,dragstart,drop,durationchange,emptied,ended,error,load,input,invalid,keydown,keypress,keyup,loadeddata,loadedmetadata,mousedown,mouseenter,mouseleave,mouseup,pause,pointercancel,pointerdown,pointerenter,pointerleave,pointermove,pointerout,pointerover,pointerup,play,playing,ratechange,reset,resize,scroll,seeked,seeking,select,selectstart,selectionchange,show,submit,timeupdate,touchstart,touchend,touchcancel,touchmove,touchenter,touchleave,transitionend,volumechange,waiting'.split(',').map(x => 'on' + x);
+    return newroot;
+};
 
-    const removeEvents = el => {
-        // strip away event handlers on el, if it exists
-        if (!el) return;
-        for (var i in EVENTS) {
-            el[i] = null;
-        }
-    };
+var get = exports.get = function get(root, key) {
+    if (root.key === key) return root.val;
+    var h = hash(key);
+    for (var i = 3, r = root; i >= 0; --i) {
+        if (!r.children) return undefined;
+        r = r.children[vec(h, i)];
+        if (!r) return undefined;
+        if (r.key !== undefined) return r.val;
+    }
 
-    let mnt;
+    return undefined;
+};
 
-    const mount = (fn, el) => {
-        mnt = [el, fn];
-        render(fn, el);
-    };
+var first = exports.first = function first(root) {
+    var c = root.children;
+    for (var i in c) {
+        return c[i];
+    }
+};
 
-    const render = debounce((fn, el) => rAF(_ => {
-        applyUpdates(fn, el.children[0], el);
-    }));
+var unset = exports.unset = function unset(root, key) {
+    var n = cloneNode(root),
+        h = hash(key);
 
-    const update = () => {
-        if (!mnt) return;
-        let [el, fn] = mnt;
-        render(fn, el);
-    };
+    for (var i = 3, _n = n, p = n; i >= -1; --i) {
+        if (_n.key) {
+            delete _n.key;
+            delete _n.val;
+            delete _n.hash;
+            return n;
 
-    const stylify = style => {
-        let s = '';
-        for (var i in style) {
-            s += `${ i }:${ style[i] };`;
-        }
-        return s;
-    };
+            //             let c = numChildren(p)
 
-    const setAttrs = ({ attrs, id, className, __hash }, el) => {
-        el.className = '';
-        el.style = '';
-
-        if (attrs) {
-            for (var attr in attrs) {
-                if (attr === 'style') {
-                    el.style = stylify(attrs[attr]);
-                } else if (attr === 'innerHTML') {
-                    rAF(() => el.innerHTML = attrs[attr]);
-                } else if (attr === 'value') {
-                    rAF(() => el.value = attrs[attr]);
-                } else {
-                    el.setAttribute(attr, attrs[attr]);
-                }
-            }
-        }
-        let _id = attrs.id || id;
-        if (_id) el.id = _id;
-        let _className = ((attrs.className || '') + ' ' + (className || '')).trim();
-        if (_className) el.className = _className;
-        el.__hash = __hash;
-    };
-
-    // recycle or create a new el
-    const createTag = (vdom = Object.create(null), el, parent = el && el.parentElement) => {
-        let __vdom = vdom;
-        // make text nodes from primitive types
-        if (typeof vdom !== 'object') {
-            let t = document.createTextNode(vdom);
-            if (el) {
-                parent.insertBefore(t, el);
-                removeEl(el);
-            } else {
-                parent.appendChild(t);
-            }
-            return t;
+            //             if(c === 1) {
+            //                 // if only child, delete child and parent?
+            //                 delete p.children
+            //             } else if(c===2){
+            //                 // if 2 children, promote sibling as parent value nod
+            //                 delete p.children[bits]
+            //                 let sibling = first(p)
+            //                 delete p.children
+            //                 if(sibling.children){
+            //                     p.children = sibling.children
+            //                 } else if(p.key) {
+            //                     p.val = sibling.val
+            //                     p.hash = sibling.hash
+            //                     p.key = sibling.key
+            //                 }
+            //             } else {
+            //                 // if more than 2 children, just delete the one
+            //                 delete p.children[bits]
+            //             }
+            //             return n
         }
 
-        // else make an HTMLElement from "tag" types
-        let { tag, attrs, id, className, unload, shouldUpdate, config, __hash } = vdom,
-            shouldExchange = !el || !el.tagName || tag && el.tagName.toLowerCase() !== tag.toLowerCase(),
-            _shouldUpdate = !(shouldUpdate instanceof Function) || shouldUpdate(el);
+        var bits = vec(h, i);
+        _n = _n && _n.children && _n.children[bits];
+        if (!_n) return n;
+        p = _n;
+    }
+    return n;
+};
 
-        if (!attrs) return;
-        if (el && (!_shouldUpdate || !vdom instanceof Function && el.__hash === __hash)) {
-            return;
+var node = exports.node = function node(key, val) {
+    var h = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : key !== undefined && hash(key);
+
+    /*
+    potential props of a tree node
+    - key - hashkey
+    - val - value
+    - children - { ... } -> points to other nodes (List<Node> children)
+    */
+
+    var item = Object.create(null);
+    if (key !== undefined) {
+        item.key = key;
+        item.hash = h;
+        item.val = val;
+    }
+    return item;
+};
+
+var map = exports.map = function map(root, fn) {
+    if (root.key !== undefined) return node(root.key, fn(root.val, root.key), root.hash);
+
+    var d = cloneNode(root),
+        c = d.children;
+
+    if (c) {
+        for (var i in c) {
+            c[i] = map(c[i], fn);
         }
+    }
 
-        if (shouldExchange) {
-            let t = document.createElement(tag);
-            el ? (parent.insertBefore(t, el), removeEl(el)) : parent.appendChild(t);
-            el = t;
+    return d;
+};
+
+var filter = exports.filter = function filter(root, fn) {
+    if (root.key !== undefined) return fn(root.val, root.key) ? root : undefined;
+
+    var d = cloneNode(root),
+        c = d.children;
+
+    if (c) {
+        for (var i in c) {
+            if (!filter(c[i], fn)) delete c[i];
         }
+    }
 
-        setAttrs(vdom, el);
-        if (el.unload instanceof Function) {
-            rAF(el.unload);
+    return d;
+};
+
+var reduce = exports.reduce = function reduce(root, fn, acc) {
+    if (root.key !== undefined) return fn(acc, root.val, root.key);
+
+    var c = root.children;
+    if (c) {
+        for (var i in c) {
+            acc = reduce(c[i], fn, acc);
+        }return acc;
+    }
+};
+
+var toList = exports.toList = function toList(root) {
+    var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+    if (root.key !== undefined) r.push(root.val);
+
+    var c = root.children;
+    if (c) {
+        for (var i in c) {
+            toList(c[i], r);
         }
-        if (unload instanceof Function) {
-            el.unload = unload;
+    }
+
+    return r;
+};
+
+var toOrderedList = exports.toOrderedList = function toOrderedList(root) {
+    var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : [];
+
+    var i = 0,
+        n = void 0;
+
+    do {
+        n = get(root, i++);
+        n !== undefined && r.push(n);
+    } while (n);
+
+    return r;
+};
+
+var toJSON = exports.toJSON = function toJSON(root) {
+    var r = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+
+    if (root.key !== undefined) r[root.key] = root.val;
+
+    var c = root.children;
+    if (c) {
+        for (var i in c) {
+            toJson(c[i], r);
         }
-        applyEvents(stripEvents(vdom), el);
-        config && rAF(_ => config(el));
-        return el;
+    }
+
+    return r;
+};
+
+var push = exports.push = function push(root, val) {
+    return set(root, popcount(root), val);
+};
+
+var pop = exports.pop = function pop(root) {
+    return unset(root, popcount(root) - 1);
+};
+
+var shift = exports.shift = function shift(root) {
+    return reduce(unset(root, 0), function (acc, v, k) {
+        return set(acc, k - 1, v);
+    }, node());
+};
+
+var unshift = exports.unshift = function unshift(root, val) {
+    return set(reduce(root, function (acc, v, k) {
+        return set(acc, k + 1, v);
+    }, node()), 0, val);
+};
+
+var hamt = exports.hamt = node;
+
+// console.clear()
+// const l = (...args) => console.log(...args)
+// const j = (...a) => console.log(JSON.stringify(a))
+
+// let x = hamt()
+// let s = 20
+
+// Array(s).fill(1).map((v,i) => {
+//     x = set(x, i, i)
+// })
+
+// l(toList(x))
+// l(toJson(x))
+
+// x = map(x, x => log(x*x) || x*x)
+// l(get(x, 19))
+
+// l(x)
+// l(reduce(x, (acc, x) => acc+x, 0))
+
+// x = unset(x, 1)
+// Array(s).fill(1).map((_,i) => {
+//     if(!get(x, i)) l(i)
+//     // l(get(x, i))
+// })
+});
+___scope___.file("worker.js", function(exports, require, module, __filename, __dirname){ 
+
+'use strict';
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+var supports = function supports() {
+    for (var _len = arguments.length, q = Array(_len), _key = 0; _key < _len; _key++) {
+        q[_key] = arguments[_key];
+    }
+
+    return function () {
+        return q.reduce(function (acc, s) {
+            return acc || window[s] !== undefined && /[native code]/.test(window[s] + '') && window[s];
+        }, false);
     };
+};
 
-    // find parent element, and remove the input element
-    const removeEl = el => {
-        if (!el) return;
-        el.parentElement.removeChild(el);
-        removeEvents(el);
-        // removed for now, added unload logic to the immediate draw()s
-        if (el.unload instanceof Function) el.unload();
-    };
+var supportsWorkers = supports('Worker');
 
-    const insertAt = (el, parent, i) => {
-        if (parent.children.length > i) {
-            let next_sib = parent.children[i];
-            parent.insertBefore(el, next_sib);
-        } else {
-            parent.appendChild(el);
-        }
-    };
+var supportsBlobs = supports('Blob');
 
-    const applyUpdates = (vdom, el, parent = el && el.parentElement) => {
-        let v = vdom;
-        // if vdom is a function, execute it until it isn't
-        while (vdom instanceof Function) vdom = vdom();
+var supportsURLs = supports('URL', 'webkitURL');
 
-        if (!vdom) return;
-
-        if (vdom.resolve instanceof Function) {
-            let i = parent.children.length;
-            return vdom.resolve().then(v => {
-                if (!el) {
-                    let x = createTag(v, null, parent);
-                    insertAt(x, parent, i);
-                    applyUpdates(v, x, parent);
-                } else {
-                    applyUpdates(v, el, parent);
-                }
-            });
-        }
-
-        // create/edit el under parent
-        let _el = vdom instanceof Array ? parent : createTag(vdom, el, parent);
-
-        if (!_el) return;
-
-        if (vdom instanceof Array || vdom.children) {
-            let vdom_children = flatten(vdom instanceof Array ? vdom : vdom.children),
-                el_children = vdom instanceof Array ? parent.childNodes : _el.childNodes;
-
-            while (el_children.length > vdom_children.length) {
-                removeEl(el_children[el_children.length - 1]);
-            }
-
-            for (let i = 0; i < vdom_children.length; i++) {
-                applyUpdates(vdom_children[i], el_children[i], _el);
-            }
-        } else {
-            while (_el.childNodes.length > 0) {
-                removeEl(_el.childNodes[_el.childNodes.length - 1]);
-            }
-        }
-    };
-
-    const qs = (s = 'body', el = document) => el.querySelector(s);
-
-    const resolver = (states = {}) => {
-        let promises = [],
-            done = false;
-
-        const _await = (_promises = []) => {
-            promises = [...promises, ..._promises];
-            return finish();
-        };
-
-        const wait = (ms = 0) => new Promise(res => setTimeout(res, ms));
-
-        const isDone = () => done;
-
-        const finish = () => {
-            const total = promises.length;
-            return wait().then(_ => Promise.all(promises)).then(values => {
-                if (promises.length > total) {
-                    return finish();
-                }
-                done = true;
-                return states;
-            });
-        };
-
-        const resolve = props => {
-            const keys = Object.keys(props);
-            if (!keys.length) return Promise.resolve(true);
-
-            let f = [];
-            keys.forEach(name => {
-                let x = props[name];
-
-                while (x instanceof Function) x = x();
-
-                if (x && x.then instanceof Function) f.push(x.then(d => states[name] = d));
-            });
-
-            return _await(f);
-        };
-
-        const getState = () => states;
-
-        return { finish, resolve, getState, promises, isDone };
-    };
-
-    const gs = (view, state) => {
-        let r = view(state);
-        while (r instanceof Function) r = view(instance.getState());
-        return r;
-    };
-
-    const container = (view, queries = {}, instance = resolver()) => {
-        let wrapper_view = state => instance.isDone() ? view(state) : m('span');
-
-        return () => {
-            let r = gs(wrapper_view, instance.getState());
-            instance.resolve(queries);
-
-            if (r instanceof Array) {
-                let d = instance.finish().then(_ => gs(wrapper_view, instance.getState()));
-
-                return r.map((x, i) => {
-                    x.resolve = _ => d.then(vdom => vdom[i]);
-                    return x;
-                });
-            }
-
-            r.resolve = _ => instance.finish().then(_ => gs(wrapper_view, instance.getState()));
-
-            return r;
-        };
-    };
-
-    const reservedAttrs = ['className', 'id'];
-
-    const toHTML = _vdom => {
-        while (_vdom instanceof Function) _vdom = _vdom();
-        if (_vdom instanceof Array) return new Promise(r => r(html(..._vdom)));
-        if (!_vdom) return new Promise(r => r(''));
-        if (typeof _vdom !== 'object') return new Promise(r => r(_vdom));
-        return (_vdom.resolve ? _vdom.resolve() : Promise.resolve()).then(vdom => {
-            if (!vdom) vdom = _vdom;
-
-            if (vdom instanceof Array) return new Promise(r => r(html(...vdom)));
-
-            const { tag, id, className, attrs, children, instance } = vdom,
-                  _id = id || attrs && attrs.id ? ` id="${ id || attrs && attrs.id || '' }"` : '',
-                  _class = className || attrs && attrs.className ? ` class="${ ((className || '') + ' ' + (attrs.className || '')).trim() }"` : '';
-
-            const events = stripEvents(vdom);
-            let _attrs = '',
-                inner = '';
-            for (var i in attrs || Object.create(null)) {
-                if (i === 'style') {
-                    _attrs += ` style="${ stylify(attrs[i]) }"`;
-                } else if (i === 'innerHTML') {
-                    inner = attrs[i];
-                } else if (reservedAttrs.indexOf(i) === -1) {
-                    _attrs += ` ${ i }="${ attrs[i] }"`;
-                }
-            }
-
-            if (!inner && children) return html(...children).then(str => `<${ tag }${ _id }${ _class }${ _attrs }>${ str }</${ tag }>`);
-
-            if ('br,input,img'.split(',').filter(x => x === tag).length === 0) return new Promise(r => r(`<${ tag }${ _id }${ _class }${ _attrs }>${ inner }</${ tag }>`));
-
-            return new Promise(r => r(`<${ tag }${ _id }${ _class }${ _attrs } />`));
-        });
-    };
-
-    const html = (...v) => Promise.all(v.map(toHTML)).then(x => x.filter(x => !!x).join(''));
-
-    return { container, html, qs, update, mount, m, debounce };
-})();
-
-/* harmony default export */ exports["a"] = vdom;
-
-/*
-usage:
-
-let component = () =>
-    new Array(20).fill(true).map(x =>
-        m('div', {onMouseOver: e => log(e.target.innerHTML)}, range(1,100)))
-
-client-side
------
-mount(component, qs())
-
-client-side constant re-rendering
------
-const run = () => {
-    setTimeout(run, 20)
-    update()
-}
-run()
-*/
-
-/* CONTAINER / HTML USAGE (Server-side rendering)
-
-const name = _ => new Promise(res => setTimeout(_ => res('matt'), 1500))
-
-let x = container(data => [
-        m('div.test.row', {className:'hola', 'data-name':data.name, style:{border:'1px solid black'}}),
-        m('div', data.name),
-    ],
-    {name}
-)
-
-html(x).then(x => log(x)).catch(e => log(e+''))
-*/
-
-/***/ },
-
-/***/ "./src/worker.js":
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-const supports = (...q) => () => q.reduce((acc, s) => acc || window[s] !== undefined && /[native code]/.test(window[s] + '') && window[s], false);
-
-const supportsWorkers = supports('Worker');
-
-const supportsBlobs = supports('Blob');
-
-const supportsURLs = supports('URL', 'webkitURL');
-
-const supportsBuilders = supports('BlobBuilder', 'WebKitBlobBuilder', 'MozBlobBuilder');
+var supportsBuilders = supports('BlobBuilder', 'WebKitBlobBuilder', 'MozBlobBuilder');
 
 /*
 worker:: [X] -> Worker where X : Function | String
 
 the last X provided in the arguments will be setup as the handler for self.onmessage()
 */
-const worker = (...code) => {
-    if (!supportsWorkers()) throw 'WebWorkers not supported';
-
-    code[code.length - 1] = `self.onmessage=${ code[code.length - 1] }`;
-
-    const B = supportsBlobs(),
-          U = supportsBuilders(),
-          W = supportsURLs();
-
-    let blob;
-
-    if (supportsBlobs()) {
-        blob = new B(code.map(c => c + ''), { type: 'application/javascript' });
-    } else if (U) {
-        blob = new U();
-        code.map(c => blob.append(c + ''));
-        blob = blob.getBlob();
-    } else {
-        blob = `data:application/javascript,` + `${ encodeURIComponent(code.reduce((acc, c) => acc + c, '')) }`;
+var worker = exports.worker = function worker() {
+    for (var _len2 = arguments.length, code = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        code[_key2] = arguments[_key2];
     }
 
-    let url = W.createObjectURL(blob);
+    if (!supportsWorkers()) throw 'WebWorkers not supported';
+
+    code[code.length - 1] = 'self.onmessage=' + code[code.length - 1];
+
+    var B = supportsBlobs(),
+        U = supportsBuilders(),
+        W = supportsURLs();
+
+    var blob = void 0;
+
+    if (supportsBlobs()) {
+        blob = new B(code.map(function (c) {
+            return c + '';
+        }), { type: 'application/javascript' });
+    } else if (U) {
+        blob = new U();
+        code.map(function (c) {
+            return blob.append(c + '');
+        });
+        blob = blob.getBlob();
+    } else {
+        blob = 'data:application/javascript,' + ('' + encodeURIComponent(code.reduce(function (acc, c) {
+            return acc + c;
+        }, '')));
+    }
+
+    var url = W.createObjectURL(blob);
     return new Worker(url);
 };
-/* harmony export (immutable) */ exports["worker"] = worker;
 
+var farm = exports.farm = function farm(n) {
+    for (var _len3 = arguments.length, code = Array(_len3 > 1 ? _len3 - 1 : 0), _key3 = 1; _key3 < _len3; _key3++) {
+        code[_key3 - 1] = arguments[_key3];
+    }
 
-const farm = (n, ...code) => {
-    let workers = Array(n).fill(1).map(x => worker(...code)),
+    var workers = Array(n).fill(1).map(function (x) {
+        return worker.apply(undefined, code);
+    }),
         current = 0,
-        iter = () => {
-        let _n = current;
+        iter = function iter() {
+        var _n = current;
         ++current >= n && (current = 0);
         return current;
     },
-        pipe,
-        onerror;
+        pipe = void 0,
+        onerror = void 0;
 
-    workers.map(w => {
-        w.onmessage = e => pipe instanceof Function && pipe(e.data);
-        w.onerror = e => onerror instanceof Function && onerror(e);
+    workers.map(function (w) {
+        w.onmessage = function (e) {
+            return pipe instanceof Function && pipe(e.data);
+        };
+        w.onerror = function (e) {
+            return onerror instanceof Function && onerror(e);
+        };
     });
 
-    const exec = (...args) => {
-        let w = workers[iter()];
+    var exec = function exec() {
+        for (var _len4 = arguments.length, args = Array(_len4), _key4 = 0; _key4 < _len4; _key4++) {
+            args[_key4] = arguments[_key4];
+        }
+
+        var w = workers[iter()];
         w && w.postMessage(args);
     };
 
-    exec.pipe = fn => {
+    exec.pipe = function (fn) {
         pipe = fn;
         return exec;
     };
-    exec.error = fn => {
+    exec.error = function (fn) {
         onerror = fn;
         return exec;
     };
     return exec;
 };
-/* harmony export (immutable) */ exports["farm"] = farm;
+});
+___scope___.file("fp.js", function(exports, require, module, __filename, __dirname){ 
+var process = require("process");
+'use strict';
 
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
 
-/***/ },
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
-/***/ 0:
-/***/ function(module, exports, __webpack_require__) {
+var log = exports.log = function log() {
+    var _console;
 
-module.exports = __webpack_require__("./src/index.js");
+    return (_console = console).log.apply(_console, arguments);
+};
 
+// rAF
+var rAF = exports.rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || process && process.nextTick || function (cb) {
+    return setTimeout(cb, 16.6);
+};
 
-/***/ }
+// composition
+// c :: (T -> U) -> (U -> V) -> (T -> V)
+var c = exports.c = function c(f, g) {
+    return function (x) {
+        return f(g(x));
+    };
+};
 
-/******/ });
+// cof :: [(an -> bn)] -> a0 -> bn
+// compose forward
+var cof = exports.cof = function cof() {
+    for (var _len = arguments.length, fns = Array(_len), _key = 0; _key < _len; _key++) {
+        fns[_key] = arguments[_key];
+    }
+
+    return fns.reduce(function (acc, fn) {
+        return c(acc, fn);
+    });
+};
+
+// cob :: [(an -> bn)] -> b0 -> an
+// compose backwards
+var cob = exports.cob = function cob() {
+    for (var _len2 = arguments.length, fns = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        fns[_key2] = arguments[_key2];
+    }
+
+    return cof.apply(undefined, _toConsumableArray(fns.reverse()));
+};
+
+// functional utilities
+// pointfree
+var pf = exports.pf = function pf(fn) {
+    return function () {
+        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            args[_key3] = arguments[_key3];
+        }
+
+        return function (x) {
+            return fn.apply(x, args);
+        };
+    };
+};
+
+// curry
+// curry :: (T -> U) -> [args] -> ( -> U)
+var curry = exports.curry = function curry(fn) {
+    for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+        args[_key4 - 1] = arguments[_key4];
+    }
+
+    return fn.bind.apply(fn, [undefined].concat(args));
+};
+
+// Transducers
+var mapping = exports.mapping = function mapping(mapper) {
+    return (// mapper: x -> y
+        function (reducer) {
+            return (// reducer: (state, value) -> new state
+                function (result, value) {
+                    return reducer(result, mapper(value));
+                }
+            );
+        }
+    );
+};
+
+var filtering = exports.filtering = function filtering(predicate) {
+    return (// predicate: x -> true/false
+        function (reducer) {
+            return (// reducer: (state, value) -> new state
+                function (result, value) {
+                    return predicate(value) ? reducer(result, value) : result;
+                }
+            );
+        }
+    );
+};
+
+var concatter = exports.concatter = function concatter(thing, value) {
+    return thing.concat([value]);
+};
+});
+});
+FuseBox.pkg("process", {}, function(___scope___){
+___scope___.file("index.js", function(exports, require, module, __filename, __dirname){ 
+
+// From https://github.com/defunctzombie/node-process/blob/master/browser.js
+// shim for using process in browser
+if (FuseBox.isServer) {
+    module.exports = global.process;
+} else {
+    var productionEnv = false; //require('@system-env').production;
+
+    var process = module.exports = {};
+    var queue = [];
+    var draining = false;
+    var currentQueue;
+    var queueIndex = -1;
+
+    function cleanUpNextTick() {
+        draining = false;
+        if (currentQueue.length) {
+            queue = currentQueue.concat(queue);
+        } else {
+            queueIndex = -1;
+        }
+        if (queue.length) {
+            drainQueue();
+        }
+    }
+
+    function drainQueue() {
+        if (draining) {
+            return;
+        }
+        var timeout = setTimeout(cleanUpNextTick);
+        draining = true;
+
+        var len = queue.length;
+        while (len) {
+            currentQueue = queue;
+            queue = [];
+            while (++queueIndex < len) {
+                if (currentQueue) {
+                    currentQueue[queueIndex].run();
+                }
+            }
+            queueIndex = -1;
+            len = queue.length;
+        }
+        currentQueue = null;
+        draining = false;
+        clearTimeout(timeout);
+    }
+
+    process.nextTick = function(fun) {
+        var args = new Array(arguments.length - 1);
+        if (arguments.length > 1) {
+            for (var i = 1; i < arguments.length; i++) {
+                args[i - 1] = arguments[i];
+            }
+        }
+        queue.push(new Item(fun, args));
+        if (queue.length === 1 && !draining) {
+            setTimeout(drainQueue, 0);
+        }
+    };
+
+    // v8 likes predictible objects
+    function Item(fun, array) {
+        this.fun = fun;
+        this.array = array;
+    }
+    Item.prototype.run = function() {
+        this.fun.apply(null, this.array);
+    };
+    process.title = 'browser';
+    process.browser = true;
+    process.env = {
+        NODE_ENV: productionEnv ? 'production' : 'development'
+    };
+    process.argv = [];
+    process.version = ''; // empty string to avoid regexp issues
+    process.versions = {};
+
+    function noop() {}
+
+    process.on = noop;
+    process.addListener = noop;
+    process.once = noop;
+    process.off = noop;
+    process.removeListener = noop;
+    process.removeAllListeners = noop;
+    process.emit = noop;
+
+    process.binding = function(name) {
+        throw new Error('process.binding is not supported');
+    };
+
+    process.cwd = function() { return '/' };
+    process.chdir = function(dir) {
+        throw new Error('process.chdir is not supported');
+    };
+    process.umask = function() { return 0; };
+
+}
+});
+return ___scope___.entry = "index.js";
+});
+FuseBox.expose([{"alias":"clan-fp","pkg":"default"}]);
+
+FuseBox.import("clan-fp/index.js");
+FuseBox.main("clan-fp/index.js");
+})
+(function(e){var r="undefined"!=typeof window&&window.navigator;r&&(window.global=window),e=r&&"undefined"==typeof __fbx__dnm__?e:module.exports;var t=r?window.__fsbx__=window.__fsbx__||{}:global.$fsbx=global.$fsbx||{};r||(global.require=require);var n=t.p=t.p||{},i=t.e=t.e||{},o=function(e){if(/^([@a-z].*)$/.test(e)){if("@"===e[0]){var r=e.split("/"),t=r.splice(2,r.length).join("/");return[r[0]+"/"+r[1],t||void 0]}return e.split(/\/(.+)?/)}},a=function(e){return e.substring(0,e.lastIndexOf("/"))||"./"},f=function(){for(var e=[],r=0;r<arguments.length;r++)e[r]=arguments[r];for(var t=[],n=0,i=arguments.length;n<i;n++)t=t.concat(arguments[n].split("/"));for(var o=[],n=0,i=t.length;n<i;n++){var a=t[n];a&&"."!==a&&(".."===a?o.pop():o.push(a))}return""===t[0]&&o.unshift(""),o.join("/")||(o.length?"/":".")},u=function(e){var r=e.match(/\.(\w{1,})$/);if(r){var t=r[1];return t?e:e+".js"}return e+".js"},s=function(e){if(r){var t,n=document,i=n.getElementsByTagName("head")[0];/\.css$/.test(e)?(t=n.createElement("link"),t.rel="stylesheet",t.type="text/css",t.href=e):(t=n.createElement("script"),t.type="text/javascript",t.src=e,t.async=!0),i.insertBefore(t,i.firstChild)}},l=function(e,t){var i=t.path||"./",a=t.pkg||"default",s=o(e);s&&(i="./",a=s[0],t.v&&t.v[a]&&(a=a+"@"+t.v[a]),e=s[1]),/^~/.test(e)&&(e=e.slice(2,e.length),i="./");var l=n[a];if(!l){if(r)throw'Package was not found "'+a+'"';return{serverReference:require(a)}}e||(e="./"+l.s.entry);var c,v=f(i,e),p=u(v),d=l.f[p];return!d&&/\*/.test(p)&&(c=p),d||c||(p=f(v,"/","index.js"),d=l.f[p],d||(p=v+".js",d=l.f[p]),d||(d=l.f[v+".jsx"])),{file:d,wildcard:c,pkgName:a,versions:l.v,filePath:v,validPath:p}},c=function(e,t){if(!r)return t(/\.(js|json)$/.test(e)?global.require(e):"");var n;n=new XMLHttpRequest,n.onreadystatechange=function(){if(4==n.readyState&&200==n.status){var r=n.getResponseHeader("Content-Type"),i=n.responseText;/json/.test(r)?i="module.exports = "+i:/javascript/.test(r)||(i="module.exports = "+JSON.stringify(i));var o=f("./",e);d.dynamic(o,i),t(d.import(e,{}))}},n.open("GET",e,!0),n.send()},v=function(e,r){var t=i[e];if(t)for(var n in t){var o=t[n].apply(null,r);if(o===!1)return!1}},p=function(e,t){if(void 0===t&&(t={}),/^(http(s)?:|\/\/)/.test(e))return s(e);var i=l(e,t);if(i.serverReference)return i.serverReference;var o=i.file;if(i.wildcard){var f=new RegExp(i.wildcard.replace(/\*/g,"@").replace(/[.?*+^$[\]\\(){}|-]/g,"\\$&").replace(/@/g,"[a-z0-9$_-]+")),u=n[i.pkgName];if(u){var d={};for(var g in u.f)f.test(g)&&(d[g]=p(i.pkgName+"/"+g));return d}}if(!o){var m="function"==typeof t,_=v("async",[e,t]);if(_===!1)return;return c(e,function(e){if(m)return t(e)})}var h=i.validPath,x=i.pkgName;if(o.locals&&o.locals.module)return o.locals.module.exports;var w=o.locals={},b=a(h);w.exports={},w.module={exports:w.exports},w.require=function(e,r){return p(e,{pkg:x,path:b,v:i.versions})},w.require.main={filename:r?"./":global.require.main.filename};var y=[w.module.exports,w.require,w.module,h,b,x];return v("before-import",y),o.fn.apply(0,y),v("after-import",y),w.module.exports},d=function(){function t(){}return Object.defineProperty(t,"isBrowser",{get:function(){return void 0!==r},enumerable:!0,configurable:!0}),Object.defineProperty(t,"isServer",{get:function(){return!r},enumerable:!0,configurable:!0}),t.global=function(e,t){var n=r?window:global;return void 0===t?n[e]:void(n[e]=t)},t.import=function(e,r){return p(e,r)},t.on=function(e,r){i[e]=i[e]||[],i[e].push(r)},t.exists=function(e){var r=l(e,{});return void 0!==r.file},t.remove=function(e){var r=l(e,{}),t=n[r.pkgName];t&&t.f[r.validPath]&&delete t.f[r.validPath]},t.main=function(e){return t.import(e,{})},t.expose=function(r){for(var t in r){var n=r[t],i=p(n.pkg);e[n.alias]=i}},t.dynamic=function(r,t){this.pkg("default",{},function(n){n.file(r,function(r,n,i,o,a){var f=new Function("__fbx__dnm__","exports","require","module","__filename","__dirname","__root__",t);f(!0,r,n,i,o,a,e)})})},t.pkg=function(e,r,t){if(n[e])return t(n[e].s);var i=n[e]={},o=i.f={};i.v=r;var a=i.s={file:function(e,r){o[e]={fn:r}}};return t(a)},t}();return e.FuseBox=d}(this))
+//# sourceMappingURL=index.js.map
