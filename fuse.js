@@ -12,7 +12,7 @@ let c = {
 		, outFile: "./build/index.js.map"
 	}
 	, outFile: "./build/index.js"
-	, inFile: "> index.js [src/**/*.js]"
+	, inFile: "> index.js [index.js]"
 	, plugins: (browser) =>
 		[
 		f.BabelPlugin({
