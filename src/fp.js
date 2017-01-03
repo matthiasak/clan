@@ -2,11 +2,10 @@ export const log = (...a) => console.log(...a)
 
 // rAF
 export const rAF =
-      typeof document !== 'undefined' &&
-      (requestAnimationFrame ||
-      webkitRequestAnimationFrame ||
-      mozRequestAnimationFrame) ||
-      process && process.nextTick ||
+      !!global.document &&
+      (global.requestAnimationFrame ||
+      global.webkitRequestAnimationFrame ||
+      global.mozRequestAnimationFrame) ||
       (cb => setTimeout(cb, 16.6))
 
 // composition

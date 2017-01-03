@@ -118,11 +118,9 @@ var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = [
 
 var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+var _fp = require('./fp');
 
-var rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || function (cb) {
-    return setTimeout(cb, 16.6);
-};
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
 
 // Virtual DOMs
 var vdom = function vdom() {
@@ -266,7 +264,7 @@ var vdom = function vdom() {
     };
 
     var render = debounce(function (fn, el) {
-        return rAF(function (_) {
+        return (0, _fp.rAF)(function (_) {
             applyUpdates(fn, el.children[0], el);
         });
     });
@@ -304,11 +302,11 @@ var vdom = function vdom() {
                 if (attr === 'style') {
                     el.style = stylify(attrs[attr]);
                 } else if (attr === 'innerHTML') {
-                    rAF(function () {
+                    (0, _fp.rAF)(function () {
                         return el.innerHTML = attrs[attr];
                     });
                 } else if (attr === 'value') {
-                    rAF(function () {
+                    (0, _fp.rAF)(function () {
                         return el.value = attrs[attr];
                     });
                 } else {
@@ -368,13 +366,13 @@ var vdom = function vdom() {
 
         setAttrs(vdom, el);
         if (el.unload instanceof Function) {
-            rAF(el.unload);
+            (0, _fp.rAF)(el.unload);
         }
         if (unload instanceof Function) {
             el.unload = unload;
         }
         applyEvents(stripEvents(vdom), el);
-        config && rAF(function (_) {
+        config && (0, _fp.rAF)(function (_) {
             return config(el);
         });
         return el;
@@ -677,6 +675,110 @@ let x = container(data => [
 
 html(x).then(x => log(x)).catch(e => log(e+''))
 */
+});
+___scope___.file("fp.js", function(exports, require, module, __filename, __dirname){ 
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+    value: true
+});
+
+function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
+
+var log = exports.log = function log() {
+    var _console;
+
+    return (_console = console).log.apply(_console, arguments);
+};
+
+// rAF
+var rAF = exports.rAF = !!global.document && (global.requestAnimationFrame || global.webkitRequestAnimationFrame || global.mozRequestAnimationFrame) || function (cb) {
+    return setTimeout(cb, 16.6);
+};
+
+// composition
+// c :: (T -> U) -> (U -> V) -> (T -> V)
+var c = exports.c = function c(f, g) {
+    return function (x) {
+        return f(g(x));
+    };
+};
+
+// cof :: [(an -> bn)] -> a0 -> bn
+// compose forward
+var cof = exports.cof = function cof() {
+    for (var _len = arguments.length, fns = Array(_len), _key = 0; _key < _len; _key++) {
+        fns[_key] = arguments[_key];
+    }
+
+    return fns.reduce(function (acc, fn) {
+        return c(acc, fn);
+    });
+};
+
+// cob :: [(an -> bn)] -> b0 -> an
+// compose backwards
+var cob = exports.cob = function cob() {
+    for (var _len2 = arguments.length, fns = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
+        fns[_key2] = arguments[_key2];
+    }
+
+    return cof.apply(undefined, _toConsumableArray(fns.reverse()));
+};
+
+// functional utilities
+// pointfree
+var pf = exports.pf = function pf(fn) {
+    return function () {
+        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
+            args[_key3] = arguments[_key3];
+        }
+
+        return function (x) {
+            return fn.apply(x, args);
+        };
+    };
+};
+
+// curry
+// curry :: (T -> U) -> [args] -> ( -> U)
+var curry = exports.curry = function curry(fn) {
+    for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
+        args[_key4 - 1] = arguments[_key4];
+    }
+
+    return fn.bind.apply(fn, [undefined].concat(args));
+};
+
+// Transducers
+var mapping = exports.mapping = function mapping(mapper) {
+    return (// mapper: x -> y
+        function (reducer) {
+            return (// reducer: (state, value) -> new state
+                function (result, value) {
+                    return reducer(result, mapper(value));
+                }
+            );
+        }
+    );
+};
+
+var filtering = exports.filtering = function filtering(predicate) {
+    return (// predicate: x -> true/false
+        function (reducer) {
+            return (// reducer: (state, value) -> new state
+                function (result, value) {
+                    return predicate(value) ? reducer(result, value) : result;
+                }
+            );
+        }
+    );
+};
+
+var concatter = exports.concatter = function concatter(thing, value) {
+    return thing.concat([value]);
+};
 });
 ___scope___.file("mixin.js", function(exports, require, module, __filename, __dirname){ 
 
@@ -1483,110 +1585,6 @@ var farm = exports.farm = function farm(n) {
         return exec;
     };
     return exec;
-};
-});
-___scope___.file("fp.js", function(exports, require, module, __filename, __dirname){ 
-var process = require("process");
-'use strict';
-
-Object.defineProperty(exports, "__esModule", {
-    value: true
-});
-
-function _toConsumableArray(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } else { return Array.from(arr); } }
-
-var log = exports.log = function log() {
-    var _console;
-
-    return (_console = console).log.apply(_console, arguments);
-};
-
-// rAF
-var rAF = exports.rAF = typeof document !== 'undefined' && (requestAnimationFrame || webkitRequestAnimationFrame || mozRequestAnimationFrame) || process && process.nextTick || function (cb) {
-    return setTimeout(cb, 16.6);
-};
-
-// composition
-// c :: (T -> U) -> (U -> V) -> (T -> V)
-var c = exports.c = function c(f, g) {
-    return function (x) {
-        return f(g(x));
-    };
-};
-
-// cof :: [(an -> bn)] -> a0 -> bn
-// compose forward
-var cof = exports.cof = function cof() {
-    for (var _len = arguments.length, fns = Array(_len), _key = 0; _key < _len; _key++) {
-        fns[_key] = arguments[_key];
-    }
-
-    return fns.reduce(function (acc, fn) {
-        return c(acc, fn);
-    });
-};
-
-// cob :: [(an -> bn)] -> b0 -> an
-// compose backwards
-var cob = exports.cob = function cob() {
-    for (var _len2 = arguments.length, fns = Array(_len2), _key2 = 0; _key2 < _len2; _key2++) {
-        fns[_key2] = arguments[_key2];
-    }
-
-    return cof.apply(undefined, _toConsumableArray(fns.reverse()));
-};
-
-// functional utilities
-// pointfree
-var pf = exports.pf = function pf(fn) {
-    return function () {
-        for (var _len3 = arguments.length, args = Array(_len3), _key3 = 0; _key3 < _len3; _key3++) {
-            args[_key3] = arguments[_key3];
-        }
-
-        return function (x) {
-            return fn.apply(x, args);
-        };
-    };
-};
-
-// curry
-// curry :: (T -> U) -> [args] -> ( -> U)
-var curry = exports.curry = function curry(fn) {
-    for (var _len4 = arguments.length, args = Array(_len4 > 1 ? _len4 - 1 : 0), _key4 = 1; _key4 < _len4; _key4++) {
-        args[_key4 - 1] = arguments[_key4];
-    }
-
-    return fn.bind.apply(fn, [undefined].concat(args));
-};
-
-// Transducers
-var mapping = exports.mapping = function mapping(mapper) {
-    return (// mapper: x -> y
-        function (reducer) {
-            return (// reducer: (state, value) -> new state
-                function (result, value) {
-                    return reducer(result, mapper(value));
-                }
-            );
-        }
-    );
-};
-
-var filtering = exports.filtering = function filtering(predicate) {
-    return (// predicate: x -> true/false
-        function (reducer) {
-            return (// reducer: (state, value) -> new state
-                function (result, value) {
-                    return predicate(value) ? reducer(result, value) : result;
-                }
-            );
-        }
-    );
-};
-
-var concatter = exports.concatter = function concatter(thing, value) {
-    return thing.concat([value]);
 };
 });
 });

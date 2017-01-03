@@ -1,9 +1,4 @@
-const rAF =
-      typeof document !== 'undefined' &&
-      (requestAnimationFrame ||
-      webkitRequestAnimationFrame ||
-      mozRequestAnimationFrame) ||
-      (cb => setTimeout(cb, 16.6))
+import {rAF} from './fp'
 
 // Virtual DOMs
 const vdom = () => {
