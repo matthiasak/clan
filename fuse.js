@@ -18,7 +18,7 @@ let c = {
 		f.BabelPlugin({
 			config: {
 				sourceMaps: true
-				, presets: ['latest']
+				, presets: ['es2015-without-strict', 'es2016', 'es2017']
 				// , env: { production: {presets: ['babili'] }}
 				, plugins: ["fast-async"]
 			}
