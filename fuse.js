@@ -13,7 +13,7 @@ let c = {
 		, outFile: "./build/index.js.map"
 	}
 	, outFile: "./build/index.js"
-	, inFile: "> index.ts [index.ts]"
+	, inFile: "> index.ts"
 	, plugins: [
 		f.TypeScriptHelpers()
 		, !dev && closure()
