@@ -1,0 +1,35 @@
+{
+  "name": "clan-fp",
+  "version": "1.1.0",
+  "description": "A set of opinionated, functional utilities that work particularly well when used together",
+  "scripts": {
+    "prestart": "rimraf build/*",
+    "start": "tsc -w src/index.ts --outDir build -d",
+    "prebuild": "rimraf build/*",
+    "build": "NODE_ENV=production tsc src/index.ts --outDir build -d; echo \"done\";",
+    "test": "node fuse.js test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com/matthiasak/clan"
+  },
+  "keywords": [
+    "fp",
+    "observables",
+    "immutable",
+    "data",
+    "server"
+  ],
+  "main": "build/index.js",
+  "author": "Matt Keas (@matthiasak)",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/node": "^8.0.9",
+    "fuse-box": "^2.2.2",
+    "fuse-test-runner": "^1.0.13",
+    "rimraf": "^2.6.1"
+  },
+  "dependencies": {
+    "etag": "^1.8.0"
+  }
+}
