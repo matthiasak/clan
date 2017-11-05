@@ -205,13 +205,14 @@ const obs = ((state?):Observable => {
         , setUnmount = x => {
             component.componentWillUnmount = (...args) => {
                 unmount && unmount.apply(component, args)
-                x.detach() // auto-detach!
+                x.detach()
             }
         }
     ) => {
         let x = createDetachable()
-        stateIdentifier && x.map(setState)
+        stateIdentifier && x.then(setState)
         setUnmount(x)
+        fn.then(x)
         fn.refresh()
         return x
     }

@@ -138,12 +138,13 @@ var obs = (function (state) {
                     args[_i] = arguments[_i];
                 }
                 unmount && unmount.apply(component, args);
-                x.detach(); // auto-detach!
+                x.detach();
             };
         }; }
         var x = createDetachable();
-        stateIdentifier && x.map(setState);
+        stateIdentifier && x.then(setState);
         setUnmount(x);
+        fn.then(x);
         fn.refresh();
         return x;
     };
