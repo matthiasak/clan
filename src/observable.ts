@@ -200,7 +200,7 @@ const obs = ((state?):Observable => {
         component: VDOM
         , stateIdentifier: string
         , extraState={}
-        , setState = d => component.setState({...extraState, [stateIdentifier]: d})
+        , setState = d => component.setState(Object.assign(extraState, stateIdentifier ? {[stateIdentifier]: d} : d))
         , unmount=component.componentWillUnmount
         , setUnmount = x => {
             component.componentWillUnmount = (...args) => {
@@ -209,7 +209,7 @@ const obs = ((state?):Observable => {
             }
         }
     ) => {
-        let x = fn.computed()
+        let x = createDetachable()
         stateIdentifier && x.map(setState)
         setUnmount(x)
         fn.refresh()
