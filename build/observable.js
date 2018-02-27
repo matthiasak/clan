@@ -124,7 +124,7 @@ var obs = (function (state) {
         fn.then(o);
         return o;
     };
-    fn.attach = function (component, stateIdentifier, extraState, setState, unmount, setUnmount) {
+    fn.attach = function (component, stateIdentifier, extraState, setState, unmount, setUnmount, mount, setMount) {
         if (extraState === void 0) { extraState = {}; }
         if (setState === void 0) { setState = function (d) {
             return component.setState(Object.assign(extraState, stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d));
@@ -141,9 +141,22 @@ var obs = (function (state) {
                 x.detach();
             };
         }; }
+        if (mount === void 0) { mount = component.componentDidMount; }
+        if (setMount === void 0) { setMount = function (x) {
+            component.componentDidMount = function () {
+                var args = [];
+                for (var _i = 0; _i < arguments.length; _i++) {
+                    args[_i] = arguments[_i];
+                }
+                mount && mount.apply(component, args);
+                x.reattach();
+                x.refresh();
+            };
+        }; }
         var x = createDetachable();
         stateIdentifier && x.then(setState);
         setUnmount(x);
+        setMount(x);
         fn.then(x);
         fn.refresh();
         return x;

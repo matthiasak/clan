@@ -4,6 +4,7 @@ interface VDOM {
     setState(newState: any): void;
     setState(reducer: Function): void;
     componentWillUnmount: Function;
+    componentDidMount: Function;
 }
 
 interface Pred {
@@ -202,17 +203,26 @@ const obs = ((state?):Observable => {
         , stateIdentifier: string
         , extraState={}
         , setState = d => component.setState(Object.assign(extraState, stateIdentifier ? {[stateIdentifier]: d} : d))
-        , unmount=component.componentWillUnmount
+        , unmount = component.componentWillUnmount
         , setUnmount = x => {
             component.componentWillUnmount = (...args) => {
                 unmount && unmount.apply(component, args)
                 x.detach()
             }
         }
+        , mount = component.componentDidMount
+        , setMount = x => {
+            component.componentDidMount = (...args) => {
+                mount && mount.apply(component, args)
+                x.reattach()
+                x.refresh()
+            }
+        }
     ) => {
         let x = createDetachable()
         stateIdentifier && x.then(setState)
         setUnmount(x)
+        setMount(x)
         fn.then(x)
         fn.refresh()
         return x
