@@ -20,6 +20,7 @@ export interface Observable {
     root(): Observable;
     scoped: boolean;
     parent: Observable;
+    triggerRoot(x?: any): void;
 }
 declare const obs: (state?: any) => Observable;
 export default obs;

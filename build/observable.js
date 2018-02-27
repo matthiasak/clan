@@ -159,6 +159,9 @@ var obs = (function (state) {
         }
         return r;
     };
+    fn.triggerRoot = function (x) {
+        fn.root()(x);
+    };
     return fn;
 });
 exports["default"] = obs;

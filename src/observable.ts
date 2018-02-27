@@ -44,6 +44,7 @@ export interface Observable {
     root(): Observable;
     scoped: boolean;
     parent: Observable;
+    triggerRoot(x?:any): void; 
 }
 
 import {hash} from './fp'
@@ -228,6 +229,10 @@ const obs = ((state?):Observable => {
             r = r.parent
         }
         return r
+    }
+
+    fn.triggerRoot = (x) => {
+        fn.root()(x)
     }
 
     return fn
