@@ -45,10 +45,11 @@ export interface Observable {
     root(): Observable;
     scoped: boolean;
     parent: Observable;
-    triggerRoot(x?:any): void; 
+    triggerRoot(x?:any): void;
 }
 
-import {hash} from './fp'
+// import {hash} from './fp'
+const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 
 const obs = ((state?):Observable => {
     let subscribers:Function[] = []
@@ -138,8 +139,8 @@ const obs = ((state?):Observable => {
     fn.reduce = (f,acc) => {
         const o = createDetachable()
 
-        acc = 
-            acc === undefined 
+        acc =
+            acc === undefined
             ? fn()
             : acc
 

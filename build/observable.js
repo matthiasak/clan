@@ -1,6 +1,10 @@
 "use strict";
 exports.__esModule = true;
-var fp_1 = require("./fp");
+// import {hash} from './fp'
+var hash = function (v, _v) {
+    if (_v === void 0) { _v = v === undefined ? 'undefined' : JSON.stringify(v); }
+    return _v;
+};
 var obs = (function (state) {
     var subscribers = [];
     var fn = (function (val) {
@@ -28,7 +32,7 @@ var obs = (function (state) {
         var sink = createDetachable();
         var prev = undefined;
         fn.then(function (x) {
-            if (fp_1.hash(prev) === fp_1.hash(x))
+            if (hash(prev) === hash(x))
                 return;
             prev = x;
             sink(x);
