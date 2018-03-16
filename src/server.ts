@@ -62,16 +62,18 @@ export const benchmark = message => context => {
 
 // parse data streams from req body
 export const body = (ctx) => {
-    ctx.body = new Promise((res,rej) => {
-        let {req} = ctx
-        let buf = ''
-        req.setEncoding('utf8')
-        req.on('data', c => buf += c)
-        req.on('end', _ => {
-            ctx.body = () => Promise.resolve(buf)
-            res(buf)
+    if(!ctx.res.headersSent) {
+        ctx.body = new Promise((res,rej) => {
+            let {req} = ctx
+            let buf = ''
+            req.setEncoding('utf8')
+            req.on('data', c => buf += c)
+            req.on('end', _ => {
+                ctx.body = () => Promise.resolve(buf)
+                res(buf)
+            })
         })
-    })
+    }
     return ctx
 }
 
@@ -236,11 +238,10 @@ export const server = (pipe, port=3000, useCluster=false) => {
         , boot = () => {
             const s = http.createServer((req, res) => pipe({req, res}))
 
-            s
-            .listen(port, (err) =>
+            s.listen(port, (err) =>
                 err
-                    && console.error(err)
-                    || console.log(`Server running at :${port} on process ${process.pid}`))
+                && console.error(err)
+                || console.log(`Server running at :${port} on process ${process.pid}`))
 
             return s
         }

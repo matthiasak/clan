@@ -56,16 +56,18 @@ exports.benchmark = function (message) { return function (context) {
 }; };
 // parse data streams from req body
 exports.body = function (ctx) {
-    ctx.body = new Promise(function (res, rej) {
-        var req = ctx.req;
-        var buf = '';
-        req.setEncoding('utf8');
-        req.on('data', function (c) { return buf += c; });
-        req.on('end', function (_) {
-            ctx.body = function () { return Promise.resolve(buf); };
-            res(buf);
+    if (!ctx.res.headersSent) {
+        ctx.body = new Promise(function (res, rej) {
+            var req = ctx.req;
+            var buf = '';
+            req.setEncoding('utf8');
+            req.on('data', function (c) { return buf += c; });
+            req.on('end', function (_) {
+                ctx.body = function () { return Promise.resolve(buf); };
+                res(buf);
+            });
         });
-    });
+    }
     return ctx;
 };
 var streamable = function (buf) {
@@ -207,8 +209,7 @@ exports.server = function (pipe, port, useCluster) {
     if (useCluster === void 0) { useCluster = false; }
     var http = require('http'), boot = function () {
         var s = http.createServer(function (req, res) { return pipe({ req: req, res: res }); });
-        s
-            .listen(port, function (err) {
+        s.listen(port, function (err) {
             return err
                 && console.error(err)
                 || console.log("Server running at :" + port + " on process " + process.pid);
