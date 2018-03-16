@@ -157,14 +157,17 @@ export const del = route('delete')
 export const patch = route('patch')
 
 // static file serving async-middleware
-export const serve = (folder='./', route='/', cache=true, age = 2628000) => context => {
+export const serve = (folder='./', route='/', defaultPage='/index.html', cache=true, age = 2628000) => context => {
     const {req, res} = context
         , ifNoneMatch = req.headers['if-none-match']
-        , {url} = req
-        , q = url.indexOf('?')
-        , hash = url.indexOf('#')
-        , _url = url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined))
-        , filepath = `${process.cwd()}/${folder}/${_url.slice(1).replace(new RegExp(`/^${route}/`,`ig`), '')}`.replace(/\/\//ig, '/')
+        , {url: __url} = req
+        , q = __url.indexOf('?')
+        , hash = __url.indexOf('#')
+        , _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined))
+        , url = (_url === route ? defaultPage : _url)
+            .slice(1) // remove prefixed /
+            .replace(new RegExp(`/^${route}/`,`ig`), '') // remove base-route
+        , filepath = `${process.cwd()}/${folder}/${url}`.replace(/\/\//ig, '/') // unescape slashes
         , e = req.headers['accept-encoding'] || ''
 
     return new Promise((y, n) =>
