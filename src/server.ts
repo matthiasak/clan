@@ -182,10 +182,10 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
                 if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
                     res.statusCode = 304 // not modified
                     res.end('')
-                    return n(context)
+                    return Promise.resolve(context)
                 }
-                res.setHeader('ETag', etag_buf)
 
+                res.setHeader('ETag', etag_buf)
                 addMIME(_url, res)
 
                 if(!cache){
