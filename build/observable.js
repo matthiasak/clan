@@ -15,7 +15,7 @@ var obs = (function (state) {
         return state;
     });
     var createDetachable = function (x) {
-        if (x === void 0) { x = obs(); }
+        if (x === void 0) { x = obs(state); }
         x.detach = function ($) {
             var i = subscribers.indexOf(x);
             if (i !== -1) {
@@ -42,7 +42,7 @@ var obs = (function (state) {
         });
         return sink;
     };
-    fn.refresh = function () { return fn(fn()); };
+    fn.refresh = function () { return fn(state); };
     fn.map = function (f) {
         var o = createDetachable();
         subscribers.push(function (val) { return o(f(val)); });
@@ -84,7 +84,7 @@ var obs = (function (state) {
         var o = createDetachable();
         acc =
             acc === undefined
-                ? fn()
+                ? state
                 : acc;
         subscribers.push(function (val) {
             acc = f(acc, val);

@@ -62,7 +62,7 @@ const obs = ((state?):Observable => {
         return state
     })
 
-    const createDetachable = (x:Observable = obs()) => {
+    const createDetachable = (x:Observable = obs(state)) => {
         x.detach = $ => {
             const i:number = subscribers.indexOf(x)
             if(i !== -1) {
@@ -90,7 +90,7 @@ const obs = ((state?):Observable => {
         return sink
     }
 
-    fn.refresh = () => fn(fn())
+    fn.refresh = () => fn(state)
 
     fn.map = f => {
       const o = createDetachable()
@@ -144,7 +144,7 @@ const obs = ((state?):Observable => {
 
         acc =
             acc === undefined
-            ? fn()
+            ? state
             : acc
 
         subscribers.push(val => {
