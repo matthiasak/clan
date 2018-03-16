@@ -164,6 +164,7 @@ var obs = (function (state) {
         setUnmount(x);
         setMount(x);
         fn.then(x);
+        setTimeout(function () { return fn.refresh; }, 0);
         return x.computed().then(setState);
     };
     fn.scope = function () {

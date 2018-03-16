@@ -227,6 +227,7 @@ const obs = ((state?):Observable => {
         setUnmount(x)
         setMount(x)
         fn.then(x)
+        setTimeout(() => fn.refresh, 0)
         return x.computed().then(setState)
     }
 
