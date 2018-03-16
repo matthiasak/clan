@@ -161,12 +161,12 @@ var obs = (function (state) {
                 x.refresh();
             };
         }; }
-        var x = createDetachable().scope().computed().then(setState);
-        var root = x.root();
-        setUnmount(root);
-        setMount(root);
-        fn.then(root);
-        setTimeout(function () { return fn.refresh; }, 0);
+        var x = createDetachable();
+        setUnmount(x);
+        setMount(x);
+        fn.then(x);
+        x = x.computed().then(setState);
+        setTimeout(function () { return fn.refresh(); }, 0);
         return x;
     };
     fn.scope = function () {

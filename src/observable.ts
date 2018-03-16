@@ -225,12 +225,12 @@ const obs = ((state?):Observable => {
             }
         }
     ) => {
-        let x = createDetachable().scope().computed().then(setState)
-        let root = x.root()
-        setUnmount(root)
-        setMount(root)
-        fn.then(root)
-        setTimeout(() => fn.refresh, 0)
+        let x = createDetachable()
+        setUnmount(x)
+        setMount(x)
+        fn.then(x)
+        x = x.computed().then(setState)
+        setTimeout(() => fn.refresh(), 0)
         return x
     }
 
