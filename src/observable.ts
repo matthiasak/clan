@@ -227,11 +227,11 @@ const obs = ((state?):Observable => {
             }
         }
     ) => {
-        let x = createDetachable()
+        let x = createDetachable().then(setState)
         setUnmount(x)
         setMount(x)
         fn.then(x)
-        x = x.computed().then(setState)
+        // x = x.computed().then(setState)
         setTimeout(() => fn.refresh(), 0)
         return x
     }

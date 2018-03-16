@@ -172,11 +172,11 @@ var obs = (function (state) {
                 x.refresh();
             };
         }; }
-        var x = createDetachable();
+        var x = createDetachable().then(setState);
         setUnmount(x);
         setMount(x);
         fn.then(x);
-        x = x.computed().then(setState);
+        // x = x.computed().then(setState)
         setTimeout(function () { return fn.refresh(); }, 0);
         return x;
     };
