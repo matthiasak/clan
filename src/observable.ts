@@ -209,7 +209,7 @@ const obs = ((state?):Observable => {
         component: VDOM
         , stateIdentifier: string
         , extraState={}
-        , setState = d => component.setState(Object.assign(extraState, stateIdentifier ? {[stateIdentifier]: d} : d))
+        , setState = d => component.setState({...extraState, ...(stateIdentifier ? {[stateIdentifier]: d} : d)})
         , unmount = component.componentWillUnmount
         , setUnmount = x => {
             component.componentWillUnmount = (...args) => {

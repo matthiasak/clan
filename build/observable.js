@@ -1,4 +1,12 @@
 "use strict";
+var __assign = (this && this.__assign) || Object.assign || function(t) {
+    for (var s, i = 1, n = arguments.length; i < n; i++) {
+        s = arguments[i];
+        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
+            t[p] = s[p];
+    }
+    return t;
+};
 exports.__esModule = true;
 // import {hash} from './fp'
 var hash = function (v, _v) {
@@ -136,7 +144,7 @@ var obs = (function (state) {
     fn.attach = function (component, stateIdentifier, extraState, setState, unmount, setUnmount, mount, setMount) {
         if (extraState === void 0) { extraState = {}; }
         if (setState === void 0) { setState = function (d) {
-            return component.setState(Object.assign(extraState, stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d));
+            return component.setState(__assign({}, extraState, (stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d)));
             var _a;
         }; }
         if (unmount === void 0) { unmount = component.componentWillUnmount; }
