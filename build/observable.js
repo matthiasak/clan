@@ -35,8 +35,9 @@ var obs = (function (state) {
         var sink = createDetachable();
         var prev = state;
         fn.then(function (x) {
-            if (hash(prev) === hash(x))
+            if (hash(prev) === hash(x)) {
                 return;
+            }
             prev = x;
             sink(x);
         });
@@ -157,15 +158,16 @@ var obs = (function (state) {
                 }
                 mount && mount.apply(component, args);
                 x.reattach();
-                x.root().refresh();
+                x.refresh();
             };
         }; }
-        var x = createDetachable();
-        setUnmount(x);
-        setMount(x);
-        fn.then(x);
+        var x = createDetachable().scope().computed().then(setState);
+        var root = x.root();
+        setUnmount(root);
+        setMount(root);
+        fn.then(root);
         setTimeout(function () { return fn.refresh; }, 0);
-        return x.computed().then(setState);
+        return x;
     };
     fn.scope = function () {
         fn.scoped = true;

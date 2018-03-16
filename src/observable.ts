@@ -83,7 +83,9 @@ const obs = ((state?):Observable => {
         const sink = createDetachable()
         let prev = state
         fn.then(x => {
-            if(hash(prev) === hash(x)) return
+            if(hash(prev) === hash(x)) {
+                return
+            }
             prev = x
             sink(x)
         })
@@ -219,16 +221,17 @@ const obs = ((state?):Observable => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.root().refresh()
+                x.refresh()
             }
         }
     ) => {
-        let x = createDetachable()
-        setUnmount(x)
-        setMount(x)
-        fn.then(x)
+        let x = createDetachable().scope().computed().then(setState)
+        let root = x.root()
+        setUnmount(root)
+        setMount(root)
+        fn.then(root)
         setTimeout(() => fn.refresh, 0)
-        return x.computed().then(setState)
+        return x
     }
 
     fn.scope = () => {
