@@ -57,8 +57,9 @@ const obs = ((state?):Observable => {
     const fn = <Observable>((val?) => {
         if(val !== undefined){
             state = val
-            for(let i = 0, len = subscribers.length; i<len; i++)
-                subscribers[i](val)
+            (subscribers || [])
+                .map(s =>
+                    (s instanceof Function) && s(val))
         }
         return state
     })

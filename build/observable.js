@@ -9,9 +9,10 @@ var obs = (function (state) {
     var subscribers = [];
     var fn = (function (val) {
         if (val !== undefined) {
-            state = val;
-            for (var i = 0, len = subscribers.length; i < len; i++)
-                subscribers[i](val);
+            state = val(subscribers || [])
+                .map(function (s) {
+                return (s instanceof Function) && s(val);
+            });
         }
         return state;
     });
