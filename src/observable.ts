@@ -57,8 +57,7 @@ const obs = ((state?):Observable => {
     const fn = <Observable>(function(val?, noCascade=false){
         if(arguments.length !== 0){
             state = val
-            // !noCascade &&
-            subscribers.map(s => (s instanceof Function) && s(val))
+            !noCascade && subscribers.map(s => (s instanceof Function) && s(val))
         }
         return state
     })
@@ -69,14 +68,13 @@ const obs = ((state?):Observable => {
             if(i !== -1) {
                 subscribers = subscribers.filter(s => s !== x)
             }
-            // x(undefined, true)
         }
         x.reattach = $ => {
             const i:number = subscribers.indexOf(x)
             if(i === -1) {
                 subscribers.push(x)
             }
-            fn.refresh()
+            x.parent.refresh()
         }
         x.parent = fn
         return x
@@ -220,21 +218,20 @@ const obs = ((state?):Observable => {
             }
         }
         , mount = component.componentDidMount
-        , setMount = x => {
+        , setMount = (x,y) => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.refresh()
+                y.refresh()
             }
         }
     ) => {
-        let x = createDetachable().then(setState)
+        let x = createDetachable(),
+            y = x.computed().then(setState)
         setUnmount(x)
-        setMount(x)
+        setMount(x, y)
         fn.then(x)
-        // x = x.computed().then(setState)
-        setTimeout(() => fn.refresh(), 0)
-        return x
+        return y
     }
 
     fn.scope = () => {

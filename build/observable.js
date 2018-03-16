@@ -19,8 +19,7 @@ var obs = (function (state) {
         if (noCascade === void 0) { noCascade = false; }
         if (arguments.length !== 0) {
             state = val;
-            // !noCascade &&
-            subscribers.map(function (s) { return (s instanceof Function) && s(val); });
+            !noCascade && subscribers.map(function (s) { return (s instanceof Function) && s(val); });
         }
         return state;
     });
@@ -31,14 +30,13 @@ var obs = (function (state) {
             if (i !== -1) {
                 subscribers = subscribers.filter(function (s) { return s !== x; });
             }
-            // x(undefined, true)
         };
         x.reattach = function ($) {
             var i = subscribers.indexOf(x);
             if (i === -1) {
                 subscribers.push(x);
             }
-            fn.refresh();
+            x.parent.refresh();
         };
         x.parent = fn;
         return x;
@@ -162,7 +160,7 @@ var obs = (function (state) {
             };
         }; }
         if (mount === void 0) { mount = component.componentDidMount; }
-        if (setMount === void 0) { setMount = function (x) {
+        if (setMount === void 0) { setMount = function (x, y) {
             component.componentDidMount = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -170,16 +168,14 @@ var obs = (function (state) {
                 }
                 mount && mount.apply(component, args);
                 x.reattach();
-                x.refresh();
+                y.refresh();
             };
         }; }
-        var x = createDetachable().then(setState);
+        var x = createDetachable(), y = x.computed().then(setState);
         setUnmount(x);
-        setMount(x);
+        setMount(x, y);
         fn.then(x);
-        // x = x.computed().then(setState)
-        setTimeout(function () { return fn.refresh(); }, 0);
-        return x;
+        return y;
     };
     fn.scope = function () {
         fn.scoped = true;
