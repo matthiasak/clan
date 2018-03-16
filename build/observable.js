@@ -27,6 +27,7 @@ var obs = (function (state) {
             if (i === -1) {
                 subscribers.push(x);
             }
+            fn.refresh();
         };
         x.parent = fn;
         return x;
