@@ -28,6 +28,7 @@ export interface Observable {
     detach(x?:any): void;
     reattach(x?:any): void;
     map(Function): Observable;
+    tryMap(Function): Observable;
     filter(Pred): Observable;
     then(Void): Observable;
     take(number): Observable;
@@ -203,6 +204,18 @@ const obs = ((state?):Observable => {
         fs.map((f:Observable) => f.then(o))
         fn.then(o)
         return o
+    }
+
+    fn.tryMap = f => {
+      const o = createDetachable()
+      subscribers.push(val => {
+          try {
+              o(f(val))
+          } catch(e) {
+              console.error(e)
+          }
+      })
+      return o
     }
 
     fn.attach = (

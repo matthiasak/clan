@@ -142,6 +142,18 @@ var obs = (function (state) {
         fn.then(o);
         return o;
     };
+    fn.tryMap = function (f) {
+        var o = createDetachable();
+        subscribers.push(function (val) {
+            try {
+                o(f(val));
+            }
+            catch (e) {
+                console.error(e);
+            }
+        });
+        return o;
+    };
     fn.attach = function (component, stateIdentifier, extraState, setState, unmount, setUnmount, mount, setMount) {
         if (extraState === void 0) { extraState = {}; }
         if (setState === void 0) { setState = function (d) {
