@@ -57,7 +57,8 @@ const obs = ((state?):Observable => {
     const fn = <Observable>(function(val?, noCascade=false){
         if(arguments.length !== 0){
             state = val
-            !noCascade && subscribers.map(s => (s instanceof Function) && s(val))
+            // !noCascade &&
+            subscribers.map(s => (s instanceof Function) && s(val))
         }
         return state
     })

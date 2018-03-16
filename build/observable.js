@@ -19,7 +19,8 @@ var obs = (function (state) {
         if (noCascade === void 0) { noCascade = false; }
         if (arguments.length !== 0) {
             state = val;
-            !noCascade && subscribers.map(function (s) { return (s instanceof Function) && s(val); });
+            // !noCascade &&
+            subscribers.map(function (s) { return (s instanceof Function) && s(val); });
         }
         return state;
     });
