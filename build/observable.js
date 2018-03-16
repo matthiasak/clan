@@ -17,13 +17,17 @@ var obs = (function (state) {
     var createDetachable = function (x) {
         if (x === void 0) { x = obs(); }
         x.detach = function ($) {
-            var i = subscribers.indexOf(obs);
+            var i = subscribers.indexOf(x);
             if (i !== -1) {
                 subscribers.splice(i, 1);
-                // subscribers.length === 0 && (fn.detach instanceof Function) && fn.detach()
             }
         };
-        x.reattach = function ($) { return subscribers.push(obs); };
+        x.reattach = function ($) {
+            var i = subscribers.indexOf(x);
+            if (i === -1) {
+                subscribers.push(obs);
+            }
+        };
         x.parent = fn;
         return x;
     };
@@ -153,16 +157,14 @@ var obs = (function (state) {
                 }
                 mount && mount.apply(component, args);
                 x.reattach();
-                x.refresh();
+                x.root().refresh();
             };
         }; }
         var x = createDetachable();
-        stateIdentifier && x.then(setState);
         setUnmount(x);
         setMount(x);
         fn.then(x);
-        fn.refresh();
-        return x;
+        return x.computed().then(setState);
     };
     fn.scope = function () {
         fn.scoped = true;

@@ -64,13 +64,17 @@ const obs = ((state?):Observable => {
 
     const createDetachable = (x:Observable = obs()) => {
         x.detach = $ => {
-            const i:number = subscribers.indexOf(obs)
+            const i:number = subscribers.indexOf(x)
             if(i !== -1) {
                 subscribers.splice(i,1)
-                // subscribers.length === 0 && (fn.detach instanceof Function) && fn.detach()
             }
         }
-        x.reattach = $ => subscribers.push(obs)
+        x.reattach = $ => {
+            const i:number = subscribers.indexOf(x)
+            if(i === -1) {
+                subscribers.push(obs)
+            }
+        }
         x.parent = fn
         return x
     }
@@ -215,17 +219,15 @@ const obs = ((state?):Observable => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.refresh()
+                x.root().refresh()
             }
         }
     ) => {
         let x = createDetachable()
-        stateIdentifier && x.then(setState)
         setUnmount(x)
         setMount(x)
         fn.then(x)
-        fn.refresh()
-        return x
+        return x.computed().then(setState)
     }
 
     fn.scope = () => {

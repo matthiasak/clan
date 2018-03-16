@@ -7,7 +7,8 @@
     "start": "tsc -w src/index.ts --outDir build -d",
     "prebuild": "rimraf build/*",
     "build": "NODE_ENV=production tsc src/index.ts --outDir build -d; echo \"done\";",
-    "test": "node fuse.js test"
+    "test": "node fuse.js test",
+    "deploy-patch": "npm run build && git commit -am 'snapshot changes for `npm version`' && npm version patch && git push origin HEAD && npm publish"
   },
   "repository": {
     "type": "git",
