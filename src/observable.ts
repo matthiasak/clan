@@ -69,7 +69,7 @@ const obs = ((state?):Observable => {
             if(i !== -1) {
                 subscribers = subscribers.filter(s => s !== x)
             }
-            x(undefined, true)
+            // x(undefined, true)
         }
         x.reattach = $ => {
             const i:number = subscribers.indexOf(x)

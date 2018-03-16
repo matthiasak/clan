@@ -31,7 +31,7 @@ var obs = (function (state) {
             if (i !== -1) {
                 subscribers = subscribers.filter(function (s) { return s !== x; });
             }
-            x(undefined, true);
+            // x(undefined, true)
         };
         x.reattach = function ($) {
             var i = subscribers.indexOf(x);
