@@ -66,13 +66,13 @@ const obs = ((state?):Observable => {
         x.detach = $ => {
             const i:number = subscribers.indexOf(x)
             if(i !== -1) {
-                subscribers.splice(i,1)
+                subscribers = subscribers.filter(s => s !== x)
             }
         }
         x.reattach = $ => {
             const i:number = subscribers.indexOf(x)
             if(i === -1) {
-                subscribers.push(obs)
+                subscribers.push(x)
             }
         }
         x.parent = fn

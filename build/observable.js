@@ -19,13 +19,13 @@ var obs = (function (state) {
         x.detach = function ($) {
             var i = subscribers.indexOf(x);
             if (i !== -1) {
-                subscribers.splice(i, 1);
+                subscribers = subscribers.filter(function (s) { return s !== x; });
             }
         };
         x.reattach = function ($) {
             var i = subscribers.indexOf(x);
             if (i === -1) {
-                subscribers.push(obs);
+                subscribers.push(x);
             }
         };
         x.parent = fn;
