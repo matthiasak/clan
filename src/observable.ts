@@ -24,7 +24,7 @@ interface M {
 }
 
 export interface Observable {
-    (x?:any): any;
+    (x?:any, cascade?: bool): any;
     detach(x?:any): void;
     reattach(x?:any): void;
     map(Function): Observable;
@@ -54,10 +54,10 @@ const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 const obs = ((state?):Observable => {
     let subscribers:Function[] = []
 
-    const fn = <Observable>(function(val?){
+    const fn = <Observable>(function(val?, noCascade=false){
         if(arguments.length !== 0){
             state = val
-            subscribers.map(s => (s instanceof Function) && s(val))
+            !noCascade && subscribers.map(s => (s instanceof Function) && s(val))
         }
         return state
     })
@@ -68,7 +68,7 @@ const obs = ((state?):Observable => {
             if(i !== -1) {
                 subscribers = subscribers.filter(s => s !== x)
             }
-            x(undefined)
+            x(undefined, true)
         }
         x.reattach = $ => {
             const i:number = subscribers.indexOf(x)

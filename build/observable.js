@@ -15,10 +15,11 @@ var hash = function (v, _v) {
 };
 var obs = (function (state) {
     var subscribers = [];
-    var fn = (function (val) {
+    var fn = (function (val, noCascade) {
+        if (noCascade === void 0) { noCascade = false; }
         if (arguments.length !== 0) {
             state = val;
-            subscribers.map(function (s) { return (s instanceof Function) && s(val); });
+            !noCascade && subscribers.map(function (s) { return (s instanceof Function) && s(val); });
         }
         return state;
     });
@@ -29,7 +30,7 @@ var obs = (function (state) {
             if (i !== -1) {
                 subscribers = subscribers.filter(function (s) { return s !== x; });
             }
-            x(undefined);
+            x(undefined, true);
         };
         x.reattach = function ($) {
             var i = subscribers.indexOf(x);
