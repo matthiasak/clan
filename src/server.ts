@@ -182,7 +182,7 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
                 if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
                     res.statusCode = 304 // not modified
                     res.end('')
-                    return Promise.resolve(context)
+                    throw context
                 }
 
                 res.setHeader('ETag', etag_buf)
@@ -208,12 +208,12 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
                     fs.createReadStream(filepath).pipe(res)
                 }
 
-                return Promise.reject(context) // dont continue down the server pipeline
+                throw context // dont continue down the server pipeline
             } else if(stats.isDirectory()){
                 return getFile(path.join(filepath, 'index.html')) // try /index.html
             }
 
-            return Promise.resolve(context) // continue down the server pipeline
+            return context // continue down the server pipeline
         })
 
     return getFile(filepath)
