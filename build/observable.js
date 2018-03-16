@@ -30,7 +30,7 @@ var obs = (function (state) {
     };
     fn.computed = function () {
         var sink = createDetachable();
-        var prev = undefined;
+        var prev = state;
         fn.then(function (x) {
             if (hash(prev) === hash(x))
                 return;

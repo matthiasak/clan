@@ -225,13 +225,13 @@ export const server = (pipe, port=3000, useCluster=false) => {
     const http = require('http')
         , boot = () => {
             const s = http.createServer((req, res) => pipe({req, res}))
-    
+
             s
             .listen(port, (err) =>
                 err
                     && console.error(err)
                     || console.log(`Server running at :${port} on process ${process.pid}`))
-            
+
             return s
         }
 

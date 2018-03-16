@@ -78,7 +78,7 @@ const obs = ((state?):Observable => {
 
     fn.computed = () => {
         const sink = createDetachable()
-        let prev = undefined
+        let prev = state
         fn.then(x => {
             if(hash(prev) === hash(x)) return
             prev = x
