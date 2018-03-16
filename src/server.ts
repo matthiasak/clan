@@ -175,46 +175,57 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
         , e = req.headers['accept-encoding'] || ''
 
     const getFile = (filepath) =>
-        new Promise(res => fs.stat(filepath, (err, stats) => res({err, stats})))
-        .then(({err, stats}) => {
-            if(!err && stats.isFile()){
-                let etag_buf = etag(stats)
-                if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
-                    res.statusCode = 304 // not modified
-                    res.end('')
-                    throw context
+        new Promise((res, rej) =>
+            fs.stat(filepath, (err, stats) =>
+                err ? rej(err) : res(stats)
+            ))
+            .then(stats => {
+                if(stats.isFile()){
+                    context.__handled = true
+
+                    let etag_buf = etag(stats)
+                    if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
+                        res.statusCode = 304 // not modified
+                        res.end('')
+                        return Promise.reject(context)
+                        // return context
+                    }
+
+                    res.setHeader('ETag', etag_buf)
+                    addMIME(filepath, res)
+
+                    if(!cache){
+                        res.setHeader('cache-control', 'no-cache, no-store, must-revalidate')
+                        res.setHeader('Pragma', 'no-cache')
+                        res.setHeader('Expires', '-1')
+                    } else {
+                        res.setHeader('cache-control', `public, max-age=${age}`)
+                        res.setHeader('Pragma', 'cache')
+                        res.setHeader('Expires', new Date(+new Date + age*1000).toUTCString())
+                    }
+
+                    if(e.match(/gzip/)) {
+                        res.setHeader('content-encoding', 'gzip')
+                        fs.createReadStream(filepath).pipe(zlib.createGzip()).pipe(res)
+                    } else if(e.match(/deflate/)) {
+                        res.setHeader('content-encoding', 'deflate')
+                        fs.createReadStream(filepath).pipe(zlib.createDeflate()).pipe(res)
+                    } else {
+                        fs.createReadStream(filepath).pipe(res)
+                    }
+
+                    return Promise.reject(context)
+                    // return context // dont continue down the server pipeline
+                } else if(stats.isDirectory()){
+                    // try /index.html
+                    return getFile(path.join(filepath, 'index.html'))
                 }
 
-                res.setHeader('ETag', etag_buf)
-                addMIME(_url, res)
-
-                if(!cache){
-                    res.setHeader('cache-control', 'no-cache, no-store, must-revalidate')
-                    res.setHeader('Pragma', 'no-cache')
-                    res.setHeader('Expires', '-1')
-                } else {
-                    res.setHeader('cache-control', `public, max-age=${age}`)
-                    res.setHeader('Pragma', 'cache')
-                    res.setHeader('Expires', new Date(+new Date + age*1000).toUTCString())
-                }
-
-                if(e.match(/gzip/)) {
-                    res.setHeader('content-encoding', 'gzip')
-                    fs.createReadStream(filepath).pipe(zlib.createGzip()).pipe(res)
-                } else if(e.match(/deflate/)) {
-                    res.setHeader('content-encoding', 'deflate')
-                    fs.createReadStream(filepath).pipe(zlib.createDeflate()).pipe(res)
-                } else {
-                    fs.createReadStream(filepath).pipe(res)
-                }
-
-                throw context // dont continue down the server pipeline
-            } else if(stats.isDirectory()){
-                return getFile(path.join(filepath, 'index.html')) // try /index.html
-            }
-
-            return context // continue down the server pipeline
-        })
+                return context // continue down the server pipeline
+            })
+            .catch(e => Promise.reject(context))
+            // .then(d => console.log(d))
+            // .catch(e => console.log(e))
 
     return getFile(filepath)
 }
@@ -239,9 +250,7 @@ export const server = (pipe, port=3000, useCluster=false) => {
             const s = http.createServer((req, res) => pipe({req, res}))
 
             s.listen(port, (err) =>
-                err
-                && console.error(err)
-                || console.log(`Server running at :${port} on process ${process.pid}`))
+               err && console.error(err) || console.log(`Server running at :${port} on process ${process.pid}`))
 
             return s
         }

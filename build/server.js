@@ -148,18 +148,23 @@ exports.serve = function (folder, route, cache, age) {
         , filepath = (process.cwd() + "/" + folder + "/" + url).replace(/\/\//ig, '/') // unescape slashes
         , e = req.headers['accept-encoding'] || '';
         var getFile = function (filepath) {
-            return new Promise(function (res) { return fs.stat(filepath, function (err, stats) { return res({ err: err, stats: stats }); }); })
-                .then(function (_a) {
-                var err = _a.err, stats = _a.stats;
-                if (!err && stats.isFile()) {
+            return new Promise(function (res, rej) {
+                return fs.stat(filepath, function (err, stats) {
+                    return err ? rej(err) : res(stats);
+                });
+            })
+                .then(function (stats) {
+                if (stats.isFile()) {
+                    context.__handled = true;
                     var etag_buf = etag(stats);
                     if (etag_buf && ifNoneMatch && etag_buf === ifNoneMatch) {
                         res.statusCode = 304; // not modified
                         res.end('');
-                        throw context;
+                        return Promise.reject(context);
+                        // return context
                     }
                     res.setHeader('ETag', etag_buf);
-                    addMIME(_url, res);
+                    addMIME(filepath, res);
                     if (!cache) {
                         res.setHeader('cache-control', 'no-cache, no-store, must-revalidate');
                         res.setHeader('Pragma', 'no-cache');
@@ -181,14 +186,18 @@ exports.serve = function (folder, route, cache, age) {
                     else {
                         fs.createReadStream(filepath).pipe(res);
                     }
-                    throw context; // dont continue down the server pipeline
+                    return Promise.reject(context);
+                    // return context // dont continue down the server pipeline
                 }
                 else if (stats.isDirectory()) {
-                    return getFile(path.join(filepath, 'index.html')); // try /index.html
+                    // try /index.html
+                    return getFile(path.join(filepath, 'index.html'));
                 }
                 return context; // continue down the server pipeline
-            });
+            })["catch"](function (e) { return Promise.reject(context); });
         };
+        // .then(d => console.log(d))
+        // .catch(e => console.log(e))
         return getFile(filepath);
     };
 };
@@ -210,9 +219,7 @@ exports.server = function (pipe, port, useCluster) {
     var http = require('http'), boot = function () {
         var s = http.createServer(function (req, res) { return pipe({ req: req, res: res }); });
         s.listen(port, function (err) {
-            return err
-                && console.error(err)
-                || console.log("Server running at :" + port + " on process " + process.pid);
+            return err && console.error(err) || console.log("Server running at :" + port + " on process " + process.pid);
         });
         return s;
     };

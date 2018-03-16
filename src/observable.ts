@@ -164,8 +164,8 @@ const obs = ((state?):Observable => {
               error = createDetachable(),
               cb = val =>
                 f(val)
-                    .then(d => success(d))
-                    .catch(e => error(e))
+                .then(d => success(d))
+                .catch(e => error(e))
 
         subscribers.push(cb)
 
