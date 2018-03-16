@@ -9,6 +9,6 @@ export declare const put: (url: any, action: any) => (context: any) => any;
 export declare const post: (url: any, action: any) => (context: any) => any;
 export declare const del: (url: any, action: any) => (context: any) => any;
 export declare const patch: (url: any, action: any) => (context: any) => any;
-export declare const serve: (folder?: string, route?: string, defaultPage?: string, cache?: boolean, age?: number) => (context: any) => any;
+export declare const serve: (folder?: string, route?: string, cache?: boolean, age?: number) => (context: any) => any;
 export declare const server: (pipe: any, port?: number, useCluster?: boolean) => any;
 export declare const http: (pipe: any, port?: number, useCluster?: boolean) => any;

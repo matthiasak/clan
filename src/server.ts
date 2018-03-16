@@ -4,6 +4,7 @@ const zlib = require('zlib')
     , stream = require('stream')
     , Buffer = require('buffer').Buffer
     , etag = require('etag')
+    , path = require('path')
 
 const log = (...a) => console.log(...a)
 
@@ -157,21 +158,23 @@ export const del = route('delete')
 export const patch = route('patch')
 
 // static file serving async-middleware
-export const serve = (folder='./', route='/', defaultPage='/index.html', cache=true, age = 2628000) => context => {
+export const serve = (folder='./', route='/', cache=true, age = 2628000) => context => {
     const {req, res} = context
         , ifNoneMatch = req.headers['if-none-match']
         , {url: __url} = req
         , q = __url.indexOf('?')
         , hash = __url.indexOf('#')
         , _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined))
-        , url = (_url === route ? defaultPage : _url)
+        , url =
+            _url
             .slice(1) // remove prefixed /
             .replace(new RegExp(`/^${route}/`,`ig`), '') // remove base-route
         , filepath = `${process.cwd()}/${folder}/${url}`.replace(/\/\//ig, '/') // unescape slashes
         , e = req.headers['accept-encoding'] || ''
 
-    return new Promise((y, n) =>
-        fs.stat(filepath, (err, stats) => {
+    const getFile = (filepath) =>
+        new Promise(res => fs.stat(filepath, (err, stats) => res({err, stats})))
+        .then(({err, stats}) => {
             if(!err && stats.isFile()){
                 let etag_buf = etag(stats)
                 if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
@@ -203,11 +206,15 @@ export const serve = (folder='./', route='/', defaultPage='/index.html', cache=t
                     fs.createReadStream(filepath).pipe(res)
                 }
 
-                n(context)
-            } else {
-                y(context)
+                return Promise.reject(context) // dont continue down the server pipeline
+            } else if(stats.isDirectory()){
+                return getFile(path.join(filepath, 'index.html')) // try /index.html
             }
-        }))
+
+            return Promise.resolve(context) // continue down the server pipeline
+        })
+
+    return getFile(filepath)
 }
 
 const addMIME = (url, res, type) => {

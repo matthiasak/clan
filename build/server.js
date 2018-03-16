@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-var zlib = require('zlib'), fs = require('fs'), qs = require('querystring'), stream = require('stream'), Buffer = require('buffer').Buffer, etag = require('etag');
+var zlib = require('zlib'), fs = require('fs'), qs = require('querystring'), stream = require('stream'), Buffer = require('buffer').Buffer, etag = require('etag'), path = require('path');
 var log = function () {
     var a = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -134,20 +134,21 @@ exports.post = exports.route('post');
 exports.del = exports.route('delete');
 exports.patch = exports.route('patch');
 // static file serving async-middleware
-exports.serve = function (folder, route, defaultPage, cache, age) {
+exports.serve = function (folder, route, cache, age) {
     if (folder === void 0) { folder = './'; }
     if (route === void 0) { route = '/'; }
-    if (defaultPage === void 0) { defaultPage = '/index.html'; }
     if (cache === void 0) { cache = true; }
     if (age === void 0) { age = 2628000; }
     return function (context) {
-        var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], __url = req.url, q = __url.indexOf('?'), hash = __url.indexOf('#'), _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined)), url = (_url === route ? defaultPage : _url)
+        var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], __url = req.url, q = __url.indexOf('?'), hash = __url.indexOf('#'), _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined)), url = _url
             .slice(1) // remove prefixed /
             .replace(new RegExp("/^" + route + "/", "ig"), '') // remove base-route
         , filepath = (process.cwd() + "/" + folder + "/" + url).replace(/\/\//ig, '/') // unescape slashes
         , e = req.headers['accept-encoding'] || '';
-        return new Promise(function (y, n) {
-            return fs.stat(filepath, function (err, stats) {
+        var getFile = function (filepath) {
+            return new Promise(function (res) { return fs.stat(filepath, function (err, stats) { return res({ err: err, stats: stats }); }); })
+                .then(function (_a) {
+                var err = _a.err, stats = _a.stats;
                 if (!err && stats.isFile()) {
                     var etag_buf = etag(stats);
                     if (etag_buf && ifNoneMatch && etag_buf === ifNoneMatch) {
@@ -178,13 +179,15 @@ exports.serve = function (folder, route, defaultPage, cache, age) {
                     else {
                         fs.createReadStream(filepath).pipe(res);
                     }
-                    n(context);
+                    return Promise.reject(context); // dont continue down the server pipeline
                 }
-                else {
-                    y(context);
+                else if (stats.isDirectory()) {
+                    return getFile(path.join(filepath, 'index.html')); // try /index.html
                 }
+                return Promise.resolve(context); // continue down the server pipeline
             });
-        });
+        };
+        return getFile(filepath);
     };
 };
 var addMIME = function (url, res, type) {
