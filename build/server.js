@@ -56,7 +56,7 @@ exports.benchmark = function (message) { return function (context) {
 }; };
 // parse data streams from req body
 exports.body = function (ctx) {
-    if (!ctx.res.headersSent) {
+    if (!ctx.res.headersSent && !ctx.__handled) {
         ctx.body = new Promise(function (res, rej) {
             var req = ctx.req;
             var buf = '';

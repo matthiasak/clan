@@ -62,7 +62,7 @@ export const benchmark = message => context => {
 
 // parse data streams from req body
 export const body = (ctx) => {
-    if(!ctx.res.headersSent) {
+    if(!ctx.res.headersSent && !ctx.__handled) {
         ctx.body = new Promise((res,rej) => {
             let {req} = ctx
             let buf = ''
