@@ -5,7 +5,7 @@ export default (data:object, propChain:string): any | null => {
 
     while((i = r.exec(propChain))) queue.push(i[0])
 
-    let ctx = data
+    let ctx = data || {}
         , stack = []
         , t = () => { throw 'Mismatched or missing brackets []' }
 
