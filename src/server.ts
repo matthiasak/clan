@@ -95,6 +95,7 @@ const streamable = buf => {
 
 // send gzipped response middleware
 export const send = context => {
+    context.__handled = true
     const { req, res } = context
         , ifNoneMatch = req.headers['if-none-match']
         , e = req.headers['accept-encoding'] || ''

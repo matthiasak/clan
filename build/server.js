@@ -86,6 +86,7 @@ var streamable = function (buf) {
 };
 // send gzipped response middleware
 exports.send = function (context) {
+    context.__handled = true;
     var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], e = req.headers['accept-encoding'] || '', s = function (buffer, code) {
         if (code === void 0) { code = 200; }
         if (typeof buffer === 'number') {
