@@ -42,6 +42,7 @@ export const sendFile = context => {
         const {req, res} = context
         res.statusCode = 200
         addMIME(file, res)
+        context.__handled = true
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
             : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res)
@@ -95,11 +96,12 @@ const streamable = buf => {
 
 // send gzipped response middleware
 export const send = context => {
-    context.__handled = true
     const { req, res } = context
         , ifNoneMatch = req.headers['if-none-match']
         , e = req.headers['accept-encoding'] || ''
         , s = (buffer, code=200) => {
+            context.__handled = true
+
             if(typeof buffer === 'number') {
                 res.statusCode = buffer
                 return res.end('')
@@ -135,7 +137,7 @@ export const send = context => {
 
 // routing middleware
 export const route = type => (url, action) => context => {
-    if(context.__handled || context.res.headersSent || context.req.method.toLowerCase() !== type) return context
+    if(context.__handled || context.req.method.toLowerCase() !== type) return context
 
     const {req, res} = context
         , reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)')
@@ -162,6 +164,8 @@ export const patch = route('patch')
 
 // static file serving async-middleware
 export const serve = (folder='./', route='/', cache=true, age = 2628000) => context => {
+    if(ctx.__handled) return context
+
     const {req, res} = context
         , ifNoneMatch = req.headers['if-none-match']
         , {url: __url} = req

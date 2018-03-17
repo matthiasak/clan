@@ -39,6 +39,7 @@ exports.sendFile = function (context) {
         var req = context.req, res = context.res;
         res.statusCode = 200;
         addMIME(file, res);
+        context.__handled = true;
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
             : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res);
@@ -86,9 +87,9 @@ var streamable = function (buf) {
 };
 // send gzipped response middleware
 exports.send = function (context) {
-    context.__handled = true;
     var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], e = req.headers['accept-encoding'] || '', s = function (buffer, code) {
         if (code === void 0) { code = 200; }
+        context.__handled = true;
         if (typeof buffer === 'number') {
             res.statusCode = buffer;
             return res.end('');
@@ -121,7 +122,7 @@ exports.send = function (context) {
 };
 // routing middleware
 exports.route = function (type) { return function (url, action) { return function (context) {
-    if (context.__handled || context.res.headersSent || context.req.method.toLowerCase() !== type)
+    if (context.__handled || context.req.method.toLowerCase() !== type)
         return context;
     var req = context.req, res = context.res, reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)'), r = RegExp("^" + reggie + "$"), i = req.url.indexOf('?'), v = r.exec(i === -1 ? req.url : req.url.slice(0, i));
     if (!!v) {
@@ -143,6 +144,8 @@ exports.serve = function (folder, route, cache, age) {
     if (cache === void 0) { cache = true; }
     if (age === void 0) { age = 2628000; }
     return function (context) {
+        if (ctx.__handled)
+            return context;
         var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], __url = req.url, q = __url.indexOf('?'), hash = __url.indexOf('#'), _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined)), url = _url
             .slice(1) // remove prefixed /
             .replace(new RegExp("/^" + route + "/", "ig"), '') // remove base-route
