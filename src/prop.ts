@@ -1,4 +1,8 @@
-export default (data:object, propChain:string): any | null => {
+export default (
+    data:object,
+    propChain:string, ifNull:any = null,
+    map:Function = x=>x
+): any => {
     let queue = []
         , r = /\w+|\[|\]|\./ig
         , i
@@ -22,8 +26,9 @@ export default (data:object, propChain:string): any | null => {
                 ctx = ctx[queue[i]]
                 break
         }
-        if(ctx === undefined || ctx === null) return null
+
+        if(!ctx) return ifNull
     }
 
-    return ctx
+    return map(ctx)
 }

@@ -13,6 +13,7 @@ var hash = function (v, _v) {
     if (_v === void 0) { _v = v === undefined ? 'undefined' : JSON.stringify(v); }
     return _v;
 };
+var batchingTime = 0;
 var obs = (function (state) {
     var subscribers = [];
     var fn = (function (val, noCascade) {
@@ -24,26 +25,20 @@ var obs = (function (state) {
         return state;
     });
     var createDetachable = function (x) {
-        if (x === void 0) { x = obs(state); }
+        if (x === void 0) { x = obs(); }
         x.detach = function ($) {
-            var i = subscribers.indexOf(x);
-            if (i !== -1) {
-                subscribers = subscribers.filter(function (s) { return s !== x; });
-            }
+            subscribers = subscribers.filter(function (s) { return s !== x; });
         };
-        x.reattach = function ($) {
-            var i = subscribers.indexOf(x);
-            if (i === -1) {
-                subscribers.push(x);
-            }
-            x.parent.refresh();
-        };
+        x.reattach = function ($) { return subscribers.push(x); };
         x.parent = fn;
         return x;
     };
+    fn.setGlobalBatchingTime = function (x) {
+        batchingTime = Math.max(x, 0);
+    };
     fn.computed = function () {
         var sink = createDetachable();
-        var prev = state;
+        var prev = null;
         fn.then(function (x) {
             if (hash(prev) === hash(x)) {
                 return;
@@ -93,37 +88,41 @@ var obs = (function (state) {
     };
     fn.reduce = function (f, acc) {
         var o = createDetachable();
-        acc =
-            acc === undefined
-                ? state
-                : acc;
+        acc = acc === undefined ? f() : acc;
         subscribers.push(function (val) {
             acc = f(acc, val);
             o(acc);
         });
         return o;
     };
-    fn.maybe = function (f) {
-        var success = createDetachable(), error = createDetachable(), cb = function (val) {
+    fn.maybe = function (f, batching) {
+        if (batching === void 0) { batching = batchingTime; }
+        var success = createDetachable(), error = createDetachable(), source = batching !== 0 ? createDetachable().scope().debounce(batching) : createDetachable().scope();
+        source.then(function (val) {
             return f(val)
                 .then(function (d) { return success(d); })["catch"](function (e) { return error(e); });
-        };
-        subscribers.push(cb);
-        return [success, error];
+        });
+        fn.then(source.root());
+        success[0] = success;
+        success[1] = error;
+        return success;
     };
     fn.stop = function () { return subscribers = []; };
     fn.debounce = function (ms) {
         if (ms === void 0) { ms = 0; }
         var o = createDetachable();
-        var timeout, v;
-        subscribers.push(function (val) {
+        var timeout, v, startTime;
+        fn.then(function (val) {
+            console.log({ startTime: startTime });
             v = val;
-            if (!timeout)
-                timeout = setTimeout(function ($) {
+            if (!timeout) {
+                timeout = setTimeout(function () {
                     o(v);
-                    v = null;
                     timeout = null;
+                    console.log('invokedAfter: ' + (+new Date - startTime) + ' ms');
                 }, ms);
+                startTime = +new Date;
+            }
         });
         return o;
     };
@@ -138,7 +137,7 @@ var obs = (function (state) {
             fs[_i] = arguments[_i];
         }
         var o = createDetachable();
-        fs.map(function (f) { return f.then(o); });
+        fs.map(function (f, i) { return f.then(o); });
         fn.then(o);
         return o;
     };
@@ -172,7 +171,7 @@ var obs = (function (state) {
             };
         }; }
         if (mount === void 0) { mount = component.componentDidMount; }
-        if (setMount === void 0) { setMount = function (x, y) {
+        if (setMount === void 0) { setMount = function (x) {
             component.componentDidMount = function () {
                 var args = [];
                 for (var _i = 0; _i < arguments.length; _i++) {
@@ -180,14 +179,15 @@ var obs = (function (state) {
                 }
                 mount && mount.apply(component, args);
                 x.reattach();
-                y.refresh();
+                x.parent() && x.parent.refresh();
             };
         }; }
-        var x = createDetachable(), y = x.computed().then(setState);
+        var x = createDetachable().then(setState);
         setUnmount(x);
-        setMount(x, y);
+        setMount(x);
         fn.then(x);
-        return y;
+        x.parent.refresh();
+        return x;
     };
     fn.scope = function () {
         fn.scoped = true;

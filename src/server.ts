@@ -46,6 +46,8 @@ export const sendFile = context => {
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
             : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res)
+
+        return context
     }
 
     return Object.assign({}, context, {sendFile: s})
@@ -63,8 +65,8 @@ export const benchmark = message => context => {
 
 // parse data streams from req body
 export const body = (ctx) => {
-    if(!ctx.res.headersSent && !ctx.__handled) {
-        ctx.body = new Promise((res,rej) => {
+    ctx.body = () =>
+        new Promise((res,rej) => {
             let {req} = ctx
             let buf = ''
             req.setEncoding('utf8')
@@ -74,7 +76,6 @@ export const body = (ctx) => {
                 res(buf)
             })
         })
-    }
     return ctx
 }
 
@@ -130,6 +131,8 @@ export const send = context => {
             } else {
                 buffer.pipe(res)
             }
+
+            return context
         }
 
     return Object.assign({}, context, {send: s})
@@ -161,10 +164,11 @@ export const put = route('put')
 export const post = route('post')
 export const del = route('delete')
 export const patch = route('patch')
+export const option = route('option')
 
 // static file serving async-middleware
 export const serve = (folder='./', route='/', cache=true, age = 2628000) => context => {
-    if(ctx.__handled) return context
+    if(context.__handled) return Promise.resolve(context)
 
     const {req, res} = context
         , ifNoneMatch = req.headers['if-none-match']
@@ -182,55 +186,50 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
     const getFile = (filepath) =>
         new Promise((res, rej) =>
             fs.stat(filepath, (err, stats) =>
-                err ? rej(err) : res(stats)
-            ))
-            .then(stats => {
-                if(stats.isFile()){
-                    context.__handled = true
+                err ? res(context) : rej(stats) ))
+        .catch(stats => {
+            if(stats.isDirectory()){
+                // try /index.html
+                return getFile(path.join(filepath, 'index.html'))
+            } else if(stats.isFile()){
+                context.__handled = true
 
-                    let etag_buf = etag(stats)
-                    if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
-                        res.statusCode = 304 // not modified
-                        res.end('')
-                        return Promise.reject(context)
-                        // return context
-                    }
-
-                    res.setHeader('ETag', etag_buf)
-                    addMIME(filepath, res)
-
-                    if(!cache){
-                        res.setHeader('cache-control', 'no-cache, no-store, must-revalidate')
-                        res.setHeader('Pragma', 'no-cache')
-                        res.setHeader('Expires', '-1')
-                    } else {
-                        res.setHeader('cache-control', `public, max-age=${age}`)
-                        res.setHeader('Pragma', 'cache')
-                        res.setHeader('Expires', new Date(+new Date + age*1000).toUTCString())
-                    }
-
-                    if(e.match(/gzip/)) {
-                        res.setHeader('content-encoding', 'gzip')
-                        fs.createReadStream(filepath).pipe(zlib.createGzip()).pipe(res)
-                    } else if(e.match(/deflate/)) {
-                        res.setHeader('content-encoding', 'deflate')
-                        fs.createReadStream(filepath).pipe(zlib.createDeflate()).pipe(res)
-                    } else {
-                        fs.createReadStream(filepath).pipe(res)
-                    }
-
+                let etag_buf = etag(stats)
+                if(etag_buf && ifNoneMatch && etag_buf === ifNoneMatch){
+                    res.statusCode = 304 // not modified
+                    res.end('')
                     return Promise.reject(context)
-                    // return context // dont continue down the server pipeline
-                } else if(stats.isDirectory()){
-                    // try /index.html
-                    return getFile(path.join(filepath, 'index.html'))
                 }
 
-                return context // continue down the server pipeline
-            })
-            .catch(e => Promise.reject(context))
-            // .then(d => console.log(d))
-            // .catch(e => console.log(e))
+                res.setHeader('ETag', etag_buf)
+                addMIME(filepath, res)
+
+                if(!cache){
+                    res.setHeader('cache-control', 'no-cache, no-store, must-revalidate')
+                    res.setHeader('Pragma', 'no-cache')
+                    res.setHeader('Expires', '-1')
+                } else {
+                    res.setHeader('cache-control', `public, max-age=${age}`)
+                    res.setHeader('Pragma', 'cache')
+                    res.setHeader('Expires', new Date(+new Date + age*1000).toUTCString())
+                }
+
+                if(e.match(/gzip/)) {
+                    res.setHeader('content-encoding', 'gzip')
+                    fs.createReadStream(filepath).pipe(zlib.createGzip()).pipe(res)
+                } else if(e.match(/deflate/)) {
+                    res.setHeader('content-encoding', 'deflate')
+                    fs.createReadStream(filepath).pipe(zlib.createDeflate()).pipe(res)
+                } else {
+                    fs.createReadStream(filepath).pipe(res)
+                }
+
+                return Promise.reject(context)
+                // return context // dont continue down the server pipeline
+            }
+
+            return context // continue down the server pipeline
+        })
 
     return getFile(filepath)
 }

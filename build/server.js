@@ -43,6 +43,7 @@ exports.sendFile = function (context) {
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
             : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res);
+        return context;
     };
     return Object.assign({}, context, { sendFile: s });
 };
@@ -57,8 +58,8 @@ exports.benchmark = function (message) { return function (context) {
 }; };
 // parse data streams from req body
 exports.body = function (ctx) {
-    if (!ctx.res.headersSent && !ctx.__handled) {
-        ctx.body = new Promise(function (res, rej) {
+    ctx.body = function () {
+        return new Promise(function (res, rej) {
             var req = ctx.req;
             var buf = '';
             req.setEncoding('utf8');
@@ -68,7 +69,7 @@ exports.body = function (ctx) {
                 res(buf);
             });
         });
-    }
+    };
     return ctx;
 };
 var streamable = function (buf) {
@@ -117,6 +118,7 @@ exports.send = function (context) {
         else {
             buffer.pipe(res);
         }
+        return context;
     };
     return Object.assign({}, context, { send: s });
 };
@@ -137,6 +139,7 @@ exports.put = exports.route('put');
 exports.post = exports.route('post');
 exports.del = exports.route('delete');
 exports.patch = exports.route('patch');
+exports.option = exports.route('option');
 // static file serving async-middleware
 exports.serve = function (folder, route, cache, age) {
     if (folder === void 0) { folder = './'; }
@@ -144,8 +147,8 @@ exports.serve = function (folder, route, cache, age) {
     if (cache === void 0) { cache = true; }
     if (age === void 0) { age = 2628000; }
     return function (context) {
-        if (ctx.__handled)
-            return context;
+        if (context.__handled)
+            return Promise.resolve(context);
         var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], __url = req.url, q = __url.indexOf('?'), hash = __url.indexOf('#'), _url = __url.slice(0, q !== -1 ? q : (hash !== -1 ? hash : undefined)), url = _url
             .slice(1) // remove prefixed /
             .replace(new RegExp("/^" + route + "/", "ig"), '') // remove base-route
@@ -154,18 +157,20 @@ exports.serve = function (folder, route, cache, age) {
         var getFile = function (filepath) {
             return new Promise(function (res, rej) {
                 return fs.stat(filepath, function (err, stats) {
-                    return err ? rej(err) : res(stats);
+                    return err ? res(context) : rej(stats);
                 });
-            })
-                .then(function (stats) {
-                if (stats.isFile()) {
+            })["catch"](function (stats) {
+                if (stats.isDirectory()) {
+                    // try /index.html
+                    return getFile(path.join(filepath, 'index.html'));
+                }
+                else if (stats.isFile()) {
                     context.__handled = true;
                     var etag_buf = etag(stats);
                     if (etag_buf && ifNoneMatch && etag_buf === ifNoneMatch) {
                         res.statusCode = 304; // not modified
                         res.end('');
                         return Promise.reject(context);
-                        // return context
                     }
                     res.setHeader('ETag', etag_buf);
                     addMIME(filepath, res);
@@ -193,15 +198,9 @@ exports.serve = function (folder, route, cache, age) {
                     return Promise.reject(context);
                     // return context // dont continue down the server pipeline
                 }
-                else if (stats.isDirectory()) {
-                    // try /index.html
-                    return getFile(path.join(filepath, 'index.html'));
-                }
                 return context; // continue down the server pipeline
-            })["catch"](function (e) { return Promise.reject(context); });
+            });
         };
-        // .then(d => console.log(d))
-        // .catch(e => console.log(e))
         return getFile(filepath);
     };
 };

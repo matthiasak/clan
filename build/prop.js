@@ -1,6 +1,8 @@
 "use strict";
 exports.__esModule = true;
-exports["default"] = function (data, propChain) {
+exports["default"] = function (data, propChain, ifNull, map) {
+    if (ifNull === void 0) { ifNull = null; }
+    if (map === void 0) { map = function (x) { return x; }; }
     var queue = [], r = /\w+|\[|\]|\./ig, i;
     while ((i = r.exec(propChain)))
         queue.push(i[0]);
@@ -19,8 +21,8 @@ exports["default"] = function (data, propChain) {
                 ctx = ctx[queue[i_1]];
                 break;
         }
-        if (ctx === undefined || ctx === null)
-            return null;
+        if (!ctx)
+            return ifNull;
     }
-    return ctx;
+    return map(ctx);
 };
