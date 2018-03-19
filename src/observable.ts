@@ -173,17 +173,14 @@ const obs = ((state?):Observable => {
 
     fn.debounce = (ms=0) => {
         const o = createDetachable()
-        let timeout, v, startTime
+        let timeout, v
         fn.then(val => {
-            console.log({startTime})
             v = val
             if(!timeout) {
                 timeout = setTimeout(() => {
                     o(v)
                     timeout = null
-                    console.log('invokedAfter: '+ (+new Date - startTime)+' ms')
                 }, ms)
-                startTime = +new Date
             }
         })
         return o

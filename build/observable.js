@@ -111,17 +111,14 @@ var obs = (function (state) {
     fn.debounce = function (ms) {
         if (ms === void 0) { ms = 0; }
         var o = createDetachable();
-        var timeout, v, startTime;
+        var timeout, v;
         fn.then(function (val) {
-            console.log({ startTime: startTime });
             v = val;
             if (!timeout) {
                 timeout = setTimeout(function () {
                     o(v);
                     timeout = null;
-                    console.log('invokedAfter: ' + (+new Date - startTime) + ' ms');
                 }, ms);
-                startTime = +new Date;
             }
         });
         return o;
