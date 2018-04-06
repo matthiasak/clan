@@ -5,7 +5,7 @@
 // to that URL is "in-flight", the Promise returned by both of those calls will be resolved by a single network request.
 exports.__esModule = true;
 // f :: (url -> options) -> Promise
-exports["default"] = function (f) {
+exports["default"] = (function (f) {
     var inflight = {};
     return function (url, options) {
         if (options === void 0) { options = {}; }
@@ -26,4 +26,4 @@ exports["default"] = function (f) {
                     return console.error(e, url);
                 }));
     };
-};
+});

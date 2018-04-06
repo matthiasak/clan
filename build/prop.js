@@ -1,6 +1,6 @@
 "use strict";
 exports.__esModule = true;
-exports["default"] = function (data, propChain, ifNull, map) {
+exports["default"] = (function (data, propChain, ifNull, map) {
     if (ifNull === void 0) { ifNull = null; }
     if (map === void 0) { map = function (x) { return x; }; }
     var queue = [], r = /\w+|\[|\]|\./ig, i;
@@ -25,4 +25,4 @@ exports["default"] = function (data, propChain, ifNull, map) {
             return ifNull;
     }
     return map(ctx);
-};
+});

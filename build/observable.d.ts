@@ -1,5 +1,5 @@
 export interface Observable {
-    (any?: any, bool?: any): any;
+    (any?: any, Function?: any): any;
     detach(any?: any): void;
     reattach(any?: any): void;
     map(Function: any): Observable;
@@ -24,5 +24,5 @@ export interface Observable {
     triggerRoot(x?: any): void;
     setGlobalBatchingTime(x: number): void;
 }
-declare const obs: (state?: any) => Observable;
+declare const obs: (state?: any, handler?: any) => Observable;
 export default obs;

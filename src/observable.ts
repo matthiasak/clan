@@ -24,7 +24,7 @@ interface M {
 }
 
 export interface Observable {
-    (any?, bool?): any;
+    (any?, Function?): any;
     detach(any?): void;
     reattach(any?): void;
     map(Function): Observable;
@@ -55,130 +55,112 @@ const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 
 let batchingTime = 0
 
-const obs = ((state?):Observable => {
+const obs = ((state?,handler?):Observable => {
     let subscribers:Function[] = []
+    let streamHandler = null
 
-    const fn = <Observable>(function(val?, noCascade=false){
-        if(arguments.length !== 0){
-            state = val
-            !noCascade && subscribers.map(s => (s instanceof Function) && s(val))
-        }
-        return state
+    const fn = <Observable>(function(val?){
+        if(arguments.length === 0) return state
+        handler ? handler(val, cascade) : cascade(val)
     })
 
-    const createDetachable = (x:Observable = obs()) => {
+    const cascade = (val) => {
+        state = val
+        for(let i = 0, len = subscribers.length; i<len; i++)
+            subscribers[i](val)
+    }
+
+    const createDetachable = (handler:Function?) => {
+        let x:Observable = obs(null, handler)
         x.detach = $ => {
+            const before = subscribers.length
             subscribers = subscribers.filter(s => s !== x)
         }
-        x.reattach = $ => subscribers.push(x)
+        x.reattach = $ => {
+            x.detach()
+            subscribers.push(x)
+        }
+        x.reattach()
         x.parent = fn
         return x
     }
 
-    fn.setGlobalBatchingTime = (x:number) => {
-        batchingTime = Math.max(x, 0)
-    }
+    fn.setGlobalBatchingTime = (x:number) => {batchingTime = Math.max(x, 0)}
 
     fn.computed = () => {
-        const sink = createDetachable()
         let prev = null
-        fn.then(x => {
+        return createDetachable((x, cascade) => {
             if(hash(prev) === hash(x)) {
                 return
             }
             prev = x
-            sink(x)
+            cascade(x)
         })
-        return sink
     }
 
     fn.refresh = () => fn(state)
 
-    fn.map = f => {
-      const o = createDetachable()
-      subscribers.push(val => o(f(val)))
-      return o
-    }
+    fn.map = f => createDetachable((x, cascade) => cascade(f(x)))
 
-    fn.filter = f => {
-      const o = createDetachable()
-      subscribers.push(val => f(val) && o(val))
-      return o
-    }
+    fn.filter = f => createDetachable((x, cascade) => {
+        f(x) && cascade(x)
+    })
 
     fn.then = f => {
-      subscribers.push(val => f(val))
-      return fn
+        createDetachable((x, cascade) => f(x))
+        return fn
     }
 
     fn.take = n => {
-        let count = 0,
-            o = createDetachable()
-
-        const cb = val => {
-            if (count <= n) {
-                count++
-                o(val)
-            }
-
-            if (count === n)
-                subscribers = subscribers.filter(x => x !== cb)
-        }
-
-        subscribers.push(cb)
-        return o
+        let count = 0
+        let o = createDetachable((x, cascade) => {
+            if(count >= n) return o.detach()
+            count++
+            cascade(x)
+        })
     }
 
     fn.takeWhile = f => {
-        let o = createDetachable()
-
-        const cb = val => {
-            if(f(val)) return o(val)
-            subscribers = subscribers.filter(x => x !== cb)
-        }
-
-        subscribers.push(cb)
-        return o
-    }
-
-    fn.reduce = (f,acc) => {
-        const o = createDetachable()
-        acc = acc === undefined ? f() : acc
-        subscribers.push(val => {
-            acc = f(acc,val)
-            o(acc)
+        let o = createDetachable((x, cascade) => {
+            if(!f(x)) o.detach()
+            cascade(x)
         })
         return o
     }
 
-    fn.maybe = (f, batching=batchingTime) => {
-        const success = createDetachable(),
-              error = createDetachable(),
-              source = batching !== 0 ? createDetachable().scope().debounce(batching) : createDetachable().scope()
+    fn.reduce = (f,acc) =>
+        createDetachable((x, cascade) => {
+            acc = f(x,acc)
+            cascade(acc)
+        })
 
-        source.then(val =>
-            f(val)
-            .then(d => success(d))
-            .catch(e => error(e)))
+    fn.maybe = (f) => {
+        let error = obs(),
+            success = createDetachable(
+                (x, cascade) =>
+                    f(x)
+                    .then(cascade)
+                    .catch(e => error(e))
+            )
 
-        fn.then(source.root())
+        // establish chain
+        error.parent = success
 
+        // default to chaining on success
         success[0] = success
         success[1] = error
-
         return success
     }
 
     fn.stop = () => subscribers = []
 
     fn.debounce = (ms=0) => {
-        const o = createDetachable()
         let timeout, v
-        fn.then(val => {
-            v = val
-            if(!timeout) {
+        let o = createDetachable((x, cascade) => {
+            v = x
+            if(!timeout){
                 timeout = setTimeout(() => {
-                    o(v)
+                    cascade(v)
                     timeout = null
                 }, ms)
             }
@@ -188,28 +170,24 @@ const obs = ((state?):Observable => {
 
     fn.from = f => {
         const o = createDetachable()
-        f(x => o(x))
+        f(o)
         return o
     }
 
     fn.union = (...fs) => {
         const o = createDetachable()
         fs.map((f:Observable, i) => f.then(o))
-        fn.then(o)
         return o
     }
 
-    fn.tryMap = f => {
-      const o = createDetachable()
-      subscribers.push(val => {
-          try {
-              o(f(val))
-          } catch(e) {
-              console.error(e)
-          }
-      })
-      return o
-    }
+    fn.tryMap = f =>
+        createDetachable((x, cascade) => {
+            try {
+                cascade(f(val))
+            } catch(e) {
+                console.error(e)
+            }
+        })
 
     fn.attach = (
         component: VDOM
@@ -219,8 +197,8 @@ const obs = ((state?):Observable => {
         , unmount = component.componentWillUnmount
         , setUnmount = x => {
             component.componentWillUnmount = (...args) => {
-                unmount && unmount.apply(component, args)
                 x.detach()
+                unmount && unmount.apply(component, args)
             }
         }
         , mount = component.componentDidMount
@@ -228,15 +206,20 @@ const obs = ((state?):Observable => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.parent() && x.parent.refresh()
+                x.parent && x(x.parent())
             }
         }
     ) => {
-        let x = createDetachable().then(setState)
+        let x =
+            fn
+            .map(d => {
+                setState(d)
+                return d
+            })
+
+        x.detach() // start detached
         setUnmount(x)
         setMount(x)
-        fn.then(x)
-        x.parent.refresh()
         return x
     }
 
@@ -253,9 +236,7 @@ const obs = ((state?):Observable => {
         return r
     }
 
-    fn.triggerRoot = (x) => {
-        fn.root()(x)
-    }
+    fn.triggerRoot = (x) => fn.root()(x)
 
     return fn
 })

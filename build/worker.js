@@ -43,11 +43,11 @@ var worker = function () {
     var url = W.createObjectURL(blob);
     return new Worker(url);
 };
-exports["default"] = function (code) {
+exports["default"] = (function (code) {
     var source = observable_1["default"](), w = worker(code);
     return [
         source.then(function (x) { return w.postMessage(x); }),
         observable_1["default"]().from(function (f) { return w.onmessage = function (event) { return f(event); }; }),
         observable_1["default"]().from(function (f) { return w.onerror = function (event) { return f(event); }; })
     ];
-};
+});
