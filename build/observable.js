@@ -80,7 +80,7 @@ var obs = (function (state, handler) {
     };
     fn.reduce = function (f, acc) {
         return createDetachable(function (x, cascade) {
-            acc = f(x, acc);
+            acc = f(acc, x);
             cascade(acc);
         });
     };

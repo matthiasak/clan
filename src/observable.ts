@@ -130,7 +130,7 @@ const obs = ((state?,handler?):Observable => {
 
     fn.reduce = (f,acc) =>
         createDetachable((x, cascade) => {
-            acc = f(x,acc)
+            acc = f(acc, x)
             cascade(acc)
         })
 
