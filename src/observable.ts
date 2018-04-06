@@ -36,7 +36,7 @@ export interface Observable {
     reduce(Reducer, any?): Observable;
     maybe(M, number?): Observable;
     stop(): void;
-    refresh(): void;
+    refresh(): Observable;
     computed(): Observable;
     debounce(number);
     from(Function): Observable;
@@ -98,7 +98,10 @@ const obs = ((state?,handler?):Observable => {
         })
     }
 
-    fn.refresh = () => fn(state)
+    fn.refresh = () => {
+        fn(state)
+        return fn
+    }
 
     fn.map = f => createDetachable((x, cascade) => cascade(f(x)))
 

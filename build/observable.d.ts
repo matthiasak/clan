@@ -11,7 +11,7 @@ export interface Observable {
     reduce(Reducer: any, any?: any): Observable;
     maybe(M: any, number?: any): Observable;
     stop(): void;
-    refresh(): void;
+    refresh(): Observable;
     computed(): Observable;
     debounce(number: any): any;
     from(Function: any): Observable;
