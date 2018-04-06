@@ -53,7 +53,7 @@ var obs = (function (state, handler) {
         });
     };
     fn.refresh = function () {
-        fn(state);
+        setTimeout(function ($) { return fn(state); }, 0);
         return fn;
     };
     fn.map = function (f) { return createDetachable(function (x, cascade) { return cascade(f(x)); }); };
