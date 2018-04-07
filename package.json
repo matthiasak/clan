@@ -1,6 +1,6 @@
 {
   "name": "clan-fp",
-  "version": "1.1.42",
+  "version": "1.1.43",
   "description": "A set of opinionated, functional utilities that work particularly well when used together",
   "scripts": {
     "prestart": "rimraf build/*",
