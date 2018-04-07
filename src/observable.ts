@@ -96,7 +96,7 @@ const obs = ((state?,handler?):Observable => {
     }
 
     fn.refresh = () => {
-        setTimeout($ => fn(state), 0)
+        setTimeout($ => cascade(state), 0)
         return fn
     }
 
