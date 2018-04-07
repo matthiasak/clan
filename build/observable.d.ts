@@ -22,7 +22,6 @@ export interface Observable {
     scoped: boolean;
     parent: Observable;
     triggerRoot(x?: any): void;
-    setGlobalBatchingTime(x: number): void;
 }
 declare const obs: (state?: any, handler?: any) => Observable;
 export default obs;

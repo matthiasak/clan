@@ -47,7 +47,6 @@ export interface Observable {
     scoped: boolean;
     parent: Observable;
     triggerRoot(x?:any): void;
-    setGlobalBatchingTime(x:number): void;
 }
 
 // import {hash} from './fp'
@@ -84,8 +83,6 @@ const obs = ((state?,handler?):Observable => {
         x.parent = fn
         return x
     }
-
-    fn.setGlobalBatchingTime = (x:number) => {batchingTime = Math.max(x, 0)}
 
     fn.computed = () => {
         let prev = null
@@ -209,7 +206,7 @@ const obs = ((state?,handler?):Observable => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.parent && x(x.parent())
+                x.parent() && x.parent.refresh()
             }
         }
     ) => {

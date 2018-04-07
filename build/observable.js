@@ -41,7 +41,6 @@ var obs = (function (state, handler) {
         x.parent = fn;
         return x;
     };
-    fn.setGlobalBatchingTime = function (x) { batchingTime = Math.max(x, 0); };
     fn.computed = function () {
         var prev = null;
         return createDetachable(function (x, cascade) {
@@ -164,7 +163,7 @@ var obs = (function (state, handler) {
                 }
                 mount && mount.apply(component, args);
                 x.reattach();
-                x.parent && x(x.parent());
+                x.parent() && x.parent.refresh();
             };
         }; }
         var x = fn
