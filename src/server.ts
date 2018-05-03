@@ -43,9 +43,17 @@ export const sendFile = context => {
         res.statusCode = 200
         addMIME(file, res) // try to auto-set a content-type if sending by URL
         context.__handled = true
-        file instanceof Buffer
-            ? streamable(file).pipe(zlib.createGzip()).pipe(res)
-            : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res)
+        const e = (req.headers['accept-encoding'] || '')
+        const buf = file instanceof Buffer ? streamable(file) : fs.createReadStream(file)
+        if(e.match(/gzip/)) {
+            res.setHeader('content-encoding', 'gzip')
+            buf.pipe(zlib.createGzip()).pipe(res)
+        } else if(e.match(/deflate/)) {
+            res.setHeader('content-encoding', 'deflate')
+            buf.pipe(zlib.createDeflate()).pipe(res)
+        } else {
+            buf.pipe(res)
+        }
         return context
     }
 
