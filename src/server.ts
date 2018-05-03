@@ -41,12 +41,11 @@ export const sendFile = context => {
     const s = file => {
         const {req, res} = context
         res.statusCode = 200
-        addMIME(file, res)
+        addMIME(file, res) // try to auto-set a content-type if sending by URL
         context.__handled = true
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
             : fs.createReadStream(file).pipe(zlib.createGzip()).pipe(res)
-
         return context
     }
 
@@ -236,7 +235,8 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
     return getFile(filepath)
 }
 
-const addMIME = (url, res, type) => {
+const addMIME = (url, res) => {
+    if(typeof url !== 'string') return
     const c = 'Content-Type'
     url.match(/\.js$/) && res.setHeader(c, 'text/javascript')
     url.match(/\.json$/) && res.setHeader(c, 'application/json')

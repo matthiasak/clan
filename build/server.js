@@ -38,7 +38,7 @@ exports.sendFile = function (context) {
     var s = function (file) {
         var req = context.req, res = context.res;
         res.statusCode = 200;
-        addMIME(file, res);
+        addMIME(file, res); // try to auto-set a content-type if sending by URL
         context.__handled = true;
         file instanceof Buffer
             ? streamable(file).pipe(zlib.createGzip()).pipe(res)
@@ -206,7 +206,9 @@ exports.serve = function (folder, route, cache, age) {
         return getFile(filepath);
     };
 };
-var addMIME = function (url, res, type) {
+var addMIME = function (url, res) {
+    if (typeof url !== 'string')
+        return;
     var c = 'Content-Type';
     url.match(/\.js$/) && res.setHeader(c, 'text/javascript');
     url.match(/\.json$/) && res.setHeader(c, 'application/json');
