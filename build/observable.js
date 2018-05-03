@@ -134,6 +134,7 @@ var obs = (function (state, handler) {
             }
             catch (e) {
                 console.error(e);
+                return x;
             }
         });
     };

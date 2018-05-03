@@ -101,6 +101,8 @@ export const send = context => {
         , ifNoneMatch = req.headers['if-none-match']
         , e = req.headers['accept-encoding'] || ''
         , s = (buffer, code=200) => {
+            if(context.__handled) return context
+
             context.__handled = true
 
             if(typeof buffer === 'number') {

@@ -90,6 +90,8 @@ var streamable = function (buf) {
 exports.send = function (context) {
     var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], e = req.headers['accept-encoding'] || '', s = function (buffer, code) {
         if (code === void 0) { code = 200; }
+        if (context.__handled)
+            return context;
         context.__handled = true;
         if (typeof buffer === 'number') {
             res.statusCode = buffer;

@@ -186,6 +186,7 @@ const obs = ((state?,handler?):Observable => {
                 cascade(f(val))
             } catch(e) {
                 console.error(e)
+                return x
             }
         })
 
