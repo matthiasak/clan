@@ -25,8 +25,8 @@
   "author": "Matt Keas (@matthiasak)",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^8.0.9",
-    "fuse-box": "^2.2.2",
+    "@types/node": "^8.10.11",
+    "fuse-box": "^2.4.0",
     "fuse-test-runner": "^1.0.13",
     "rimraf": "^2.6.1"
   },

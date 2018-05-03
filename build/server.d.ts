@@ -11,5 +11,5 @@ export declare const del: (url: any, action: any) => (context: any) => any;
 export declare const patch: (url: any, action: any) => (context: any) => any;
 export declare const option: (url: any, action: any) => (context: any) => any;
 export declare const serve: (folder?: string, route?: string, cache?: boolean, age?: number) => (context: any) => any;
-export declare const server: (pipe: any, port?: number, useCluster?: boolean) => any;
-export declare const http: (pipe: any, port?: number, useCluster?: boolean) => any;
+export declare const server: (pipe: any, port?: number, timeout?: number, keepAlive?: number) => void;
+export declare const http: (pipe: any, port?: number, timeout?: number, keepAlive?: number) => void;

@@ -248,31 +248,35 @@ const addMIME = (url, res, type) => {
     url.match(/\.svg$/) && res.setHeader(c, 'image/svg+xml')
 }
 
-export const server = (pipe, port=3000, useCluster=false) => {
+export const server = (pipe, port=3000, timeout=1000, keepAlive=timeout) => {
     const http = require('http')
-        , boot = () => {
-            const s = http.createServer((req, res) => pipe({req, res}))
-
-            s.listen(port, (err) =>
-               err && console.error(err) || console.log(`Server running at :${port} on process ${process.pid}`))
-
-            return s
-        }
-
-    if(!useCluster) return boot()
-
-    const cluster = require('cluster')
+        , cluster = require('cluster')
+        , domain = require('domain')
         , numCPUs = require('os').cpus().length
+        , boot = () => {
+            const s = http.createServer((req, res) => {
+                const d = domain.create()
+                d.on('error', e => {
+                    console.error(e.stack)
+                    s.close()
+                    cluster.worker.disconnect()
+                    res.statusCode = 500
+                    res.setHeader('content-type', 'text/plain')
+                    res.end()
+                })
+                d.bind(pipe)({req, res})
+            })
+            s.listen(port, (err) => err && console.error(err) || console.log(`Server running at :${port} on process ${process.pid}`))
+            s.timeout = timeout
+            s.keepAliveTimeout = keepAlive
+        }
 
     if (cluster.isMaster) {
         for (var i = 0; i < numCPUs; i++) cluster.fork()
-        cluster.on('exit', (worker, code, signal) =>
-            console.log(`worker ${worker.process.pid} died`))
+        cluster.on('disconnect', worker => cluster.fork())
     } else {
         boot()
     }
-
-    return cluster
 }
 
 export const http = server

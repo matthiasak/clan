@@ -216,29 +216,34 @@ var addMIME = function (url, res, type) {
     url.match(/\.gif$/) && res.setHeader(c, 'image/gif');
     url.match(/\.svg$/) && res.setHeader(c, 'image/svg+xml');
 };
-exports.server = function (pipe, port, useCluster) {
+exports.server = function (pipe, port, timeout, keepAlive) {
     if (port === void 0) { port = 3000; }
-    if (useCluster === void 0) { useCluster = false; }
-    var http = require('http'), boot = function () {
-        var s = http.createServer(function (req, res) { return pipe({ req: req, res: res }); });
-        s.listen(port, function (err) {
-            return err && console.error(err) || console.log("Server running at :" + port + " on process " + process.pid);
+    if (timeout === void 0) { timeout = 1000; }
+    if (keepAlive === void 0) { keepAlive = timeout; }
+    var http = require('http'), cluster = require('cluster'), domain = require('domain'), numCPUs = require('os').cpus().length, boot = function () {
+        var s = http.createServer(function (req, res) {
+            var d = domain.create();
+            d.on('error', function (e) {
+                console.error(e.stack);
+                s.close();
+                cluster.worker.disconnect();
+                res.statusCode = 500;
+                res.setHeader('content-type', 'text/plain');
+                res.end();
+            });
+            d.bind(pipe)({ req: req, res: res });
         });
-        return s;
+        s.listen(port, function (err) { return err && console.error(err) || console.log("Server running at :" + port + " on process " + process.pid); });
+        s.timeout = timeout;
+        s.keepAliveTimeout = keepAlive;
     };
-    if (!useCluster)
-        return boot();
-    var cluster = require('cluster'), numCPUs = require('os').cpus().length;
     if (cluster.isMaster) {
         for (var i = 0; i < numCPUs; i++)
             cluster.fork();
-        cluster.on('exit', function (worker, code, signal) {
-            return console.log("worker " + worker.process.pid + " died");
-        });
+        cluster.on('disconnect', function (worker) { return cluster.fork(); });
     }
     else {
         boot();
     }
-    return cluster;
 };
 exports.http = exports.server;
