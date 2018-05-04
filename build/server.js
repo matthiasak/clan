@@ -55,7 +55,8 @@ exports.sendFile = function (context) {
         }
         return context;
     };
-    return Object.assign({}, context, { sendFile: s });
+    context.sendFile = s;
+    return context;
 };
 // benchmark handler
 exports.benchmark = function (message) { return function (context) {
@@ -100,16 +101,16 @@ var streamable = function (buf) {
 exports.send = function (context) {
     var req = context.req, res = context.res, ifNoneMatch = req.headers['if-none-match'], e = req.headers['accept-encoding'] || '', s = function (buffer, code) {
         if (code === void 0) { code = 200; }
-        if (context.__handled)
-            return context;
         context.__handled = true;
         if (typeof buffer === 'number') {
             res.statusCode = buffer;
-            return res.end('');
+            return res.end();
         }
         else {
             res.statusCode = code;
         }
+        if ([null, undefined].indexOf(buffer) != -1)
+            return res.end();
         if (!(buffer instanceof Buffer))
             buffer = Buffer.from(typeof buffer === 'object' ? JSON.stringify(buffer) : buffer);
         var etag_buf = etag(buffer);
@@ -132,7 +133,8 @@ exports.send = function (context) {
         }
         return context;
     };
-    return Object.assign({}, context, { send: s });
+    context.send = s;
+    return context;
 };
 // routing middleware
 exports.route = function (type) { return function (url, action) { return function (context) {
@@ -238,12 +240,12 @@ exports.server = function (pipe, port, timeout, keepAlive) {
         var s = http.createServer(function (req, res) {
             var d = domain.create();
             d.on('error', function (e) {
-                console.error(e.stack);
+                console.error(e);
                 s.close();
-                cluster.worker.disconnect();
                 res.statusCode = 500;
                 res.setHeader('content-type', 'text/plain');
                 res.end();
+                cluster.worker.disconnect();
             });
             d.bind(pipe)({ req: req, res: res });
         });
@@ -254,7 +256,12 @@ exports.server = function (pipe, port, timeout, keepAlive) {
     if (cluster.isMaster) {
         for (var i = 0; i < numCPUs; i++)
             cluster.fork();
-        cluster.on('disconnect', function (worker) { return cluster.fork(); });
+        var onClose = function (worker) {
+            console.error('Worker closing. Restarting...');
+            cluster.fork();
+        };
+        cluster.on('disconnect', onClose);
+        cluster.on('exit', onClose);
     }
     else {
         boot();

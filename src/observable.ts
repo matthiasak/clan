@@ -49,8 +49,8 @@ export interface Observable {
     triggerRoot(x?:any): void;
 }
 
-// import {hash} from './fp'
-const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
+import {hash} from './fp'
+// const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 
 let batchingTime = 0
 

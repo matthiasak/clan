@@ -8,11 +8,8 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
     return t;
 };
 exports.__esModule = true;
-// import {hash} from './fp'
-var hash = function (v, _v) {
-    if (_v === void 0) { _v = v === undefined ? 'undefined' : JSON.stringify(v); }
-    return _v;
-};
+var fp_1 = require("./fp");
+// const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 var batchingTime = 0;
 var obs = (function (state, handler) {
     var subscribers = [];
@@ -44,7 +41,7 @@ var obs = (function (state, handler) {
     fn.computed = function () {
         var prev = null;
         return createDetachable(function (x, cascade) {
-            if (hash(prev) === hash(x)) {
+            if (fp_1.hash(prev) === fp_1.hash(x)) {
                 return;
             }
             prev = x;

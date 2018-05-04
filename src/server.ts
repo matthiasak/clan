@@ -57,7 +57,8 @@ export const sendFile = context => {
         return context
     }
 
-    return Object.assign({}, context, {sendFile: s})
+    context.sendFile = s
+    return context
 }
 
 // benchmark handler
@@ -107,16 +108,16 @@ export const send = context => {
         , ifNoneMatch = req.headers['if-none-match']
         , e = req.headers['accept-encoding'] || ''
         , s = (buffer, code=200) => {
-            if(context.__handled) return context
-
             context.__handled = true
 
             if(typeof buffer === 'number') {
                 res.statusCode = buffer
-                return res.end('')
+                return res.end()
             } else {
                 res.statusCode = code
             }
+
+            if([null, undefined].indexOf(buffer) != -1) return res.end()
 
             if(!(buffer instanceof Buffer))
                 buffer = Buffer.from(typeof buffer === 'object' ? JSON.stringify(buffer) : buffer)
@@ -143,7 +144,8 @@ export const send = context => {
             return context
         }
 
-    return Object.assign({}, context, {send: s})
+    context.send = s
+    return context
 }
 
 // routing middleware
@@ -266,12 +268,12 @@ export const server = (pipe, port=3000, timeout=1000, keepAlive=timeout) => {
             const s = http.createServer((req, res) => {
                 const d = domain.create()
                 d.on('error', e => {
-                    console.error(e.stack)
+                    console.error(e)
                     s.close()
-                    cluster.worker.disconnect()
                     res.statusCode = 500
                     res.setHeader('content-type', 'text/plain')
                     res.end()
+                    cluster.worker.disconnect()
                 })
                 d.bind(pipe)({req, res})
             })
@@ -282,7 +284,12 @@ export const server = (pipe, port=3000, timeout=1000, keepAlive=timeout) => {
 
     if (cluster.isMaster) {
         for (var i = 0; i < numCPUs; i++) cluster.fork()
-        cluster.on('disconnect', worker => cluster.fork())
+        const onClose = worker => {
+            console.error('Worker closing. Restarting...')
+            cluster.fork()
+        }
+        cluster.on('disconnect', onClose)
+        cluster.on('exit', onClose)
     } else {
         boot()
     }
