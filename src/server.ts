@@ -88,11 +88,10 @@ export const body = (ctx) => {
 
 const streamable = buf => {
     let i = 0
-        , s = buf.toString()
         , x = new stream.Readable({
             read(size) {
-                if(i < s.length) {
-                    this.push(s.slice(i,i+size))
+                if(i < Buffer.byteLength(buf)) {
+                    this.push(buf.slice(i,i+size))
                     i = i+size
                 } else {
                     this.push(null)

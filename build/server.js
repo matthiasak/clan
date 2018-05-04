@@ -83,10 +83,10 @@ exports.body = function (ctx) {
     return ctx;
 };
 var streamable = function (buf) {
-    var i = 0, s = buf.toString(), x = new stream.Readable({
+    var i = 0, x = new stream.Readable({
         read: function (size) {
-            if (i < s.length) {
-                this.push(s.slice(i, i + size));
+            if (i < Buffer.byteLength(buf)) {
+                this.push(buf.slice(i, i + size));
                 i = i + size;
             }
             else {
