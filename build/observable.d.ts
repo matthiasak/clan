@@ -2,7 +2,7 @@ export interface Observable {
     (any?: any, Function?: any): any;
     detach(any?: any): void;
     reattach(any?: any): void;
-    map(Function: any): Observable;
+    map(...transforms: Function[]): Observable;
     tryMap(Function: any): Observable;
     filter(Pred: any): Observable;
     then(Void: any): Observable;

@@ -1,6 +1,7 @@
 "use strict";
 exports.__esModule = true;
 var zlib = require('zlib'), fs = require('fs'), qs = require('querystring'), stream = require('stream'), Buffer = require('buffer').Buffer, etag = require('etag'), path = require('path');
+var observable_1 = require("./observable");
 var log = function () {
     var a = [];
     for (var _i = 0; _i < arguments.length; _i++) {
@@ -31,7 +32,9 @@ exports.cookie = function (context) {
         }
         return ck;
     }, clearCookie = function () { return context.res.setHeader('Set-Cookie', ''); };
-    return Object.assign({}, context, { cookie: c, clearCookie: clearCookie });
+    context.cookie = c;
+    context.clearCookie = clearCookie;
+    return context;
 };
 // send gzipped file
 exports.sendFile = function (context) {
@@ -59,14 +62,14 @@ exports.sendFile = function (context) {
     return context;
 };
 // benchmark handler
-exports.benchmark = function (message) { return function (context) {
+exports.benchmark = function (ctx) {
     var before = +new Date;
-    context.res.on('finish', function () {
+    ctx.res.on('finish', function () {
         var after = +new Date;
-        console.log(req.url + ' --- ' + (message ? message + ':' : '', after - before + 'ms'));
+        console.log(ctx.req.url + ' --- ' + (after - before) + 'ms');
     });
-    return context;
-}; };
+    return ctx;
+};
 // parse data streams from req body
 exports.body = function (ctx) {
     ctx.body = function () {
@@ -138,13 +141,15 @@ exports.send = function (context) {
 };
 // routing middleware
 exports.route = function (type) { return function (url, action) { return function (context) {
-    if (context.__handled || context.req.method.toLowerCase() !== type)
+    if (context.__handled || context.req.method.toLowerCase() !== type.toLowerCase())
         return context;
     var req = context.req, res = context.res, reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)'), r = RegExp("^" + reggie + "$"), i = req.url.indexOf('?'), v = r.exec(i === -1 ? req.url : req.url.slice(0, i));
     if (!!v) {
         context.__handled = true;
         var params = v.slice(1), query = qs.parse(req.url.slice(i + 1));
-        action(Object.assign({}, context, { params: params, query: query }));
+        context.params = params;
+        context.query = query;
+        action(context);
     }
     return context;
 }; }; };
@@ -154,6 +159,17 @@ exports.post = exports.route('post');
 exports.del = exports.route('delete');
 exports.patch = exports.route('patch');
 exports.option = exports.route('option');
+exports.contextRouting = function (ctx) {
+    ctx.route = function (t) { return function () {
+        var args = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            args[_i] = arguments[_i];
+        }
+        return exports.route(t).apply(void 0, args)(ctx);
+    }; };
+    'get,put,post,delete,patch,option'.split(',').map(function (k) { return ctx[k] = ctx.route(k); });
+    return ctx;
+};
 // static file serving async-middleware
 exports.serve = function (folder, route, cache, age) {
     if (folder === void 0) { folder = './'; }
@@ -218,6 +234,10 @@ exports.serve = function (folder, route, cache, age) {
         return getFile(filepath);
     };
 };
+exports.contextServing = function (ctx) {
+    ctx.serve = exports.serve;
+    return ctx;
+};
 var addMIME = function (url, res) {
     if (typeof url !== 'string')
         return;
@@ -232,28 +252,19 @@ var addMIME = function (url, res) {
     url.match(/\.gif$/) && res.setHeader(c, 'image/gif');
     url.match(/\.svg$/) && res.setHeader(c, 'image/svg+xml');
 };
-exports.server = function (pipe, port, timeout, keepAlive) {
+exports.server = function (port, timeout, keepAlive, useCluster) {
     if (port === void 0) { port = 3000; }
-    if (timeout === void 0) { timeout = 1000; }
+    if (timeout === void 0) { timeout = 5000; }
     if (keepAlive === void 0) { keepAlive = timeout; }
-    var http = require('http'), cluster = require('cluster'), domain = require('domain'), numCPUs = require('os').cpus().length, boot = function () {
-        var s = http.createServer(function (req, res) {
-            var d = domain.create();
-            d.on('error', function (e) {
-                console.error(e);
-                s.close();
-                res.statusCode = 500;
-                res.setHeader('content-type', 'text/plain');
-                res.end();
-                cluster.worker.disconnect();
-            });
-            d.bind(pipe)({ req: req, res: res });
-        });
+    if (useCluster === void 0) { useCluster = true; }
+    var http = require('http'), cluster = require('cluster'), domain = require('domain'), numCPUs = require('os').cpus().length;
+    var pipe = exports.defaultPipe(), root = pipe.root(), boot = function () {
+        var s = http.createServer(function (req, res) { return root({ req: req, res: res }); });
         s.listen(port, function (err) { return err && console.error(err) || console.log("Server running at :" + port + " on process " + process.pid); });
         s.timeout = timeout;
         s.keepAliveTimeout = keepAlive;
     };
-    if (cluster.isMaster) {
+    if (cluster.isMaster && useCluster) {
         for (var i = 0; i < numCPUs; i++)
             cluster.fork();
         var onClose = function (worker) {
@@ -261,10 +272,19 @@ exports.server = function (pipe, port, timeout, keepAlive) {
             cluster.fork();
         };
         cluster.on('disconnect', onClose);
-        cluster.on('exit', onClose);
+        // cluster.on('exit', onClose)
     }
     else {
         boot();
     }
+    return pipe;
 };
-exports.http = exports.server;
+exports["default"] = exports.server;
+exports.setHeader = function (ctx) {
+    ctx.setHeader = function (key, val) { return ctx.res.setHeader(key, val); };
+    return ctx;
+};
+exports.defaultPipe = function ($) {
+    return observable_1["default"]()
+        .map(exports.cookie, exports.send, exports.setHeader, exports.sendFile, exports.benchmark, exports.body, exports.contextRouting, exports.contextServing);
+};

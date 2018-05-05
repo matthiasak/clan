@@ -10,7 +10,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 exports.__esModule = true;
 var fp_1 = require("./fp");
 // const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
-var batchingTime = 0;
 var obs = (function (state, handler) {
     var subscribers = [];
     var streamHandler = null;
@@ -52,7 +51,16 @@ var obs = (function (state, handler) {
         setTimeout(function ($) { return cascade(state); }, 0);
         return fn;
     };
-    fn.map = function (f) { return createDetachable(function (x, cascade) { return cascade(f(x)); }); };
+    fn.map = function () {
+        var fs = [];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            fs[_i] = arguments[_i];
+        }
+        var result = createDetachable(function (x, cascade) { return cascade(fs[0](x)); });
+        for (var i = 1, len = fs.length; i < len; i++)
+            result = result.map(fs[i]);
+        return result;
+    };
     fn.filter = function (f) { return createDetachable(function (x, cascade) {
         f(x) && cascade(x);
     }); };

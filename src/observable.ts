@@ -27,7 +27,7 @@ export interface Observable {
     (any?, Function?): any;
     detach(any?): void;
     reattach(any?): void;
-    map(Function): Observable;
+    map(...transforms: Function[]): Observable;
     tryMap(Function): Observable;
     filter(Pred): Observable;
     then(Void): Observable;
@@ -51,8 +51,6 @@ export interface Observable {
 
 import {hash} from './fp'
 // const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
-
-let batchingTime = 0
 
 const obs = ((state?,handler?):Observable => {
     let subscribers:Function[] = []
@@ -100,7 +98,12 @@ const obs = ((state?,handler?):Observable => {
         return fn
     }
 
-    fn.map = f => createDetachable((x, cascade) => cascade(f(x)))
+    fn.map = (...fs) => {
+        let result = createDetachable((x, cascade) => cascade(fs[0](x)))
+        for(let i = 1, len = fs.length; i<len; i++)
+            result = result.map(fs[i])
+        return result
+    }
 
     fn.filter = f => createDetachable((x, cascade) => {
         f(x) && cascade(x)

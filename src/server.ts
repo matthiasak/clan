@@ -6,6 +6,9 @@ const zlib = require('zlib')
     , etag = require('etag')
     , path = require('path')
 
+import obs from './observable'
+import {Observable} from './observable'
+
 const log = (...a) => console.log(...a)
 
 // cookie middleware
@@ -33,7 +36,9 @@ export const cookie = context => {
         }
         , clearCookie = () => context.res.setHeader('Set-Cookie', '')
 
-    return Object.assign({}, context, {cookie: c, clearCookie})
+    context.cookie = c
+    context.clearCookie = clearCookie
+    return context
 }
 
 // send gzipped file
@@ -62,17 +67,17 @@ export const sendFile = context => {
 }
 
 // benchmark handler
-export const benchmark = message => context => {
+export const benchmark = ctx => {
     let before = +new Date
-    context.res.on('finish', () => {
+    ctx.res.on('finish', () => {
         let after = +new Date
-        console.log(req.url + ' --- ' + (message ? message+':' : '', after-before+'ms'))
+        console.log(ctx.req.url + ' --- ' + (after-before)+'ms')
     })
-    return context
+    return ctx
 }
 
 // parse data streams from req body
-export const body = (ctx) => {
+export const body = ctx => {
     ctx.body = () =>
         new Promise((res,rej) => {
             let {req} = ctx
@@ -84,6 +89,7 @@ export const body = (ctx) => {
                 res(buf)
             })
         })
+
     return ctx
 }
 
@@ -150,7 +156,7 @@ export const send = context => {
 
 // routing middleware
 export const route = type => (url, action) => context => {
-    if(context.__handled || context.req.method.toLowerCase() !== type) return context
+    if(context.__handled || context.req.method.toLowerCase() !== type.toLowerCase()) return context
 
     const {req, res} = context
         , reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)')
@@ -164,7 +170,9 @@ export const route = type => (url, action) => context => {
         const params = v.slice(1)
             , query = qs.parse(req.url.slice(i+1))
 
-        action(Object.assign({}, context, {params, query}))
+        context.params = params
+        context.query = query
+        action(context)
     }
 
     return context
@@ -175,6 +183,12 @@ export const post = route('post')
 export const del = route('delete')
 export const patch = route('patch')
 export const option = route('option')
+
+export const contextRouting = ctx => {
+    ctx.route = t => (...args) => route(t)(...args)(ctx)
+    'get,put,post,delete,patch,option'.split(',').map(k => ctx[k] = ctx.route(k))
+    return ctx
+}
 
 // static file serving async-middleware
 export const serve = (folder='./', route='/', cache=true, age = 2628000) => context => {
@@ -244,6 +258,11 @@ export const serve = (folder='./', route='/', cache=true, age = 2628000) => cont
     return getFile(filepath)
 }
 
+export const contextServing = ctx => {
+    ctx.serve = serve
+    return ctx
+}
+
 const addMIME = (url, res) => {
     if(typeof url !== 'string') return
     const c = 'Content-Type'
@@ -259,40 +278,51 @@ const addMIME = (url, res) => {
     url.match(/\.svg$/) && res.setHeader(c, 'image/svg+xml')
 }
 
-export const server = (pipe, port=3000, timeout=1000, keepAlive=timeout) => {
+export const server = (port=3000, timeout=5000, keepAlive=timeout, useCluster=true) => {
     const http = require('http')
         , cluster = require('cluster')
         , domain = require('domain')
         , numCPUs = require('os').cpus().length
+
+    const pipe = defaultPipe()
+        , root = pipe.root()
         , boot = () => {
-            const s = http.createServer((req, res) => {
-                const d = domain.create()
-                d.on('error', e => {
-                    console.error(e)
-                    s.close()
-                    res.statusCode = 500
-                    res.setHeader('content-type', 'text/plain')
-                    res.end()
-                    cluster.worker.disconnect()
-                })
-                d.bind(pipe)({req, res})
-            })
+            const s = http.createServer((req, res) => root({req, res}))
             s.listen(port, (err) => err && console.error(err) || console.log(`Server running at :${port} on process ${process.pid}`))
             s.timeout = timeout
             s.keepAliveTimeout = keepAlive
         }
 
-    if (cluster.isMaster) {
+    if (cluster.isMaster && useCluster) {
         for (var i = 0; i < numCPUs; i++) cluster.fork()
         const onClose = worker => {
             console.error('Worker closing. Restarting...')
             cluster.fork()
         }
         cluster.on('disconnect', onClose)
-        cluster.on('exit', onClose)
+        // cluster.on('exit', onClose)
     } else {
         boot()
     }
+
+    return pipe
+}
+export default server
+
+export const setHeader = ctx => {
+    ctx.setHeader = (key, val) => ctx.res.setHeader(key, val)
+    return ctx
 }
 
-export const http = server
+export const defaultPipe = $ =>
+    obs()
+    .map(
+        cookie,
+        send,
+        setHeader,
+        sendFile,
+        benchmark,
+        body,
+        contextRouting,
+        contextServing
+    )
