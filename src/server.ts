@@ -159,7 +159,7 @@ export const route = type => (url, action) => context => {
     if(context.__handled || context.req.method.toLowerCase() !== type.toLowerCase()) return context
 
     const {req, res} = context
-        , reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)')
+        , reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?([^\\/]+$3)')
         , r = RegExp(`^${reggie}$`)
         , i = req.url.indexOf('?')
         , v = r.exec(i === -1 ? req.url : req.url.slice(0,i))

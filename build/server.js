@@ -143,7 +143,7 @@ exports.send = function (context) {
 exports.route = function (type) { return function (url, action) { return function (context) {
     if (context.__handled || context.req.method.toLowerCase() !== type.toLowerCase())
         return context;
-    var req = context.req, res = context.res, reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?(\\w+$3)'), r = RegExp("^" + reggie + "$"), i = req.url.indexOf('?'), v = r.exec(i === -1 ? req.url : req.url.slice(0, i));
+    var req = context.req, res = context.res, reggie = url.replace(/\/\{((\w*)(\??))\}/ig, '\/?([^\\/]+$3)'), r = RegExp("^" + reggie + "$"), i = req.url.indexOf('?'), v = r.exec(i === -1 ? req.url : req.url.slice(0, i));
     if (!!v) {
         context.__handled = true;
         var params = v.slice(1), query = qs.parse(req.url.slice(i + 1));
