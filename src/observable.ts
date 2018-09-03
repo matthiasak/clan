@@ -50,8 +50,6 @@ export interface Observable {
 }
 
 import {hash} from './fp'
-// const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
-
 const obs = ((state?,handler?):Observable => {
     let subscribers:Function[] = []
     let streamHandler = null
@@ -69,14 +67,8 @@ const obs = ((state?,handler?):Observable => {
 
     const createDetachable = (handler:Function?) => {
         let x:Observable = obs(null, handler)
-        x.detach = $ => {
-            const before = subscribers.length
-            subscribers = subscribers.filter(s => s !== x)
-        }
-        x.reattach = $ => {
-            x.detach()
-            subscribers.push(x)
-        }
+        x.detach = () => { subscribers = subscribers.filter(s => s !== x) }
+        x.reattach = () => subscribers.indexOf(x) === -1 ? subscribers.push(x) : null
         x.reattach()
         x.parent = fn
         return x
@@ -85,9 +77,7 @@ const obs = ((state?,handler?):Observable => {
     fn.computed = () => {
         let prev = null
         return createDetachable((x, cascade) => {
-            if(hash(prev) === hash(x)) {
-                return
-            }
+            if(hash(prev) === hash(x)) { return }
             prev = x
             cascade(x)
         })
@@ -105,16 +95,16 @@ const obs = ((state?,handler?):Observable => {
         return result
     }
 
-    fn.filter = f => createDetachable((x, cascade) => {
+    fn.filter = (f) => createDetachable((x, cascade) => {
         f(x) && cascade(x)
     })
 
-    fn.then = f => {
+    fn.then = (f) => {
         createDetachable((x, cascade) => f(x))
         return fn
     }
 
-    fn.take = n => {
+    fn.take = (n) => {
         let count = 0
         let o = createDetachable((x, cascade) => {
             if(count >= n) return o.detach()
@@ -123,7 +113,7 @@ const obs = ((state?,handler?):Observable => {
         })
     }
 
-    fn.takeWhile = f => {
+    fn.takeWhile = (f) => {
         let o = createDetachable((x, cascade) => {
             if(!f(x)) o.detach()
             cascade(x)
@@ -171,7 +161,7 @@ const obs = ((state?,handler?):Observable => {
         return o
     }
 
-    fn.from = f => {
+    fn.from = (f) => {
         const o = createDetachable()
         f(o)
         return o
@@ -183,7 +173,7 @@ const obs = ((state?,handler?):Observable => {
         return o
     }
 
-    fn.tryMap = f =>
+    fn.tryMap = (f) =>
         createDetachable((x, cascade) => {
             try {
                 cascade(f(val))
@@ -198,44 +188,35 @@ const obs = ((state?,handler?):Observable => {
         , stateIdentifier: string
         , extraState={}
         , setState = d => component.setState({...extraState, ...(stateIdentifier ? {[stateIdentifier]: d} : d)})
-        , unmount = component.componentWillUnmount
-        , setUnmount = x => {
-            component.componentWillUnmount = (...args) => {
-                x.detach()
-                unmount && unmount.apply(component, args)
-            }
-        }
-        , mount = component.componentDidMount
-        , setMount = (x) => {
-            component.componentDidMount = (...args) => {
-                mount && mount.apply(component, args)
-                x.reattach()
-                // retrigger the cascade
-                // this method maybe fails when triggerRoot is called on a root observable that is attached
-                // x.parent() && x.parent.refresh()
-                // this may be easier... if is root then just refresh it
-                (x.parent || x).refresh()
-                // alternatively, retrigger on the root, which could be itself, or some parent really high up the chain, and could accidentally trigger redundant network calls
-                // x.root().refresh()
-            }
-        }
+        ,
     ) => {
         let x =
             fn
             .map(d => {
                 setState(d)
                 return d
-            })
+            }),
+            unmount = component.componentWillUnmount,
+            mount = component.componentDidMount
 
         x.detach() // start detached
-        setUnmount(x)
-        setMount(x)
+        component.componentDidMount = (...args) => {
+            mount.apply(component, args)
+            x.reattach();
+            (x.parent || x).refresh();
+            if(x.parent() !== undefined) x.parent().refresh()
+        }
+        component.componentWillUnmount = (...args) => {
+            x.detach()
+            unmount.apply(component, args)
+        }
         return x
     }
 
     fn.scope = () => {
-        fn.scoped = true
-        return fn
+        let $fn = fn.map(x => x)
+        $fn.scoped = true
+        return $fn
     }
 
     fn.root = () => {

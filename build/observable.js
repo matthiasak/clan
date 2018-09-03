@@ -9,7 +9,6 @@ var __assign = (this && this.__assign) || Object.assign || function(t) {
 };
 exports.__esModule = true;
 var fp_1 = require("./fp");
-// const hash = (v, _v = v === undefined ? 'undefined' : JSON.stringify(v)) => _v
 var obs = (function (state, handler) {
     var subscribers = [];
     var streamHandler = null;
@@ -25,14 +24,8 @@ var obs = (function (state, handler) {
     };
     var createDetachable = function (handler) {
         var x = obs(null, handler);
-        x.detach = function ($) {
-            var before = subscribers.length;
-            subscribers = subscribers.filter(function (s) { return s !== x; });
-        };
-        x.reattach = function ($) {
-            x.detach();
-            subscribers.push(x);
-        };
+        x.detach = function () { subscribers = subscribers.filter(function (s) { return s !== x; }); };
+        x.reattach = function () { return subscribers.indexOf(x) === -1 ? subscribers.push(x) : null; };
         x.reattach();
         x.parent = fn;
         return x;
@@ -143,49 +136,43 @@ var obs = (function (state, handler) {
             }
         });
     };
-    fn.attach = function (component, stateIdentifier, extraState, setState, unmount, setUnmount, mount, setMount) {
+    fn.attach = function (component, stateIdentifier, extraState, setState) {
         if (extraState === void 0) { extraState = {}; }
         if (setState === void 0) { setState = function (d) {
             return component.setState(__assign({}, extraState, (stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d)));
             var _a;
         }; }
-        if (unmount === void 0) { unmount = component.componentWillUnmount; }
-        if (setUnmount === void 0) { setUnmount = function (x) {
-            component.componentWillUnmount = function () {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                x.detach();
-                unmount && unmount.apply(component, args);
-            };
-        }; }
-        if (mount === void 0) { mount = component.componentDidMount; }
-        if (setMount === void 0) { setMount = function (x) {
-            component.componentDidMount = function () {
-                var args = [];
-                for (var _i = 0; _i < arguments.length; _i++) {
-                    args[_i] = arguments[_i];
-                }
-                mount && mount.apply(component, args);
-                x.reattach()(x.parent || x).refresh();
-                // alternatively, retrigger on the root, which could be itself, or some parent really high up the chain, and could accidentally trigger redundant network calls
-                // x.root().refresh()
-            };
-        }; }
         var x = fn
             .map(function (d) {
             setState(d);
             return d;
-        });
+        }), unmount = component.componentWillUnmount, mount = component.componentDidMount;
         x.detach(); // start detached
-        setUnmount(x);
-        setMount(x);
+        component.componentDidMount = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            mount.apply(component, args);
+            x.reattach();
+            (x.parent || x).refresh();
+            if (x.parent() !== undefined)
+                x.parent().refresh();
+        };
+        component.componentWillUnmount = function () {
+            var args = [];
+            for (var _i = 0; _i < arguments.length; _i++) {
+                args[_i] = arguments[_i];
+            }
+            x.detach();
+            unmount.apply(component, args);
+        };
         return x;
     };
     fn.scope = function () {
-        fn.scoped = true;
-        return fn;
+        var $fn = fn.map(function (x) { return x; });
+        $fn.scoped = true;
+        return $fn;
     };
     fn.root = function () {
         var r = fn;
