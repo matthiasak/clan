@@ -204,7 +204,6 @@ const obs = ((state?,handler?):Observable => {
             mount.apply(component, args)
             x.reattach();
             (x.parent || x).refresh();
-            if(x.parent() !== undefined) x.parent().refresh()
         }
         component.componentWillUnmount = (...args) => {
             x.detach()
