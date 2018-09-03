@@ -146,42 +146,45 @@ var obs = (function (state, handler) {
             .map(function (d) {
             setState(d);
             return d;
-        }), unmount = component.componentWillUnmount, mount = component.componentDidMount;
-        x.detach(); // start detached
-        component.componentDidMount = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            mount.apply(component, args);
-            x.reattach();
-            (x.parent || x).refresh();
-            if (x.parent() !== undefined)
-                x.parent().refresh();
-        };
-        component.componentWillUnmount = function () {
-            var args = [];
-            for (var _i = 0; _i < arguments.length; _i++) {
-                args[_i] = arguments[_i];
-            }
-            x.detach();
-            unmount.apply(component, args);
-        };
-        return x;
+        }), unmount = component.componentWillUnmount || ();
     };
-    fn.scope = function () {
-        var $fn = fn.map(function (x) { return x; });
-        $fn.scoped = true;
-        return $fn;
-    };
-    fn.root = function () {
-        var r = fn;
-        while (!r.scoped && !!r.parent) {
-            r = r.parent;
-        }
-        return r;
-    };
-    fn.triggerRoot = function (x) { return fn.root()(x); };
-    return fn;
 });
+true,
+    mount = component.componentDidMount || ();
+true;
+x.detach(); // start detached
+component.componentDidMount = function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    mount.apply(component, args);
+    x.reattach();
+    (x.parent || x).refresh();
+    if (x.parent() !== undefined)
+        x.parent().refresh();
+};
+component.componentWillUnmount = function () {
+    var args = [];
+    for (var _i = 0; _i < arguments.length; _i++) {
+        args[_i] = arguments[_i];
+    }
+    x.detach();
+    unmount.apply(component, args);
+};
+return x;
+fn.scope = function () {
+    var $fn = fn.map(function (x) { return x; });
+    $fn.scoped = true;
+    return $fn;
+};
+fn.root = function () {
+    var r = fn;
+    while (!r.scoped && !!r.parent) {
+        r = r.parent;
+    }
+    return r;
+};
+fn.triggerRoot = function (x) { return fn.root()(x); };
+return fn;
 exports["default"] = obs;
