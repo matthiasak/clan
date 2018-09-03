@@ -7,9 +7,16 @@ exports.rAF = !!global.document &&
         global.webkitRequestAnimationFrame ||
         global.mozRequestAnimationFrame) ||
     (function (cb) { return setTimeout(cb, 16.6); });
-exports.hash = function (v, _v) {
-    if (_v === void 0) { _v = v === undefined ? 'undefined' : JSON.stringify(v); }
-    var hash = 0;
+exports.hash = function (v) {
+    if (typeof v !== 'object')
+        return v;
+    var keys = Object.keys(v);
+    keys.sort();
+    var keyOrderedHash = keys.reduce(function (acc, key) {
+        acc[key] = v[key];
+        return acc;
+    }, {});
+    var hash = 0, _v = JSON.stringify(keyOrderedHash);
     for (var i = 0, len = _v.length; i < len; ++i) {
         var c = _v.charCodeAt(i);
         hash = (((hash << 5) - hash) + c) | 0;

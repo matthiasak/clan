@@ -17,8 +17,15 @@ export const rAF =
       global.mozRequestAnimationFrame) ||
       (cb => setTimeout(cb, 16.6))
 
-export const hash = (v,_v= v === undefined ? 'undefined' : JSON.stringify(v)) => {
-    let hash = 0
+export const hash = (v) => {
+    if(typeof v !== 'object') return v
+    let keys = Object.keys(v)
+    keys.sort()
+    let keyOrderedHash = keys.reduce((acc,key) => {
+      acc[key] = v[key]
+      return acc
+    }, {})
+    let hash = 0, _v = JSON.stringify(keyOrderedHash)
     for (let i = 0, len = _v.length; i < len; ++i) {
         const c = _v.charCodeAt(i)
         hash = (((hash << 5) - hash) + c) | 0

@@ -210,7 +210,13 @@ const obs = ((state?,handler?):Observable => {
             component.componentDidMount = (...args) => {
                 mount && mount.apply(component, args)
                 x.reattach()
-                x.parent() && x.parent.refresh()
+                // retrigger the cascade
+                // this method maybe fails when triggerRoot is called on a root observable that is attached
+                // x.parent() && x.parent.refresh()
+                // this may be easier... if is root then just refresh it
+                (x.parent || x).refresh()
+                // alternatively, retrigger on the root, which could be itself, or some parent really high up the chain, and could accidentally trigger redundant network calls
+                // x.root().refresh()
             }
         }
     ) => {

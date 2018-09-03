@@ -168,8 +168,9 @@ var obs = (function (state, handler) {
                     args[_i] = arguments[_i];
                 }
                 mount && mount.apply(component, args);
-                x.reattach();
-                x.parent() && x.parent.refresh();
+                x.reattach()(x.parent || x).refresh();
+                // alternatively, retrigger on the root, which could be itself, or some parent really high up the chain, and could accidentally trigger redundant network calls
+                // x.root().refresh()
             };
         }; }
         var x = fn
