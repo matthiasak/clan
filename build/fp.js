@@ -8,7 +8,7 @@ exports.rAF = !!global.document &&
         global.mozRequestAnimationFrame) ||
     (function (cb) { return setTimeout(cb, 16.6); });
 exports.hash = function (v) {
-    if (typeof v !== 'object')
+    if (v === null || v === undefined || typeof v !== 'object')
         return v;
     var keys = Object.keys(v);
     keys.sort();

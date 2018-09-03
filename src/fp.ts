@@ -18,7 +18,7 @@ export const rAF =
       (cb => setTimeout(cb, 16.6))
 
 export const hash = (v) => {
-    if(typeof v !== 'object') return v
+    if(v === null || v === undefined || typeof v !== 'object') return v
     let keys = Object.keys(v)
     keys.sort()
     let keyOrderedHash = keys.reduce((acc,key) => {

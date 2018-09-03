@@ -1,12 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || Object.assign || function(t) {
-    for (var s, i = 1, n = arguments.length; i < n; i++) {
-        s = arguments[i];
-        for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-            t[p] = s[p];
-    }
-    return t;
-};
 exports.__esModule = true;
 var fp_1 = require("./fp");
 var obs = (function (state, handler) {
@@ -26,7 +18,7 @@ var obs = (function (state, handler) {
         var x = obs(null, handler);
         x.detach = function () { subscribers = subscribers.filter(function (s) { return s !== x; }); };
         x.reattach = function () { return subscribers.indexOf(x) === -1 ? subscribers.push(x) : null; };
-        x.reattach();
+        x.reattach(); // automatically attach
         x.parent = fn;
         return x;
     };
@@ -41,8 +33,8 @@ var obs = (function (state, handler) {
         });
     };
     fn.refresh = function () {
-        setTimeout(function ($) { return cascade(state); }, 0);
-        return fn;
+        var val = fn();
+        setTimeout(function () { return val && cascade(val); });
     };
     fn.map = function () {
         var fs = [];
@@ -54,8 +46,10 @@ var obs = (function (state, handler) {
             result = result.map(fs[i]);
         return result;
     };
+    var truthy = function (x) { return !!x; };
     fn.filter = function (f) { return createDetachable(function (x, cascade) {
-        f(x) && cascade(x);
+        if ((f || truthy)(x))
+            cascade(x);
     }); };
     fn.then = function (f) {
         createDetachable(function (x, cascade) { return f(x); });
@@ -136,26 +130,25 @@ var obs = (function (state, handler) {
             }
         });
     };
-    fn.attach = function (component, stateIdentifier, extraState, setState) {
+    fn.attach = function (component, stateIdentifier, extraState) {
         if (extraState === void 0) { extraState = {}; }
-        if (setState === void 0) { setState = function (d) {
-            return component.setState(__assign({}, extraState, (stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d)));
-            var _a;
-        }; }
-        var x = fn
-            .map(function (d) {
-            setState(d);
+        var x = fn.map(function (d) {
+            component.setState(extraState);
+            component.setState(stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d);
             return d;
-        }), unmount = component.componentWillUnmount || (function () { return true; }), mount = component.componentDidMount || (function () { return true; });
+            var _a;
+        });
+        var unmount = component.componentWillUnmount || (function () { return true; });
+        var mount = component.componentDidMount || (function () { return true; });
         x.detach(); // start detached
         component.componentDidMount = function () {
             var args = [];
             for (var _i = 0; _i < arguments.length; _i++) {
                 args[_i] = arguments[_i];
             }
-            mount.apply(component, args);
             x.reattach();
-            (x.parent || x).refresh();
+            mount.apply(component, args);
+            fn.refresh();
         };
         component.componentWillUnmount = function () {
             var args = [];

@@ -61,15 +61,14 @@ const obs = ((state?,handler?):Observable => {
 
     const cascade = (val) => {
         state = val
-        for(let i = 0, len = subscribers.length; i<len; i++)
-            subscribers[i](val)
+        for(let i = 0, len = subscribers.length; i<len; i++) subscribers[i](val)
     }
 
     const createDetachable = (handler:Function?) => {
         let x:Observable = obs(null, handler)
         x.detach = () => { subscribers = subscribers.filter(s => s !== x) }
         x.reattach = () => subscribers.indexOf(x) === -1 ? subscribers.push(x) : null
-        x.reattach()
+        x.reattach() // automatically attach
         x.parent = fn
         return x
     }
@@ -77,15 +76,17 @@ const obs = ((state?,handler?):Observable => {
     fn.computed = () => {
         let prev = null
         return createDetachable((x, cascade) => {
-            if(hash(prev) === hash(x)) { return }
+            if(hash(prev) === hash(x)) {
+                return;
+            }
             prev = x
             cascade(x)
         })
     }
 
     fn.refresh = () => {
-        setTimeout($ => cascade(state), 0)
-        return fn
+        let val = fn()
+        setTimeout(() => val && cascade(val))
     }
 
     fn.map = (...fs) => {
@@ -95,8 +96,9 @@ const obs = ((state?,handler?):Observable => {
         return result
     }
 
+    const truthy = x => !!x
     fn.filter = (f) => createDetachable((x, cascade) => {
-        f(x) && cascade(x)
+        if((f || truthy)(x)) cascade(x)
     })
 
     fn.then = (f) => {
@@ -187,23 +189,19 @@ const obs = ((state?,handler?):Observable => {
         component: VDOM
         , stateIdentifier: string
         , extraState={}
-        , setState = d => component.setState({...extraState, ...(stateIdentifier ? {[stateIdentifier]: d} : d)})
-        ,
     ) => {
-        let x =
-            fn
-            .map(d => {
-                setState(d)
-                return d
-            }),
-            unmount = component.componentWillUnmount || (() => true),
-            mount = component.componentDidMount || (() => true)
-
+        let x = fn.map((d) => {
+            component.setState(extraState)
+            component.setState(stateIdentifier ? {[stateIdentifier]: d} : d)
+            return d
+        })
+        let unmount = component.componentWillUnmount || (() => true)
+        let mount = component.componentDidMount || (() => true)
         x.detach() // start detached
         component.componentDidMount = (...args) => {
+            x.reattach()
             mount.apply(component, args)
-            x.reattach();
-            (x.parent || x).refresh();
+            fn.refresh()
         }
         component.componentWillUnmount = (...args) => {
             x.detach()
