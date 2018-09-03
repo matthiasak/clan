@@ -196,8 +196,8 @@ const obs = ((state?,handler?):Observable => {
                 setState(d)
                 return d
             }),
-            unmount = component.componentWillUnmount || () => true,
-            mount = component.componentDidMount || () => true
+            unmount = component.componentWillUnmount || (() => true),
+            mount = component.componentDidMount || (() => true)
 
         x.detach() // start detached
         component.componentDidMount = (...args) => {
