@@ -26,7 +26,7 @@
   "license": "MIT",
   "devDependencies": {
     "@types/node": "^8.10.29",
-    "fuse-box": "^2.4.0",
+    "fuse-box": "^3.7.1",
     "fuse-test-runner": "^1.0.13",
     "rimraf": "^2.6.1"
   },

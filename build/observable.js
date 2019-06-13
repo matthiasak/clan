@@ -133,10 +133,10 @@ var obs = (function (state, handler) {
     fn.attach = function (component, stateIdentifier, extraState) {
         if (extraState === void 0) { extraState = {}; }
         var x = fn.map(function (d) {
+            var _a;
             component.setState(extraState);
             component.setState(stateIdentifier ? (_a = {}, _a[stateIdentifier] = d, _a) : d);
             return d;
-            var _a;
         });
         var unmount = component.componentWillUnmount || (function () { return true; });
         var mount = component.componentDidMount || (function () { return true; });

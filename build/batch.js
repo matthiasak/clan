@@ -19,9 +19,9 @@ exports["default"] = (function (f) {
                         .then(function (d) { return res(d); })["catch"](function (e) { return rej(e); });
                 })
                     .then(function (data) {
+                    var _a;
                     inflight = Object.assign({}, inflight, (_a = {}, _a[key] = undefined, _a));
                     return data;
-                    var _a;
                 })["catch"](function (e) {
                     return console.error(e, url);
                 }));
